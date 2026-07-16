@@ -1,0 +1,74 @@
+:root {
+  /* Extending MedVAULT's existing HMS palette — navy + teal — rather than
+     inventing a disconnected identity for the patient-facing side of the
+     same product. */
+  --navy: #0F2A4A;
+  --navy-deep: #081A30;
+  --teal: #1B9C90;
+  --teal-light: #E6F5F3;
+  --clay: #E8734A; /* signature accent — used sparingly, for the one thing that should catch the eye: an open slot */
+  --paper: #FBF9F6;
+  --ink: #1A2233;
+  --ink-soft: #5C6B7A;
+  --line: #E4E1DA;
+  --white: #FFFFFF;
+  --danger: #C1443B;
+  --success: #1B7F4A;
+
+  --font-display: 'Newsreader', Georgia, serif;
+  --font-body: 'Manrope', -apple-system, BlinkMacSystemFont, sans-serif;
+
+  --radius: 14px;
+  --radius-sm: 8px;
+  --shadow: 0 2px 12px rgba(15, 42, 74, 0.08);
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+#root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+h1, h2, h3 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  color: var(--navy);
+  margin: 0;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+input, select {
+  font-family: inherit;
+}
+
+a {
+  color: var(--teal);
+}
+
+/* Visible keyboard focus everywhere — not decoration, accessibility floor */
+:focus-visible {
+  outline: 3px solid var(--teal);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
