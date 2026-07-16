@@ -44,7 +44,52 @@ const STRINGS = {
   noAppointmentsYet: { en: "You don't have any appointments yet.", fr: "Vous n'avez pas encore de rendez-vous." },
   teleconsult: { en: 'Teleconsult', fr: 'Téléconsultation' },
   somethingWentWrong: { en: 'Something went wrong. Please try again.', fr: "Une erreur s'est produite. Veuillez réessayer." },
-  invalidCode: { en: 'That code is incorrect or has expired.', fr: 'Ce code est incorrect ou a expiré.' }
+  invalidCode: { en: 'That code is incorrect or has expired.', fr: 'Ce code est incorrect ou a expiré.' },
+  staffLoginTitle: { en: 'Doctor / staff login', fr: 'Connexion médecin / personnel' },
+  staffLoginIntro: { en: 'Sign in with the email or phone and password you were given.', fr: 'Connectez-vous avec l\u2019email ou le téléphone et le mot de passe qui vous ont été fournis.' },
+  emailOrPhone: { en: 'Email or phone', fr: 'Email ou téléphone' },
+  password: { en: 'Password', fr: 'Mot de passe' },
+  logIn: { en: 'Log in', fr: 'Se connecter' },
+  myDashboard: { en: 'My dashboard', fr: 'Mon tableau de bord' },
+  upcomingAppointments: { en: 'Upcoming appointments', fr: 'Rendez-vous à venir' },
+  noUpcomingAppointments: { en: 'No upcoming appointments.', fr: 'Aucun rendez-vous à venir.' },
+  startSession: { en: 'Start session', fr: 'Démarrer la session' },
+  startingSession: { en: 'Starting…', fr: 'Démarrage…' },
+  joinCall: { en: 'Join call', fr: 'Rejoindre l\u2019appel' },
+  waitingForPayment: { en: 'Waiting for patient payment', fr: 'En attente du paiement du patient' },
+  heroHeadline: { en: 'Real doctors. Real clinics. One connected system.', fr: 'De vrais médecins. De vraies cliniques. Un seul système connecté.' },
+  heroSubhead: {
+    en: 'MedVAULT links hospitals, independent doctors, and mobile labs across Cameroon — the same software running the clinic floor also books your teleconsult and takes your payment.',
+    fr: 'MedVAULT relie hôpitaux, médecins indépendants et laboratoires mobiles à travers le Cameroun — le même logiciel qui fait tourner la clinique gère aussi votre téléconsultation et votre paiement.'
+  },
+  findADoctorCta: { en: 'Find a doctor', fr: 'Trouver un médecin' },
+  forProvidersCta: { en: 'For healthcare providers', fr: 'Pour les professionnels de santé' },
+  builtForClinics: { en: 'Built for real clinics, not a demo', fr: 'Conçu pour de vraies cliniques, pas une démo' },
+  builtForClinicsSub: {
+    en: 'This is the actual software running hospital front desks and consultation rooms today.',
+    fr: "C'est le logiciel qui fait tourner aujourd'hui l'accueil et les salles de consultation des hôpitaux."
+  },
+  servicesHeadline: { en: 'What you can do on MedVAULT', fr: 'Ce que vous pouvez faire sur MedVAULT' },
+  serviceTeleconsult: { en: 'Teleconsultation', fr: 'Téléconsultation' },
+  serviceTeleconsultDesc: { en: 'Book and pay for a video consultation with a real, verified doctor.', fr: 'Réservez et payez une consultation vidéo avec un médecin réel et vérifié.' },
+  serviceLab: { en: 'Lab tests', fr: 'Analyses de laboratoire' },
+  serviceLabDesc: { en: 'Order tests for a home visit or at a partner lab, and pay by Mobile Money.', fr: 'Commandez des analyses à domicile ou en laboratoire partenaire, payez par Mobile Money.' },
+  serviceWhatsapp: { en: 'WhatsApp booking', fr: 'Réservation WhatsApp' },
+  serviceWhatsappDesc: { en: 'Book entirely by chatting — no app to download.', fr: 'Réservez entièrement par chat — aucune application à télécharger.' },
+  serviceRecords: { en: 'Your health, connected', fr: 'Votre santé, connectée' },
+  serviceRecordsDesc: { en: 'One patient record follows you across hospitals and independent doctors.', fr: 'Un seul dossier patient vous suit entre hôpitaux et médecins indépendants.' },
+  partnersHeadline: { en: 'Trusted by clinics and labs across Cameroon', fr: 'Approuvé par des cliniques et laboratoires partout au Cameroun' },
+  tipsHeadline: { en: 'Health tips', fr: 'Conseils santé' },
+  tip1Title: { en: 'Know the signs of malaria early', fr: 'Reconnaître tôt les signes du paludisme' },
+  tip1Body: { en: 'Fever, chills, and headache that come and go can be early malaria — testing early makes treatment far more effective.', fr: 'Fièvre, frissons et maux de tête intermittents peuvent signaler un paludisme précoce — un dépistage rapide rend le traitement bien plus efficace.' },
+  tip2Title: { en: 'Managing blood pressure day to day', fr: 'Gérer sa tension artérielle au quotidien' },
+  tip2Body: { en: 'Regular check-ins, less salt, and consistent medication timing matter more than any single reading.', fr: "Des contrôles réguliers, moins de sel et une prise de médicaments régulière comptent plus qu'une seule mesure." },
+  tip3Title: { en: 'When a fever needs a doctor, not just rest', fr: "Quand une fièvre nécessite un médecin, pas seulement du repos" },
+  tip3Body: { en: 'A fever above 39°C, lasting more than two days, or with a rash or stiff neck warrants a consultation.', fr: 'Une fièvre supérieure à 39°C, qui dure plus de deux jours, ou accompagnée d\u2019éruption ou de raideur de la nuque justifie une consultation.' },
+  loginSignup: { en: 'Login / Sign up', fr: 'Connexion / Inscription' },
+  imAPatient: { en: "I'm a patient", fr: 'Je suis patient(e)' },
+  imADoctor: { en: "I'm a doctor", fr: 'Je suis médecin' },
+  imALabStaff: { en: 'I work at a lab', fr: "Je travaille dans un laboratoire" }
 } as const;
 
 export type StringKey = keyof typeof STRINGS;

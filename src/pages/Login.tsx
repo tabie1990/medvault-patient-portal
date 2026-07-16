@@ -33,7 +33,7 @@ export function Login() {
     setError('');
     try {
       const res = await api.verifyOtp(phone, code);
-      login(res.token, res.global_patient_id);
+      login(res.token, 'patient', res.global_patient_id);
       navigate('/');
     } catch {
       setError(t('invalidCode'));

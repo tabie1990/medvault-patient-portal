@@ -1,12 +1,12 @@
 const BASE = '/api/v1';
 
 function getToken(): string | null {
-  return localStorage.getItem('mv_patient_token');
+  return localStorage.getItem('mv_token');
 }
 
 export function setToken(token: string | null) {
-  if (token) localStorage.setItem('mv_patient_token', token);
-  else localStorage.removeItem('mv_patient_token');
+  if (token) localStorage.setItem('mv_token', token);
+  else localStorage.removeItem('mv_token');
 }
 
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
@@ -98,6 +98,7 @@ export interface LabOrder {
 }
 export interface TelemedicineSession {
   id: string;
+  appointmentId: string;
   sessionRef: string;
   status: string;
   roomUrl: string | null;
@@ -106,3 +107,29 @@ export const getPatientTimeline = (globalPatientId: string) =>
   get<{ success: boolean; appointments: Appointment[]; lab_orders: LabOrder[]; telemedicine_sessions: TelemedicineSession[] }>(
     `/patients/${globalPatientId}/timeline`
   );
+
+// ── Staff login (doctor / lab_staff / admin) — one shared endpoint,
+// distinct from patient OTP login ─────────────────────────────────
+export const staffLogin = (identifier: string, password: string) =>
+  post<{ success: boolean; token: string; role: 'doctor' | 'lab_staff' | 'admin'; doctor_ref?: string; must_change_password?: boolean }>(
+    '/auth/login',
+    { identifier, password }
+  );
+
+export interface FullDoctor extends Doctor {
+  momoNumber: string | null;
+  momoNetwork: string | null;
+}
+export const getMyDoctorProfile = () => get<{ success: boolean; doctor: FullDoctor }>('/doctors/me');
+
+// ── Doctor dashboard — their own appointments, with any linked session ──
+export interface AppointmentWithSession extends Appointment {
+  telemedicineSessions?: TelemedicineSession[];
+}
+export const getMyAppointments = () => get<{ success: boolean; appointments: AppointmentWithSession[] }>('/appointments/my');
+
+export const createTelemedicineSession = (appointmentId: string) =>
+  post<{ success: boolean; session: TelemedicineSession }>('/telemedicine/sessions', { appointment_id: appointmentId });
+
+export const createRoomForSession = (sessionId: string) =>
+  post<{ success: boolean; session: TelemedicineSession }>(`/telemedicine/sessions/${sessionId}/room`, {});

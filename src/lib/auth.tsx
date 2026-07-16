@@ -1,34 +1,46 @@
 import { createContext, useContext, useState, useCallback, type ReactNode } from 'react';
 import { setToken as persistToken } from './api';
 
+export type Role = 'patient' | 'doctor' | 'lab_staff' | 'admin';
+
 interface AuthContextValue {
-  globalPatientId: string | null;
   token: string | null;
-  login: (token: string, globalPatientId: string) => void;
+  role: Role | null;
+  // The logged-in user's own ID — a globalPatientId for patients, or the
+  // Doctor/LabStaff/AdminUser row id for staff roles. Named generically
+  // since every role uses the same field for "who is this," even though
+  // the underlying ID format differs by role.
+  userId: string | null;
+  login: (token: string, role: Role, userId: string) => void;
   logout: () => void;
 }
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [token, setTokenState] = useState<string | null>(() => localStorage.getItem('mv_patient_token'));
-  const [globalPatientId, setGlobalPatientId] = useState<string | null>(() => localStorage.getItem('mv_patient_id'));
+  const [token, setTokenState] = useState<string | null>(() => localStorage.getItem('mv_token'));
+  const [role, setRole] = useState<Role | null>(() => (localStorage.getItem('mv_role') as Role) || null);
+  const [userId, setUserId] = useState<string | null>(() => localStorage.getItem('mv_user_id'));
 
-  const login = useCallback((newToken: string, id: string) => {
+  const login = useCallback((newToken: string, newRole: Role, newUserId: string) => {
     persistToken(newToken);
-    localStorage.setItem('mv_patient_id', id);
+    localStorage.setItem('mv_role', newRole);
+    localStorage.setItem('mv_user_id', newUserId);
     setTokenState(newToken);
-    setGlobalPatientId(id);
+    setRole(newRole);
+    setUserId(newUserId);
   }, []);
 
   const logout = useCallback(() => {
     persistToken(null);
-    localStorage.removeItem('mv_patient_id');
+    localStorage.removeItem('mv_role');
+    localStorage.removeItem('mv_user_id');
     setTokenState(null);
-    setGlobalPatientId(null);
+    setRole(null);
+    setUserId(null);
   }, []);
 
-  return <AuthContext.Provider value={{ token, globalPatientId, login, logout }}>{children}</AuthContext.Provider>;
+  return <AuthContext.Provider value={{ token, role, userId, login, logout }}>{children}</AuthContext.Provider>;
 }
 
 export function useAuth() {

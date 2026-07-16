@@ -10,7 +10,7 @@ const DAY_NAMES_FR = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendre
 export function DoctorDetail() {
   const { id } = useParams<{ id: string }>();
   const { t, lang } = useLang();
-  const { globalPatientId } = useAuth();
+  const { userId } = useAuth();
   const navigate = useNavigate();
 
   const [slots, setSlots] = useState<Record<string, string[]> | null>(null);
@@ -32,11 +32,11 @@ export function DoctorDetail() {
 
   async function handleBook() {
     if (!id || !selectedDate || !selectedTime) return;
-    if (!globalPatientId) {
-      // Shouldn't be reachable — RequireAuth already gates this whole
-      // page on being logged in — but refusing outright here is safer
-      // than silently creating another appointment with no patient
-      // attached to it, which is exactly the bug this fix exists for.
+    if (!userId) {
+      // This page is public now (browsing doesn't require login), so
+      // reaching the actual booking action while logged out is a real,
+      // expected case — send them to log in, then they can come back.
+      navigate('/login');
       return;
     }
     setBooking(true);
@@ -46,7 +46,7 @@ export function DoctorDetail() {
         appointment_type: 'teleconsult',
         requested_date: selectedDate,
         requested_time: selectedTime,
-        global_patient_id: globalPatientId
+        global_patient_id: userId
       });
       setBookedAppointment(res.appointment);
     } finally {
