@@ -75,6 +75,7 @@ export const createAppointment = (body: {
   appointment_type: 'teleconsult';
   requested_date: string;
   requested_time: string;
+  global_patient_id: string;
   notes?: string;
 }) => post<{ success: boolean; appointment: Appointment }>('/appointments', { ...body, source: 'patient_web' });
 

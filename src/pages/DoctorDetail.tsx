@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useLang } from '../lib/i18n';
+import { useAuth } from '../lib/auth';
 import * as api from '../lib/api';
 
 const DAY_NAMES_EN = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
@@ -9,6 +10,7 @@ const DAY_NAMES_FR = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendre
 export function DoctorDetail() {
   const { id } = useParams<{ id: string }>();
   const { t, lang } = useLang();
+  const { globalPatientId } = useAuth();
   const navigate = useNavigate();
 
   const [slots, setSlots] = useState<Record<string, string[]> | null>(null);
@@ -30,13 +32,21 @@ export function DoctorDetail() {
 
   async function handleBook() {
     if (!id || !selectedDate || !selectedTime) return;
+    if (!globalPatientId) {
+      // Shouldn't be reachable — RequireAuth already gates this whole
+      // page on being logged in — but refusing outright here is safer
+      // than silently creating another appointment with no patient
+      // attached to it, which is exactly the bug this fix exists for.
+      return;
+    }
     setBooking(true);
     try {
       const res = await api.createAppointment({
         doctor_id: id,
         appointment_type: 'teleconsult',
         requested_date: selectedDate,
-        requested_time: selectedTime
+        requested_time: selectedTime,
+        global_patient_id: globalPatientId
       });
       setBookedAppointment(res.appointment);
     } finally {
