@@ -46,11 +46,12 @@ export interface Doctor {
   teleconsultFee: string | null;
 }
 export const listDoctors = (params: { specialty?: string; name?: string } = {}) => {
-  // No public "list all doctors" endpoint exists yet server-side — this
-  // reuses the same shape the WhatsApp agent's list_doctors tool expects,
-  // via a thin passthrough the portal's backend route will need to expose.
-  // See PATIENT_PORTAL_DEPLOY.md for the one small backend addition this needs.
-  const qs = new URLSearchParams(params as Record<string, string>).toString();
+  // URLSearchParams doesn't drop undefined values — it stringifies them to
+  // the literal text "undefined", which the backend then correctly (but
+  // unhelpfully) treats as a real search term. Only include keys that
+  // actually have a non-empty value.
+  const entries = Object.entries(params).filter(([, v]) => v !== undefined && v !== '') as [string, string][];
+  const qs = new URLSearchParams(entries).toString();
   return get<{ success: boolean; doctors: Doctor[] }>(`/doctors/browse${qs ? `?${qs}` : ''}`);
 };
 export const getDoctorAvailability = (doctorId: string, days = 7) =>
