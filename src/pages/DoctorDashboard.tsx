@@ -56,9 +56,14 @@ export function DoctorDashboard() {
         </Link>
       )}
 
-      <Link to="/doctor/labs" style={{ display: 'inline-block', fontSize: 13, fontWeight: 700, color: 'var(--teal)', marginBottom: 16 }}>
-        {t('myLabs')} →
-      </Link>
+      <div style={{ display: 'flex', gap: 20, marginBottom: 16 }}>
+        <Link to="/doctor/availability" style={{ display: 'inline-block', fontSize: 13, fontWeight: 700, color: 'var(--teal)' }}>
+          {t('myAvailability')} →
+        </Link>
+        <Link to="/doctor/labs" style={{ display: 'inline-block', fontSize: 13, fontWeight: 700, color: 'var(--teal)' }}>
+          {t('myLabs')} →
+        </Link>
+      </div>
 
       <h1 style={{ fontSize: 24, marginBottom: 18 }}>{t('upcomingAppointments')}</h1>
 

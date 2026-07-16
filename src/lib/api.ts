@@ -32,6 +32,7 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
 const get = <T,>(path: string) => request<T>(path);
 const post = <T,>(path: string, body: unknown) => request<T>(path, { method: 'POST', body: JSON.stringify(body) });
 const patch = <T,>(path: string, body: unknown) => request<T>(path, { method: 'PATCH', body: JSON.stringify(body) });
+const put = <T,>(path: string, body: unknown) => request<T>(path, { method: 'PUT', body: JSON.stringify(body) });
 
 // ── Patient auth ─────────────────────────────────────────────────
 export const requestOtp = (phone: string) => post<{ success: boolean; dev_code?: string }>('/patients/request-otp', { phone });
@@ -129,6 +130,7 @@ export interface FullDoctor extends Doctor {
   momoNumber: string | null;
   momoNetwork: string | null;
   verificationStatus: 'pending' | 'verified' | 'rejected';
+  teleconsultSlotMinutes: number;
 }
 export const getMyDoctorProfile = () => get<{ success: boolean; doctor: FullDoctor }>('/doctors/me');
 
@@ -164,11 +166,30 @@ export const createTelemedicineSession = (appointmentId: string) =>
 export const createRoomForSession = (sessionId: string) =>
   post<{ success: boolean; session: TelemedicineSession }>(`/telemedicine/sessions/${sessionId}/room`, {});
 
+// ── A doctor's own teleconsult availability ──────────────────────
+export interface AvailabilityWindow {
+  dayOfWeek: number;
+  startTime: string;
+  endTime: string;
+}
+export const getMyAvailability = () => get<{ success: boolean; availability: AvailabilityWindow[] }>('/doctors/me/availability');
+
+export const setMyAvailability = (windows: { day_of_week: number; start_time: string; end_time: string }[]) =>
+  put<{ success: boolean; availability: AvailabilityWindow[] }>('/doctors/me/availability', { windows });
+
+export const setTeleconsultSlotMinutes = (minutes: number) =>
+  patch<{ success: boolean; doctor: FullDoctor }>('/doctors/me', { teleconsult_slot_minutes: minutes });
+
 // ── A doctor's own labs — registration, staff, services, KYC ────
 export interface LabService {
   id: string;
   testName: string;
   basePrice: string;
+}
+export interface LabWorkingHoursWindow {
+  dayOfWeek: number;
+  openTime: string;
+  closeTime: string;
 }
 export interface MyLabProvider {
   id: string;
@@ -181,8 +202,12 @@ export interface MyLabProvider {
   momoNetwork: string | null;
   kycSubmittedAt: string | null;
   services: LabService[];
+  workingHours: LabWorkingHoursWindow[];
 }
 export const getMyLabs = () => get<{ success: boolean; lab_providers: MyLabProvider[] }>('/lab-providers/my');
+
+export const setLabWorkingHours = (labId: string, windows: { day_of_week: number; open_time: string; close_time: string }[]) =>
+  put<{ success: boolean; working_hours: LabWorkingHoursWindow[] }>(`/lab-providers/${labId}/working-hours`, { windows });
 
 export const registerLab = (body: { name: string; service_type: string; city?: string }) =>
   post<{ success: boolean; lab_provider: MyLabProvider }>('/lab-providers/register', body);

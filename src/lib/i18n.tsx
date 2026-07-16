@@ -187,7 +187,21 @@ const STRINGS = {
   reject: { en: 'Reject', fr: 'Rejeter' },
   rejectionReason: { en: 'Reason for rejection', fr: 'Motif du rejet' },
   confirmReject: { en: 'Confirm rejection', fr: 'Confirmer le rejet' },
-  cancel: { en: 'Cancel', fr: 'Annuler' }
+  cancel: { en: 'Cancel', fr: 'Annuler' },
+  applySameHoursToAllDays: { en: 'Apply same hours to all checked days', fr: 'Appliquer les mêmes horaires à tous les jours cochés' },
+  myAvailability: { en: 'My availability', fr: 'Mes disponibilités' },
+  availabilityIntro: {
+    en: 'Set the days and hours you\u2019re available for teleconsults. Patients will only be able to book real, open slots within these hours.',
+    fr: 'Définissez les jours et heures où vous êtes disponible pour des téléconsultations. Les patients ne pourront réserver que des créneaux réellement libres dans ces horaires.'
+  },
+  slotLength: { en: 'Appointment length', fr: 'Durée du rendez-vous' },
+  minutes: { en: 'minutes', fr: 'minutes' },
+  savedSuccessfully: { en: 'Saved.', fr: 'Enregistré.' },
+  workingHours: { en: 'Working hours', fr: 'Heures d\u2019ouverture' },
+  workingHoursIntro: {
+    en: 'Set the days and hours this lab is open.',
+    fr: 'Définissez les jours et heures d\u2019ouverture de ce laboratoire.'
+  }
 } as const;
 
 export type StringKey = keyof typeof STRINGS;

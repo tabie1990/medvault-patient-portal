@@ -2,6 +2,7 @@ import { useEffect, useState, type ReactNode } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useLang } from '../lib/i18n';
 import * as api from '../lib/api';
+import { WeeklyScheduleEditor, type WeeklyWindow } from '../components/WeeklyScheduleEditor';
 
 export function LabManage() {
   const { id } = useParams<{ id: string }>();
@@ -21,6 +22,7 @@ export function LabManage() {
   const [momoNumber, setMomoNumber] = useState('');
   const [momoNetwork, setMomoNetwork] = useState('MTN');
   const [savingMomo, setSavingMomo] = useState(false);
+  const [savingHours, setSavingHours] = useState(false);
 
   async function load() {
     if (!id) return;
@@ -78,6 +80,17 @@ export function LabManage() {
     }
   }
 
+  async function handleSaveWorkingHours(windows: WeeklyWindow[]) {
+    if (!id) return;
+    setSavingHours(true);
+    try {
+      await api.setLabWorkingHours(id, windows.map((w) => ({ day_of_week: w.dayOfWeek, open_time: w.start, close_time: w.end })));
+      await load();
+    } finally {
+      setSavingHours(false);
+    }
+  }
+
   if (!lab) return null;
 
   return (
@@ -132,6 +145,15 @@ export function LabManage() {
         <button onClick={handleSaveMomo} disabled={savingMomo} style={{ ...primaryBtn, marginTop: 10, opacity: savingMomo ? 0.6 : 1 }}>
           {t('save')}
         </button>
+      </Section>
+
+      <Section title={t('workingHours')}>
+        <p style={{ fontSize: 13, color: 'var(--ink-soft)', marginBottom: 14 }}>{t('workingHoursIntro')}</p>
+        <WeeklyScheduleEditor
+          initialWindows={lab.workingHours.map((w) => ({ dayOfWeek: w.dayOfWeek, start: w.openTime, end: w.closeTime }))}
+          onSave={handleSaveWorkingHours}
+          saving={savingHours}
+        />
       </Section>
 
       <Section title={t('labServices')}>
