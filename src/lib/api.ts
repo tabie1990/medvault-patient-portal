@@ -164,6 +164,89 @@ export const createTelemedicineSession = (appointmentId: string) =>
 export const createRoomForSession = (sessionId: string) =>
   post<{ success: boolean; session: TelemedicineSession }>(`/telemedicine/sessions/${sessionId}/room`, {});
 
+// ── A doctor's own labs — registration, staff, services, KYC ────
+export interface LabService {
+  id: string;
+  testName: string;
+  basePrice: string;
+}
+export interface MyLabProvider {
+  id: string;
+  providerRef: string;
+  name: string;
+  city: string | null;
+  serviceType: string;
+  verificationStatus: 'pending' | 'verified' | 'rejected';
+  momoNumber: string | null;
+  momoNetwork: string | null;
+  kycSubmittedAt: string | null;
+  services: LabService[];
+}
+export const getMyLabs = () => get<{ success: boolean; lab_providers: MyLabProvider[] }>('/lab-providers/my');
+
+export const registerLab = (body: { name: string; service_type: string; city?: string }) =>
+  post<{ success: boolean; lab_provider: MyLabProvider }>('/lab-providers/register', body);
+
+export const setLabPayoutDetails = (labId: string, body: { momo_number?: string; momo_network?: string; home_service_fee?: number }) =>
+  patch<{ success: boolean; lab_provider: MyLabProvider }>(`/lab-providers/${labId}`, body);
+
+export const addLabService = (labId: string, body: { test_name: string; base_price: number }) =>
+  post<{ success: boolean; lab_service: LabService }>(`/lab-providers/${labId}/services`, body);
+
+export interface LabStaffMember {
+  id: string;
+  fullName: string;
+  email: string | null;
+  phone: string | null;
+}
+export const getLabStaff = (labId: string) => get<{ success: boolean; staff: LabStaffMember[] }>(`/lab-providers/${labId}/staff`);
+
+export const addLabStaff = (labId: string, body: { full_name: string; email?: string; phone?: string }) =>
+  post<{ success: boolean; staff: LabStaffMember }>(`/lab-providers/${labId}/staff`, body);
+
+export const getLabKycUploadUrl = (labId: string, fileName: string, contentType: string) =>
+  post<{ success: boolean; upload_url: string; key: string }>(`/lab-providers/${labId}/kyc/upload-url`, {
+    file_name: fileName,
+    content_type: contentType
+  });
+
+export const submitLabKyc = (
+  labId: string,
+  body: { business_registration_number: string; business_registration_key: string; lab_accreditation_key?: string; owner_id_key: string }
+) => post<{ success: boolean }>(`/lab-providers/${labId}/kyc`, body);
+
+// ── Admin — KYC review queue ─────────────────────────────────────
+export interface PendingDoctor {
+  id: string;
+  fullName: string;
+  email: string | null;
+  phone: string | null;
+  specialty: string | null;
+  licenseNumber: string | null;
+  kycSubmittedAt: string | null;
+}
+export interface PendingLabProvider {
+  id: string;
+  name: string;
+  city: string | null;
+  businessRegistrationNumber: string | null;
+  kycSubmittedAt: string | null;
+}
+export const getPendingKyc = () =>
+  get<{ success: boolean; doctors: PendingDoctor[]; lab_providers: PendingLabProvider[] }>('/admin/kyc/pending');
+
+export const getDoctorDocumentUrl = (doctorId: string, field: 'national_id' | 'medical_license' | 'selfie') =>
+  get<{ success: boolean; url: string }>(`/admin/kyc/doctors/${doctorId}/document-url?field=${field}`);
+
+export const getLabDocumentUrl = (labId: string, field: 'business_registration' | 'lab_accreditation' | 'owner_id') =>
+  get<{ success: boolean; url: string }>(`/admin/kyc/lab-providers/${labId}/document-url?field=${field}`);
+
+export const decideDoctorKyc = (doctorId: string, approve: boolean, reason?: string) =>
+  post<{ success: boolean; verification_status: string }>(`/admin/kyc/doctors/${doctorId}/decision`, { approve, reason });
+
+export const decideLabKyc = (labId: string, approve: boolean, reason?: string) =>
+  post<{ success: boolean; verification_status: string }>(`/admin/kyc/lab-providers/${labId}/decision`, { approve, reason });
+
 // ── Lab staff dashboard ──────────────────────────────────────────
 export type LabOrderStatus = 'requested' | 'scheduled' | 'sample_collected' | 'in_progress' | 'completed' | 'cancelled';
 export interface LabOrderItem {

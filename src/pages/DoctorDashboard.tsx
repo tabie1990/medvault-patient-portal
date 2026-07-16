@@ -56,6 +56,10 @@ export function DoctorDashboard() {
         </Link>
       )}
 
+      <Link to="/doctor/labs" style={{ display: 'inline-block', fontSize: 13, fontWeight: 700, color: 'var(--teal)', marginBottom: 16 }}>
+        {t('myLabs')} →
+      </Link>
+
       <h1 style={{ fontSize: 24, marginBottom: 18 }}>{t('upcomingAppointments')}</h1>
 
       {appointments && appointments.length === 0 && (

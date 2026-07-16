@@ -14,6 +14,10 @@ import { MyAppointments } from './pages/MyAppointments';
 import { DoctorDashboard } from './pages/DoctorDashboard';
 import { LabDashboard } from './pages/LabDashboard';
 import { DoctorKycSubmit } from './pages/DoctorKycSubmit';
+import { MyLabs } from './pages/MyLabs';
+import { LabManage } from './pages/LabManage';
+import { LabKycSubmit } from './pages/LabKycSubmit';
+import { AdminDashboard } from './pages/AdminDashboard';
 
 function RequireAuth({ children }: { children: ReactNode }) {
   const { token } = useAuth();
@@ -97,11 +101,51 @@ function AppRoutes() {
         }
       />
       <Route
+        path="/admin"
+        element={
+          <RequireRole role="admin">
+            <Layout>
+              <AdminDashboard />
+            </Layout>
+          </RequireRole>
+        }
+      />
+      <Route
         path="/doctor/kyc"
         element={
           <RequireRole role="doctor">
             <Layout>
               <DoctorKycSubmit />
+            </Layout>
+          </RequireRole>
+        }
+      />
+      <Route
+        path="/doctor/labs"
+        element={
+          <RequireRole role="doctor">
+            <Layout>
+              <MyLabs />
+            </Layout>
+          </RequireRole>
+        }
+      />
+      <Route
+        path="/doctor/labs/:id"
+        element={
+          <RequireRole role="doctor">
+            <Layout>
+              <LabManage />
+            </Layout>
+          </RequireRole>
+        }
+      />
+      <Route
+        path="/doctor/labs/:id/kyc"
+        element={
+          <RequireRole role="doctor">
+            <Layout>
+              <LabKycSubmit />
             </Layout>
           </RequireRole>
         }
@@ -115,6 +159,7 @@ function CatchAllRedirect() {
   const { role } = useAuth();
   if (role === 'doctor') return <Navigate to="/doctor" replace />;
   if (role === 'lab_staff') return <Navigate to="/lab" replace />;
+  if (role === 'admin') return <Navigate to="/admin" replace />;
   return <Navigate to="/" replace />;
 }
 
