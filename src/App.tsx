@@ -47,10 +47,38 @@ function AppRoutes() {
           </Layout>
         }
       />
-      <Route path="/login" element={<Login />} />
-      <Route path="/staff-login" element={<StaffLogin />} />
-      <Route path="/doctor-register" element={<DoctorRegister />} />
-      <Route path="/forgot-password" element={<ForgotPassword />} />
+      <Route
+        path="/login"
+        element={
+          <Layout>
+            <Login />
+          </Layout>
+        }
+      />
+      <Route
+        path="/staff-login"
+        element={
+          <Layout>
+            <StaffLogin />
+          </Layout>
+        }
+      />
+      <Route
+        path="/doctor-register"
+        element={
+          <Layout>
+            <DoctorRegister />
+          </Layout>
+        }
+      />
+      <Route
+        path="/forgot-password"
+        element={
+          <Layout>
+            <ForgotPassword />
+          </Layout>
+        }
+      />
       {/* Browsing is public — booking itself still requires login,
           enforced inside DoctorDetail's own booking action rather than
           gating the whole page, so someone can look before signing up. */}

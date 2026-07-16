@@ -21,13 +21,21 @@ export function AdminDashboard() {
   }, []);
 
   async function viewDoctorDoc(doctorId: string, field: 'national_id' | 'medical_license' | 'selfie') {
+    // Opening the tab AFTER an await is a real, common bug — by the time
+    // the async call resolves, the browser no longer treats window.open
+    // as a direct response to the click and silently blocks it, with no
+    // visible error at all. Open a blank tab synchronously first (still
+    // within the click's own call stack), then navigate it once we have
+    // the real URL.
+    const tab = window.open('', '_blank');
     const res = await api.getDoctorDocumentUrl(doctorId, field);
-    window.open(res.url, '_blank');
+    if (tab) tab.location.href = res.url;
   }
 
   async function viewLabDoc(labId: string, field: 'business_registration' | 'lab_accreditation' | 'owner_id') {
+    const tab = window.open('', '_blank');
     const res = await api.getLabDocumentUrl(labId, field);
-    window.open(res.url, '_blank');
+    if (tab) tab.location.href = res.url;
   }
 
   async function handleApproveDoctor(doctorId: string) {
