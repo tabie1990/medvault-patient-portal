@@ -31,6 +31,7 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
 
 const get = <T,>(path: string) => request<T>(path);
 const post = <T,>(path: string, body: unknown) => request<T>(path, { method: 'POST', body: JSON.stringify(body) });
+const patch = <T,>(path: string, body: unknown) => request<T>(path, { method: 'PATCH', body: JSON.stringify(body) });
 
 // ── Patient auth ─────────────────────────────────────────────────
 export const requestOtp = (phone: string) => post<{ success: boolean; dev_code?: string }>('/patients/request-otp', { phone });
@@ -136,3 +137,19 @@ export const createTelemedicineSession = (appointmentId: string) =>
 
 export const createRoomForSession = (sessionId: string) =>
   post<{ success: boolean; session: TelemedicineSession }>(`/telemedicine/sessions/${sessionId}/room`, {});
+
+// ── Lab staff dashboard ──────────────────────────────────────────
+export type LabOrderStatus = 'requested' | 'scheduled' | 'sample_collected' | 'in_progress' | 'completed' | 'cancelled';
+export interface LabOrderItem {
+  id: string;
+  priceAtOrder: string;
+  labService: { testName: string };
+}
+export interface FullLabOrder extends LabOrder {
+  status: LabOrderStatus;
+  items: LabOrderItem[];
+}
+export const getMyLabOrders = () => get<{ success: boolean; lab_orders: FullLabOrder[] }>('/lab-orders/my');
+
+export const updateLabOrderStatus = (orderId: string, status: LabOrderStatus) =>
+  patch<{ success: boolean; lab_order: FullLabOrder }>(`/lab-orders/${orderId}`, { status });

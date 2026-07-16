@@ -107,7 +107,10 @@ const STRINGS = {
   },
   accountAlreadyExists: { en: 'An account with this email or phone already exists.', fr: 'Un compte avec cet email ou ce téléphone existe déjà.' },
   dontHaveAccount: { en: "Don't have an account?", fr: "Vous n'avez pas de compte ?" },
-  registerAsDoctor: { en: 'Register as a doctor', fr: 'S\u2019inscrire comme médecin' }
+  registerAsDoctor: { en: 'Register as a doctor', fr: 'S\u2019inscrire comme médecin' },
+  labOrders: { en: 'Lab orders', fr: 'Analyses de laboratoire' },
+  noLabOrdersYet: { en: 'No lab orders yet.', fr: 'Aucune analyse pour le moment.' },
+  status: { en: 'Status', fr: 'Statut' }
 } as const;
 
 export type StringKey = keyof typeof STRINGS;

@@ -11,6 +11,7 @@ import { Doctors } from './pages/Doctors';
 import { DoctorDetail } from './pages/DoctorDetail';
 import { MyAppointments } from './pages/MyAppointments';
 import { DoctorDashboard } from './pages/DoctorDashboard';
+import { LabDashboard } from './pages/LabDashboard';
 
 function RequireAuth({ children }: { children: ReactNode }) {
   const { token } = useAuth();
@@ -82,6 +83,16 @@ function AppRoutes() {
           </RequireRole>
         }
       />
+      <Route
+        path="/lab"
+        element={
+          <RequireRole role="lab_staff">
+            <Layout>
+              <LabDashboard />
+            </Layout>
+          </RequireRole>
+        }
+      />
       <Route path="*" element={<CatchAllRedirect />} />
     </Routes>
   );
@@ -90,6 +101,7 @@ function AppRoutes() {
 function CatchAllRedirect() {
   const { role } = useAuth();
   if (role === 'doctor') return <Navigate to="/doctor" replace />;
+  if (role === 'lab_staff') return <Navigate to="/lab" replace />;
   return <Navigate to="/" replace />;
 }
 
