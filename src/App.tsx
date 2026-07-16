@@ -7,6 +7,7 @@ import { Home } from './pages/Home';
 import { Login } from './pages/Login';
 import { StaffLogin } from './pages/StaffLogin';
 import { DoctorRegister } from './pages/DoctorRegister';
+import { ForgotPassword } from './pages/ForgotPassword';
 import { Doctors } from './pages/Doctors';
 import { DoctorDetail } from './pages/DoctorDetail';
 import { MyAppointments } from './pages/MyAppointments';
@@ -44,6 +45,7 @@ function AppRoutes() {
       <Route path="/login" element={<Login />} />
       <Route path="/staff-login" element={<StaffLogin />} />
       <Route path="/doctor-register" element={<DoctorRegister />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
       {/* Browsing is public — booking itself still requires login,
           enforced inside DoctorDetail's own booking action rather than
           gating the whole page, so someone can look before signing up. */}

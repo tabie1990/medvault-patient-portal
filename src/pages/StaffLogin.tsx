@@ -59,6 +59,10 @@ export function StaffLogin() {
         {loading ? t('verifying') : t('logIn')}
       </button>
 
+      <Link to="/forgot-password" style={{ display: 'block', textAlign: 'center', marginTop: 14, color: 'var(--teal)', fontSize: 13, fontWeight: 600 }}>
+        {t('forgotPasswordLink')}
+      </Link>
+
       <p style={{ textAlign: 'center', fontSize: 13, color: 'var(--ink-soft)', marginTop: 20 }}>
         {t('dontHaveAccount')}{' '}
         <Link to="/doctor-register" style={{ color: 'var(--teal)', fontWeight: 700 }}>

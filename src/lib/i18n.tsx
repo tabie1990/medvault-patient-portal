@@ -110,7 +110,20 @@ const STRINGS = {
   registerAsDoctor: { en: 'Register as a doctor', fr: 'S\u2019inscrire comme médecin' },
   labOrders: { en: 'Lab orders', fr: 'Analyses de laboratoire' },
   noLabOrdersYet: { en: 'No lab orders yet.', fr: 'Aucune analyse pour le moment.' },
-  status: { en: 'Status', fr: 'Statut' }
+  status: { en: 'Status', fr: 'Statut' },
+  forgotPasswordLink: { en: 'Forgot password?', fr: 'Mot de passe oublié ?' },
+  forgotPasswordTitle: { en: 'Reset your password', fr: 'Réinitialiser votre mot de passe' },
+  forgotPasswordIntro: {
+    en: "Enter the email or phone on your account and we'll send you a reset code.",
+    fr: "Entrez l'email ou le téléphone de votre compte et nous vous enverrons un code de réinitialisation."
+  },
+  resetPasswordIntro: {
+    en: 'Enter the code we sent, along with your new password.',
+    fr: 'Entrez le code envoyé, ainsi que votre nouveau mot de passe.'
+  },
+  newPassword: { en: 'New password', fr: 'Nouveau mot de passe' },
+  resetPasswordCta: { en: 'Reset password', fr: 'Réinitialiser le mot de passe' },
+  backToLogin: { en: 'Back to login', fr: 'Retour à la connexion' }
 } as const;
 
 export type StringKey = keyof typeof STRINGS;

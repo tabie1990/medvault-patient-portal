@@ -117,6 +117,11 @@ export const staffLogin = (identifier: string, password: string) =>
     { identifier, password }
   );
 
+export const forgotPassword = (identifier: string) => post<{ success: boolean }>('/auth/forgot-password', { identifier });
+
+export const resetPassword = (identifier: string, code: string, newPassword: string) =>
+  post<{ success: boolean }>('/auth/reset-password', { identifier, code, new_password: newPassword });
+
 export const registerDoctor = (body: { full_name: string; email?: string; phone?: string; specialty?: string }) =>
   post<{ success: boolean; doctor: FullDoctor }>('/doctors/register', body);
 
