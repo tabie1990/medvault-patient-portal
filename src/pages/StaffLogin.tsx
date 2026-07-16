@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useLang } from '../lib/i18n';
 import { useAuth } from '../lib/auth';
 import * as api from '../lib/api';
@@ -58,6 +58,13 @@ export function StaffLogin() {
       >
         {loading ? t('verifying') : t('logIn')}
       </button>
+
+      <p style={{ textAlign: 'center', fontSize: 13, color: 'var(--ink-soft)', marginTop: 20 }}>
+        {t('dontHaveAccount')}{' '}
+        <Link to="/doctor-register" style={{ color: 'var(--teal)', fontWeight: 700 }}>
+          {t('registerAsDoctor')}
+        </Link>
+      </p>
     </div>
   );
 }

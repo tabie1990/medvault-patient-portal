@@ -89,7 +89,25 @@ const STRINGS = {
   loginSignup: { en: 'Login / Sign up', fr: 'Connexion / Inscription' },
   imAPatient: { en: "I'm a patient", fr: 'Je suis patient(e)' },
   imADoctor: { en: "I'm a doctor", fr: 'Je suis médecin' },
-  imALabStaff: { en: 'I work at a lab', fr: "Je travaille dans un laboratoire" }
+  imALabStaff: { en: 'I work at a lab', fr: "Je travaille dans un laboratoire" },
+  doctorRegisterTitle: { en: 'Register as a doctor', fr: 'Inscription médecin' },
+  doctorRegisterIntro: {
+    en: "We'll email you a temporary password to sign in with.",
+    fr: 'Nous vous enverrons par email un mot de passe temporaire pour vous connecter.'
+  },
+  fullName: { en: 'Full name', fr: 'Nom complet' },
+  emailLabel: { en: 'Email', fr: 'Email' },
+  phoneOptional: { en: 'Phone (optional)', fr: 'Téléphone (facultatif)' },
+  register: { en: 'Register', fr: "S'inscrire" },
+  alreadyHaveAccount: { en: 'Already have an account? Log in', fr: 'Vous avez déjà un compte ? Se connecter' },
+  registrationSent: { en: 'Check your email', fr: 'Vérifiez votre email' },
+  registrationSentBody: {
+    en: "We've sent a temporary password to your email. Use it to log in, then you'll be asked to set your own password.",
+    fr: 'Nous avons envoyé un mot de passe temporaire à votre email. Utilisez-le pour vous connecter, puis vous pourrez définir votre propre mot de passe.'
+  },
+  accountAlreadyExists: { en: 'An account with this email or phone already exists.', fr: 'Un compte avec cet email ou ce téléphone existe déjà.' },
+  dontHaveAccount: { en: "Don't have an account?", fr: "Vous n'avez pas de compte ?" },
+  registerAsDoctor: { en: 'Register as a doctor', fr: 'S\u2019inscrire comme médecin' }
 } as const;
 
 export type StringKey = keyof typeof STRINGS;
