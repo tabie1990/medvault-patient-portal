@@ -13,6 +13,7 @@ import { DoctorDetail } from './pages/DoctorDetail';
 import { MyAppointments } from './pages/MyAppointments';
 import { DoctorDashboard } from './pages/DoctorDashboard';
 import { LabDashboard } from './pages/LabDashboard';
+import { DoctorKycSubmit } from './pages/DoctorKycSubmit';
 
 function RequireAuth({ children }: { children: ReactNode }) {
   const { token } = useAuth();
@@ -91,6 +92,16 @@ function AppRoutes() {
           <RequireRole role="lab_staff">
             <Layout>
               <LabDashboard />
+            </Layout>
+          </RequireRole>
+        }
+      />
+      <Route
+        path="/doctor/kyc"
+        element={
+          <RequireRole role="doctor">
+            <Layout>
+              <DoctorKycSubmit />
             </Layout>
           </RequireRole>
         }

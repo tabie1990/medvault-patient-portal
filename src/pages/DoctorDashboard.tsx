@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useLang } from '../lib/i18n';
 import * as api from '../lib/api';
 
@@ -6,6 +7,7 @@ export function DoctorDashboard() {
   const { t } = useLang();
   const [appointments, setAppointments] = useState<api.AppointmentWithSession[] | null>(null);
   const [startingId, setStartingId] = useState<string | null>(null);
+  const [verificationStatus, setVerificationStatus] = useState<string | null>(null);
 
   async function load() {
     const res = await api.getMyAppointments();
@@ -14,6 +16,7 @@ export function DoctorDashboard() {
 
   useEffect(() => {
     load();
+    api.getMyDoctorProfile().then((res) => setVerificationStatus(res.doctor.verificationStatus));
   }, []);
 
   async function handleStartSession(appointmentId: string) {
@@ -35,6 +38,24 @@ export function DoctorDashboard() {
 
   return (
     <div>
+      {verificationStatus && verificationStatus !== 'verified' && (
+        <Link
+          to="/doctor/kyc"
+          style={{
+            display: 'block',
+            background: 'var(--teal-light)',
+            border: '1px solid var(--teal)',
+            borderRadius: 'var(--radius)',
+            padding: '14px 18px',
+            marginBottom: 20,
+            textDecoration: 'none'
+          }}
+        >
+          <div style={{ fontWeight: 700, fontSize: 14, color: 'var(--navy)', marginBottom: 3 }}>{t('completeYourVerification')}</div>
+          <div style={{ fontSize: 13, color: 'var(--ink-soft)' }}>{t('completeYourVerificationBody')}</div>
+        </Link>
+      )}
+
       <h1 style={{ fontSize: 24, marginBottom: 18 }}>{t('upcomingAppointments')}</h1>
 
       {appointments && appointments.length === 0 && (

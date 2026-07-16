@@ -123,7 +123,29 @@ const STRINGS = {
   },
   newPassword: { en: 'New password', fr: 'Nouveau mot de passe' },
   resetPasswordCta: { en: 'Reset password', fr: 'Réinitialiser le mot de passe' },
-  backToLogin: { en: 'Back to login', fr: 'Retour à la connexion' }
+  backToLogin: { en: 'Back to login', fr: 'Retour à la connexion' },
+  kycTitle: { en: 'Verify your identity', fr: 'Vérifiez votre identité' },
+  kycIntro: {
+    en: 'Upload these three documents so we can verify your account. A staff member reviews every submission manually.',
+    fr: 'Téléchargez ces trois documents pour que nous puissions vérifier votre compte. Chaque soumission est examinée manuellement.'
+  },
+  nationalId: { en: 'National ID', fr: "Carte d'identité nationale" },
+  medicalLicense: { en: 'Medical license', fr: 'Licence médicale' },
+  selfiePhoto: { en: 'A selfie photo', fr: 'Une photo selfie' },
+  chooseFile: { en: 'Choose file', fr: 'Choisir un fichier' },
+  uploading: { en: 'Uploading…', fr: 'Téléchargement…' },
+  uploadFailed: { en: 'That upload failed — please try again.', fr: 'Le téléchargement a échoué — veuillez réessayer.' },
+  submitKyc: { en: 'Submit for review', fr: 'Soumettre pour examen' },
+  kycSubmitted: { en: 'Submitted for review', fr: 'Soumis pour examen' },
+  kycSubmittedBody: {
+    en: "We've received your documents. A staff member will review them, usually within a couple of days.",
+    fr: 'Nous avons reçu vos documents. Un membre du personnel les examinera, généralement sous quelques jours.'
+  },
+  completeYourVerification: { en: 'Complete your verification', fr: 'Complétez votre vérification' },
+  completeYourVerificationBody: {
+    en: 'Upload your documents so patients can book and pay for teleconsults with you.',
+    fr: 'Téléchargez vos documents pour que les patients puissent réserver et payer des téléconsultations avec vous.'
+  }
 } as const;
 
 export type StringKey = keyof typeof STRINGS;

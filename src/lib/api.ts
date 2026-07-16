@@ -128,8 +128,29 @@ export const registerDoctor = (body: { full_name: string; email?: string; phone?
 export interface FullDoctor extends Doctor {
   momoNumber: string | null;
   momoNetwork: string | null;
+  verificationStatus: 'pending' | 'verified' | 'rejected';
 }
 export const getMyDoctorProfile = () => get<{ success: boolean; doctor: FullDoctor }>('/doctors/me');
+
+// ── KYC submission — direct-to-storage upload, then submit the keys ──
+export const getKycUploadUrl = (fileName: string, contentType: string) =>
+  post<{ success: boolean; upload_url: string; key: string }>('/doctors/kyc/upload-url', {
+    file_name: fileName,
+    content_type: contentType
+  });
+
+// Uploads straight to object storage (Backblaze B2), not through our own
+// API — the presigned URL points directly at the bucket. A plain PUT
+// with a matching Content-Type header is the standard pattern for a
+// presigned S3-compatible upload; no auth header needed here, the
+// signature is embedded in the URL itself.
+export async function uploadToPresignedUrl(uploadUrl: string, file: File): Promise<void> {
+  const res = await fetch(uploadUrl, { method: 'PUT', headers: { 'Content-Type': file.type }, body: file });
+  if (!res.ok) throw new Error(`upload_failed_${res.status}`);
+}
+
+export const submitDoctorKyc = (body: { national_id_key: string; medical_license_key: string; selfie_key: string }) =>
+  post<{ success: boolean }>('/doctors/kyc', body);
 
 // ── Doctor dashboard — their own appointments, with any linked session ──
 export interface AppointmentWithSession extends Appointment {
