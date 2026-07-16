@@ -37,7 +37,7 @@ export function MyAppointments() {
               <div>
                 <div style={{ fontWeight: 700, fontSize: 15, color: 'var(--navy)' }}>{t('teleconsult')}</div>
                 <div style={{ fontSize: 13, color: 'var(--ink-soft)', marginTop: 3 }}>
-                  {a.requestedDate} · {a.requestedTime}
+                  {a.requestedDate ? new Date(a.requestedDate).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' }) : ''} · {a.requestedTime}
                 </div>
               </div>
               <span

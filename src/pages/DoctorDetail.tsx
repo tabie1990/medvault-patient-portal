@@ -167,18 +167,29 @@ function PaymentStep({ appointment, doctor }: { appointment: api.Appointment; do
   const [requesting, setRequesting] = useState(false);
   const [status, setStatus] = useState<string>(appointment.paymentStatus);
   const [ussdCode, setUssdCode] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
 
   async function handleRequestPayment() {
     setRequesting(true);
+    setError(null);
     try {
       // Real fee from the doctor's own record — never guessed or
       // hardcoded. If it's somehow still missing, refuse to request a
       // payment for an unknown amount rather than silently sending 0.
       const amount = Number(doctor?.teleconsultFee ?? 0);
-      if (!amount) return;
+      if (!amount) {
+        setError(t('somethingWentWrong'));
+        return;
+      }
       const res = await api.requestAppointmentPayment(appointment.id, phone, amount);
       setUssdCode(res.ussd_code ?? null);
       setStatus('pending');
+    } catch (e: any) {
+      // Found in testing: this call failing silently left the patient
+      // with no feedback at all — button just stopped spinning, nothing
+      // else happened. Surface whatever the backend actually said went
+      // wrong (e.g. an invalid phone number format) instead of that.
+      setError(e?.raw?.error || e?.message || t('somethingWentWrong'));
     } finally {
       setRequesting(false);
     }
@@ -196,7 +207,9 @@ function PaymentStep({ appointment, doctor }: { appointment: api.Appointment; do
       <div style={{ background: 'var(--teal-light)', borderRadius: 'var(--radius)', padding: '18px 20px', marginBottom: 20 }}>
         <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--success)', marginBottom: 6 }}>✓ {t('bookingConfirmed')}</div>
         <div style={{ fontSize: 13, color: 'var(--ink-soft)' }}>
-          {appointment.appointmentRef} · {appointment.requestedDate} {appointment.requestedTime}
+          {appointment.appointmentRef} ·{' '}
+          {appointment.requestedDate ? new Date(appointment.requestedDate).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' }) : ''}{' '}
+          {appointment.requestedTime}
         </div>
       </div>
 
@@ -205,6 +218,12 @@ function PaymentStep({ appointment, doctor }: { appointment: api.Appointment; do
         <p style={{ fontSize: 22, fontFamily: 'var(--font-display)', fontWeight: 600, color: 'var(--navy)', marginBottom: 16 }}>
           {Number(doctor.teleconsultFee).toLocaleString()} FCFA
         </p>
+      )}
+
+      {error && (
+        <div style={{ background: '#FBEAE8', color: 'var(--danger)', borderRadius: 8, padding: '10px 12px', fontSize: 13, marginBottom: 16 }}>
+          {error}
+        </div>
       )}
 
       {status !== 'paid' && (
