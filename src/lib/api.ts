@@ -124,7 +124,7 @@ export const getMyDoctorProfile = () => get<{ success: boolean; doctor: FullDoct
 
 // ── Doctor dashboard — their own appointments, with any linked session ──
 export interface AppointmentWithSession extends Appointment {
-  telemedicineSessions?: TelemedicineSession[];
+  telemedicineSession?: TelemedicineSession | null;
 }
 export const getMyAppointments = () => get<{ success: boolean; appointments: AppointmentWithSession[] }>('/appointments/my');
 

@@ -43,7 +43,7 @@ export function DoctorDashboard() {
 
       <div style={{ display: 'grid', gap: 12 }}>
         {appointments?.map((a) => {
-          const session = a.telemedicineSessions?.[0];
+          const session = a.telemedicineSession;
           const isPaid = a.paymentStatus === 'paid';
           const hasRoom = Boolean(session?.roomUrl);
 
