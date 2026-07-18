@@ -57,6 +57,9 @@ export function DoctorDashboard() {
       )}
 
       <div style={{ display: 'flex', gap: 20, marginBottom: 16 }}>
+        <Link to="/doctor/profile" style={{ display: 'inline-block', fontSize: 13, fontWeight: 700, color: 'var(--teal)' }}>
+          {t('myProfile')} →
+        </Link>
         <Link to="/doctor/availability" style={{ display: 'inline-block', fontSize: 13, fontWeight: 700, color: 'var(--teal)' }}>
           {t('myAvailability')} →
         </Link>

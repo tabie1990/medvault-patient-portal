@@ -188,6 +188,9 @@ export const setMyAvailability = (windows: { day_of_week: number; start_time: st
 export const setTeleconsultSlotMinutes = (minutes: number) =>
   patch<{ success: boolean; doctor: FullDoctor }>('/doctors/me', { teleconsult_slot_minutes: minutes });
 
+export const setDoctorProfile = (body: { specialty?: string; consultation_types?: string[] }) =>
+  patch<{ success: boolean; doctor: FullDoctor }>('/doctors/me', body);
+
 // ── A doctor's own labs — registration, staff, services, KYC ────
 export interface LabService {
   id: string;

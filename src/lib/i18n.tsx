@@ -210,7 +210,12 @@ const STRINGS = {
   confirmNewPassword: { en: 'Confirm new password', fr: 'Confirmer le nouveau mot de passe' },
   passwordsDontMatch: { en: "Passwords don't match.", fr: 'Les mots de passe ne correspondent pas.' },
   passwordTooShort: { en: 'Password must be at least 8 characters.', fr: 'Le mot de passe doit contenir au moins 8 caractères.' },
-  setPasswordCta: { en: 'Set password and continue', fr: 'Définir le mot de passe et continuer' }
+  setPasswordCta: { en: 'Set password and continue', fr: 'Définir le mot de passe et continuer' },
+  myProfile: { en: 'My profile', fr: 'Mon profil' },
+  specialtyLabel: { en: 'Specialty', fr: 'Spécialité' },
+  specialtyPlaceholder: { en: 'e.g. General Practice, Cardiology, Pediatrics', fr: 'ex. Médecine générale, Cardiologie, Pédiatrie' },
+  consultationTypesLabel: { en: 'Consultation types offered', fr: 'Types de consultation offerts' },
+  consultationTypesHint: { en: 'Comma-separated, e.g. General Consultation, Follow-up', fr: 'Séparés par des virgules, ex. Consultation générale, Suivi' }
 } as const;
 
 export type StringKey = keyof typeof STRINGS;

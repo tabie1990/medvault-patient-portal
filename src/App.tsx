@@ -15,6 +15,7 @@ import { DoctorDashboard } from './pages/DoctorDashboard';
 import { LabDashboard } from './pages/LabDashboard';
 import { DoctorKycSubmit } from './pages/DoctorKycSubmit';
 import { DoctorAvailability } from './pages/DoctorAvailability';
+import { DoctorProfile } from './pages/DoctorProfile';
 import { MyLabs } from './pages/MyLabs';
 import { LabManage } from './pages/LabManage';
 import { LabKycSubmit } from './pages/LabKycSubmit';
@@ -179,6 +180,16 @@ function AppRoutes() {
           <RequireRole role="doctor">
             <Layout>
               <DoctorAvailability />
+            </Layout>
+          </RequireRole>
+        }
+      />
+      <Route
+        path="/doctor/profile"
+        element={
+          <RequireRole role="doctor">
+            <Layout>
+              <DoctorProfile />
             </Layout>
           </RequireRole>
         }
