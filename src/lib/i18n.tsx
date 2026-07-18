@@ -201,7 +201,16 @@ const STRINGS = {
   workingHoursIntro: {
     en: 'Set the days and hours this lab is open.',
     fr: 'Définissez les jours et heures d\u2019ouverture de ce laboratoire.'
-  }
+  },
+  mustChangePasswordTitle: { en: 'Set a new password', fr: 'Définir un nouveau mot de passe' },
+  mustChangePasswordIntro: {
+    en: 'For security, you need to set your own password before continuing — the one you logged in with was temporary.',
+    fr: 'Pour des raisons de sécurité, vous devez définir votre propre mot de passe avant de continuer — celui utilisé pour la connexion était temporaire.'
+  },
+  confirmNewPassword: { en: 'Confirm new password', fr: 'Confirmer le nouveau mot de passe' },
+  passwordsDontMatch: { en: "Passwords don't match.", fr: 'Les mots de passe ne correspondent pas.' },
+  passwordTooShort: { en: 'Password must be at least 8 characters.', fr: 'Le mot de passe doit contenir au moins 8 caractères.' },
+  setPasswordCta: { en: 'Set password and continue', fr: 'Définir le mot de passe et continuer' }
 } as const;
 
 export type StringKey = keyof typeof STRINGS;

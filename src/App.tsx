@@ -19,6 +19,7 @@ import { MyLabs } from './pages/MyLabs';
 import { LabManage } from './pages/LabManage';
 import { LabKycSubmit } from './pages/LabKycSubmit';
 import { AdminDashboard } from './pages/AdminDashboard';
+import { ChangePassword } from './pages/ChangePassword';
 
 function RequireAuth({ children }: { children: ReactNode }) {
   const { token } = useAuth();
@@ -31,9 +32,22 @@ function RequireAuth({ children }: { children: ReactNode }) {
 // the staff login (not the patient OTP login) since a doctor/lab/admin
 // account was never meant to go through that screen.
 function RequireRole({ role, children }: { role: Role; children: ReactNode }) {
-  const { token, role: currentRole } = useAuth();
+  const { token, role: currentRole, mustChangePassword } = useAuth();
   if (!token) return <Navigate to="/staff-login" replace />;
   if (currentRole !== role) return <Navigate to="/staff-login" replace />;
+  // Redirect to the forced change-password page regardless of which
+  // protected route was actually requested — a temporary password
+  // shouldn't grant real access to anything else first.
+  if (mustChangePassword) return <Navigate to="/change-password" replace />;
+  return <>{children}</>;
+}
+
+// For /change-password specifically — must work for any of the three
+// staff roles, not gated to one, and deliberately does NOT redirect back
+// to itself based on mustChangePassword (this is the page that handles it).
+function RequireAnyStaffRole({ children }: { children: ReactNode }) {
+  const { token, role } = useAuth();
+  if (!token || role === 'patient' || role === null) return <Navigate to="/staff-login" replace />;
   return <>{children}</>;
 }
 
@@ -137,6 +151,16 @@ function AppRoutes() {
               <AdminDashboard />
             </Layout>
           </RequireRole>
+        }
+      />
+      <Route
+        path="/change-password"
+        element={
+          <RequireAnyStaffRole>
+            <Layout>
+              <ChangePassword />
+            </Layout>
+          </RequireAnyStaffRole>
         }
       />
       <Route

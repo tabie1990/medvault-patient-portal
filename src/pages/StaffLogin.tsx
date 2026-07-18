@@ -19,10 +19,16 @@ export function StaffLogin() {
     setError('');
     try {
       const res = await api.staffLogin(identifier, password);
-      login(res.token, res.role, ''); // doctor/lab_staff/admin dashboards derive identity from the JWT itself, not a client-known ID
-      if (res.role === 'doctor') navigate('/doctor');
-      else if (res.role === 'admin') navigate('/admin');
-      else navigate('/lab');
+      login(res.token, res.role, '', res.must_change_password ?? false); // doctor/lab_staff/admin dashboards derive identity from the JWT itself, not a client-known ID
+      if (res.must_change_password) {
+        navigate('/change-password');
+      } else if (res.role === 'doctor') {
+        navigate('/doctor');
+      } else if (res.role === 'admin') {
+        navigate('/admin');
+      } else {
+        navigate('/lab');
+      }
     } catch {
       setError(t('invalidCode'));
     } finally {

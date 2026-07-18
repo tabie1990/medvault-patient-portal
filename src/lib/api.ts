@@ -118,6 +118,14 @@ export const staffLogin = (identifier: string, password: string) =>
     { identifier, password }
   );
 
+// Two different endpoints depending on role — doctors have their own,
+// admin/lab_staff share a separate one. Picking the right one here so
+// the rest of the app only ever calls one function regardless of role.
+export const changePassword = (role: 'doctor' | 'lab_staff' | 'admin', newPassword: string) =>
+  post<{ success: boolean }>(role === 'doctor' ? '/doctors/change-password' : '/auth/change-password', {
+    new_password: newPassword
+  });
+
 export const forgotPassword = (identifier: string) => post<{ success: boolean }>('/auth/forgot-password', { identifier });
 
 export const resetPassword = (identifier: string, code: string, newPassword: string) =>
