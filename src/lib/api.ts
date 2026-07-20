@@ -283,6 +283,43 @@ export const decideDoctorKyc = (doctorId: string, approve: boolean, reason?: str
 export const decideLabKyc = (labId: string, approve: boolean, reason?: string) =>
   post<{ success: boolean; verification_status: string }>(`/admin/kyc/lab-providers/${labId}/decision`, { approve, reason });
 
+// ── Admin monitoring — revenue, error feed, stale-sync alerts ────
+export interface PayoutSummary {
+  id: string;
+  totalAmount: string;
+  platformAmount: string;
+  providerAmount: string;
+  completedAt: string;
+  appointmentId: string | null;
+  labOrderId: string | null;
+}
+export const getRevenue = () =>
+  get<{
+    success: boolean;
+    platform_revenue_total: string;
+    appointment_gross_total: string;
+    lab_order_gross_total: string;
+    recent_payouts: PayoutSummary[];
+  }>('/admin/revenue');
+
+export interface ErrorLogEntry {
+  id: string;
+  source: string;
+  message: string;
+  createdAt: string;
+}
+export const getErrorFeed = () => get<{ success: boolean; errors: ErrorLogEntry[] }>('/admin/errors?limit=50');
+
+export interface StaleInstallation {
+  id: string;
+  installationId: string;
+  deviceLabel: string | null;
+  lastSeenAt: string | null;
+  hospital: { name: string; hospitalId: string };
+}
+export const getStaleSyncs = () =>
+  get<{ success: boolean; threshold_hours: number; stale_installations: StaleInstallation[] }>('/admin/stale-syncs');
+
 // ── Lab staff dashboard ──────────────────────────────────────────
 export type LabOrderStatus = 'requested' | 'scheduled' | 'sample_collected' | 'in_progress' | 'completed' | 'cancelled';
 export interface LabOrderItem {

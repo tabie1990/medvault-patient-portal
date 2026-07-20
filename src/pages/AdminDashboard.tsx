@@ -2,7 +2,50 @@ import { useEffect, useState } from 'react';
 import { useLang } from '../lib/i18n';
 import * as api from '../lib/api';
 
+type Tab = 'kyc' | 'revenue' | 'errors' | 'stale';
+
 export function AdminDashboard() {
+  const { t } = useLang();
+  const [tab, setTab] = useState<Tab>('kyc');
+
+  const tabs: { key: Tab; label: string }[] = [
+    { key: 'kyc', label: t('tabKycQueue') },
+    { key: 'revenue', label: t('tabRevenue') },
+    { key: 'errors', label: t('tabErrors') },
+    { key: 'stale', label: t('tabStaleSync') }
+  ];
+
+  return (
+    <div>
+      <div style={{ display: 'flex', gap: 4, marginBottom: 24, borderBottom: '1px solid var(--line)' }}>
+        {tabs.map((tb) => (
+          <button
+            key={tb.key}
+            onClick={() => setTab(tb.key)}
+            style={{
+              padding: '10px 16px',
+              fontSize: 13,
+              fontWeight: 700,
+              background: 'none',
+              border: 'none',
+              borderBottom: tab === tb.key ? '2.5px solid var(--navy)' : '2.5px solid transparent',
+              color: tab === tb.key ? 'var(--navy)' : 'var(--ink-soft)'
+            }}
+          >
+            {tb.label}
+          </button>
+        ))}
+      </div>
+
+      {tab === 'kyc' && <KycQueue />}
+      {tab === 'revenue' && <RevenueTab />}
+      {tab === 'errors' && <ErrorFeedTab />}
+      {tab === 'stale' && <StaleSyncTab />}
+    </div>
+  );
+}
+
+function KycQueue() {
   const { t } = useLang();
   const [doctors, setDoctors] = useState<api.PendingDoctor[]>([]);
   const [labs, setLabs] = useState<api.PendingLabProvider[]>([]);
@@ -171,6 +214,115 @@ export function AdminDashboard() {
           </div>
         </>
       )}
+    </div>
+  );
+}
+
+function RevenueTab() {
+  const { t } = useLang();
+  const [data, setData] = useState<Awaited<ReturnType<typeof api.getRevenue>> | null>(null);
+
+  useEffect(() => {
+    api.getRevenue().then(setData);
+  }, []);
+
+  if (!data) return null;
+
+  const fmt = (n: string | number) => Number(n).toLocaleString();
+
+  return (
+    <div>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 14, marginBottom: 28 }}>
+        <StatCard label={t('platformRevenue')} value={`${fmt(data.platform_revenue_total)} FCFA`} accent="var(--success)" />
+        <StatCard label={t('grossAppointments')} value={`${fmt(data.appointment_gross_total)} FCFA`} accent="var(--teal)" />
+        <StatCard label={t('grossLabOrders')} value={`${fmt(data.lab_order_gross_total)} FCFA`} accent="var(--teal)" />
+      </div>
+
+      <h2 style={{ fontSize: 16, marginBottom: 10 }}>{t('recentPayouts')}</h2>
+      {data.recent_payouts.length === 0 && <p style={{ color: 'var(--ink-soft)', fontSize: 14 }}>{t('noPayoutsYet')}</p>}
+      <div style={{ display: 'grid', gap: 8 }}>
+        {data.recent_payouts.map((p) => (
+          <div key={p.id} style={{ ...cardStyle, display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 16px' }}>
+            <div style={{ fontSize: 13, color: 'var(--ink-soft)' }}>
+              {p.appointmentId ? 'Teleconsult' : 'Lab order'} · {new Date(p.completedAt).toLocaleDateString()}
+            </div>
+            <div style={{ fontSize: 13, fontWeight: 700 }}>
+              <span style={{ color: 'var(--success)' }}>{fmt(p.platformAmount)}</span>
+              <span style={{ color: 'var(--ink-soft)', fontWeight: 500 }}> / {fmt(p.providerAmount)} to provider</span>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function ErrorFeedTab() {
+  const { t } = useLang();
+  const [errors, setErrors] = useState<api.ErrorLogEntry[] | null>(null);
+
+  useEffect(() => {
+    api.getErrorFeed().then((res) => setErrors(res.errors));
+  }, []);
+
+  if (!errors) return null;
+
+  return (
+    <div>
+      {errors.length === 0 && <p style={{ color: 'var(--ink-soft)', fontSize: 14 }}>{t('noErrorsLogged')}</p>}
+      <div style={{ display: 'grid', gap: 8 }}>
+        {errors.map((e) => (
+          <div key={e.id} style={{ ...cardStyle, padding: '12px 16px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+              <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--danger)' }}>{e.source}</span>
+              <span style={{ fontSize: 12, color: 'var(--ink-soft)' }}>{new Date(e.createdAt).toLocaleString()}</span>
+            </div>
+            <div style={{ fontSize: 13, fontFamily: 'monospace', color: 'var(--ink)', wordBreak: 'break-word' }}>{e.message}</div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function StaleSyncTab() {
+  const { t } = useLang();
+  const [data, setData] = useState<Awaited<ReturnType<typeof api.getStaleSyncs>> | null>(null);
+
+  useEffect(() => {
+    api.getStaleSyncs().then(setData);
+  }, []);
+
+  if (!data) return null;
+
+  return (
+    <div>
+      <p style={{ fontSize: 12, color: 'var(--ink-soft)', marginBottom: 16 }}>
+        Threshold: {data.threshold_hours}h since last contact
+      </p>
+      {data.stale_installations.length === 0 && <p style={{ color: 'var(--ink-soft)', fontSize: 14 }}>{t('noStaleSyncs')}</p>}
+      <div style={{ display: 'grid', gap: 8 }}>
+        {data.stale_installations.map((inst) => (
+          <div key={inst.id} style={{ ...cardStyle, display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 16px' }}>
+            <div>
+              <div style={{ fontWeight: 700, fontSize: 14, color: 'var(--navy)' }}>{inst.hospital.name}</div>
+              <div style={{ fontSize: 12, color: 'var(--ink-soft)' }}>{inst.deviceLabel ?? inst.hospital.hospitalId}</div>
+            </div>
+            <div style={{ fontSize: 12, color: 'var(--clay)', fontWeight: 700 }}>
+              {t('lastSeen')}: {inst.lastSeenAt ? new Date(inst.lastSeenAt).toLocaleString() : t('never')}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function StatCard({ label, value, accent }: { label: string; value: string; accent: string }) {
+  return (
+    <div style={{ ...cardStyle, padding: '18px 20px' }}>
+      <div style={{ fontSize: 12, color: 'var(--ink-soft)', marginBottom: 6 }}>{label}</div>
+      <div style={{ fontSize: 22, fontWeight: 700, color: accent, fontFamily: 'var(--font-display)' }}>{value}</div>
     </div>
   );
 }

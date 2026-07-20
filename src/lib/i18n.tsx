@@ -215,7 +215,20 @@ const STRINGS = {
   specialtyLabel: { en: 'Specialty', fr: 'Spécialité' },
   specialtyPlaceholder: { en: 'e.g. General Practice, Cardiology, Pediatrics', fr: 'ex. Médecine générale, Cardiologie, Pédiatrie' },
   consultationTypesLabel: { en: 'Consultation types offered', fr: 'Types de consultation offerts' },
-  consultationTypesHint: { en: 'Comma-separated, e.g. General Consultation, Follow-up', fr: 'Séparés par des virgules, ex. Consultation générale, Suivi' }
+  consultationTypesHint: { en: 'Comma-separated, e.g. General Consultation, Follow-up', fr: 'Séparés par des virgules, ex. Consultation générale, Suivi' },
+  tabKycQueue: { en: 'KYC queue', fr: 'File de vérification' },
+  tabRevenue: { en: 'Revenue', fr: 'Revenus' },
+  tabErrors: { en: 'Error feed', fr: 'Journal des erreurs' },
+  tabStaleSync: { en: 'Stale syncs', fr: 'Synchronisations en retard' },
+  platformRevenue: { en: 'Platform revenue (all time)', fr: 'Revenus de la plateforme (total)' },
+  grossAppointments: { en: 'Gross — teleconsults', fr: 'Brut — téléconsultations' },
+  grossLabOrders: { en: 'Gross — lab orders', fr: 'Brut — analyses' },
+  recentPayouts: { en: 'Recent payouts', fr: 'Paiements récents' },
+  noPayoutsYet: { en: 'No completed payouts yet.', fr: 'Aucun paiement effectué pour le moment.' },
+  noErrorsLogged: { en: 'Nothing logged — background jobs are running clean.', fr: 'Rien à signaler — les tâches en arrière-plan fonctionnent normalement.' },
+  noStaleSyncs: { en: 'Every connected hospital has synced recently.', fr: "Tous les hôpitaux connectés ont synchronisé récemment." },
+  lastSeen: { en: 'Last seen', fr: 'Vu pour la dernière fois' },
+  never: { en: 'Never', fr: 'Jamais' }
 } as const;
 
 export type StringKey = keyof typeof STRINGS;
