@@ -33,6 +33,7 @@ const get = <T,>(path: string) => request<T>(path);
 const post = <T,>(path: string, body: unknown) => request<T>(path, { method: 'POST', body: JSON.stringify(body) });
 const patch = <T,>(path: string, body: unknown) => request<T>(path, { method: 'PATCH', body: JSON.stringify(body) });
 const put = <T,>(path: string, body: unknown) => request<T>(path, { method: 'PUT', body: JSON.stringify(body) });
+const del = <T,>(path: string) => request<T>(path, { method: 'DELETE' });
 
 // ── Patient auth ─────────────────────────────────────────────────
 export const requestOtp = (phone: string) => post<{ success: boolean; dev_code?: string }>('/patients/request-otp', { phone });
@@ -319,6 +320,55 @@ export interface StaleInstallation {
 }
 export const getStaleSyncs = () =>
   get<{ success: boolean; threshold_hours: number; stale_installations: StaleInstallation[] }>('/admin/stale-syncs');
+
+// ── Admin — hospital roster & services management ────────────────
+export interface HospitalDoctorWindow {
+  dayOfWeek: number;
+  startTime: string;
+  endTime: string;
+}
+export interface HospitalDoctor {
+  id: string;
+  fullName: string;
+  specialty: string | null;
+  workingHours: HospitalDoctorWindow[];
+}
+export interface HospitalServiceItem {
+  id: string;
+  name: string;
+}
+export interface AdminHospital {
+  id: string;
+  hospitalId: string;
+  hospitalCode: string;
+  name: string;
+  city: string | null;
+  region: string | null;
+  doctorRoster: HospitalDoctor[];
+  services: HospitalServiceItem[];
+}
+export const getAdminHospitals = () => get<{ success: boolean; hospitals: AdminHospital[] }>('/admin/hospitals');
+
+export const createHospital = (body: { hospital_id: string; hospital_code: string; name: string; country?: string; region?: string; city?: string }) =>
+  post<{ success: boolean; hospital: AdminHospital }>('/admin/hospitals', body);
+
+export const addHospitalService = (hospitalId: string, name: string) =>
+  post<{ success: boolean; service: HospitalServiceItem }>(`/admin/hospitals/${hospitalId}/services`, { name });
+
+export const deleteHospitalService = (hospitalId: string, serviceId: string) =>
+  del<{ success: boolean }>(`/admin/hospitals/${hospitalId}/services/${serviceId}`);
+
+export const addHospitalDoctor = (hospitalId: string, body: { full_name: string; specialty?: string }) =>
+  post<{ success: boolean; doctor: HospitalDoctor }>(`/admin/hospitals/${hospitalId}/doctors`, body);
+
+export const deleteHospitalDoctor = (hospitalId: string, doctorId: string) =>
+  del<{ success: boolean }>(`/admin/hospitals/${hospitalId}/doctors/${doctorId}`);
+
+export const setHospitalDoctorHours = (
+  hospitalId: string,
+  doctorId: string,
+  windows: { day_of_week: number; start_time: string; end_time: string }[]
+) => put<{ success: boolean; working_hours: HospitalDoctorWindow[] }>(`/admin/hospitals/${hospitalId}/doctors/${doctorId}/working-hours`, { windows });
 
 // ── Lab staff dashboard ──────────────────────────────────────────
 export type LabOrderStatus = 'requested' | 'scheduled' | 'sample_collected' | 'in_progress' | 'completed' | 'cancelled';

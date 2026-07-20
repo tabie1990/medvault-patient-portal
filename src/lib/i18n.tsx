@@ -228,7 +228,20 @@ const STRINGS = {
   noErrorsLogged: { en: 'Nothing logged — background jobs are running clean.', fr: 'Rien à signaler — les tâches en arrière-plan fonctionnent normalement.' },
   noStaleSyncs: { en: 'Every connected hospital has synced recently.', fr: "Tous les hôpitaux connectés ont synchronisé récemment." },
   lastSeen: { en: 'Last seen', fr: 'Vu pour la dernière fois' },
-  never: { en: 'Never', fr: 'Jamais' }
+  never: { en: 'Never', fr: 'Jamais' },
+  tabHospitals: { en: 'Hospitals', fr: 'Hôpitaux' },
+  registerAHospital: { en: 'Register a hospital', fr: 'Enregistrer un hôpital' },
+  hospitalName: { en: 'Hospital name', fr: "Nom de l'hôpital" },
+  hospitalIdLabel: { en: 'Hospital ID', fr: "ID de l'hôpital" },
+  hospitalCodeLabel: { en: 'Hospital code (3 letters)', fr: "Code de l'hôpital (3 lettres)" },
+  noHospitalsYet: { en: 'No hospitals registered yet.', fr: 'Aucun hôpital enregistré pour le moment.' },
+  hospitalServices: { en: 'Services offered', fr: 'Services offerts' },
+  addAHospitalService: { en: 'Add a service (e.g. Emergency Care)', fr: 'Ajouter un service (ex. Urgences)' },
+  hospitalDoctorRoster: { en: 'Doctor roster', fr: 'Liste des médecins' },
+  noRosterYet: { en: 'No doctors added yet.', fr: 'Aucun médecin ajouté.' },
+  addDoctorToRoster: { en: 'Add a doctor', fr: 'Ajouter un médecin' },
+  setHours: { en: 'Set hours', fr: 'Définir les horaires' },
+  remove: { en: 'Remove', fr: 'Retirer' }
 } as const;
 
 export type StringKey = keyof typeof STRINGS;
