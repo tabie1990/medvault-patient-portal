@@ -331,10 +331,17 @@ function HospitalsTab() {
   const [regName, setRegName] = useState('');
   const [regCity, setRegCity] = useState('');
   const [saving, setSaving] = useState(false);
+  const [loadError, setLoadError] = useState('');
 
   async function load() {
-    const res = await api.getAdminHospitals();
-    setHospitals(res.hospitals);
+    setLoadError('');
+    try {
+      const res = await api.getAdminHospitals();
+      setHospitals(res.hospitals);
+    } catch {
+      setLoadError('Failed to load hospitals — check the browser console and server logs.');
+      setHospitals([]);
+    }
   }
 
   useEffect(() => {
@@ -356,11 +363,16 @@ function HospitalsTab() {
     }
   }
 
-  if (!hospitals) return null;
+  if (hospitals === null) return <p style={{ color: 'var(--ink-soft)', fontSize: 14 }}>Loading…</p>;
 
   return (
     <div>
-      {hospitals.length === 0 && !showRegister && <p style={{ color: 'var(--ink-soft)', fontSize: 14, marginBottom: 16 }}>{t('noHospitalsYet')}</p>}
+      {loadError && (
+        <div style={{ background: '#FBEAE8', color: 'var(--danger)', borderRadius: 8, padding: '10px 12px', fontSize: 13, marginBottom: 16 }}>
+          {loadError}
+        </div>
+      )}
+      {hospitals.length === 0 && !showRegister && !loadError && <p style={{ color: 'var(--ink-soft)', fontSize: 14, marginBottom: 16 }}>{t('noHospitalsYet')}</p>}
 
       <div style={{ display: 'grid', gap: 12, marginBottom: 20 }}>
         {hospitals.map((h) => (
