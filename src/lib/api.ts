@@ -61,6 +61,25 @@ export const getDoctorAvailability = (doctorId: string, days = 7) =>
   get<{ success: boolean; slots: Record<string, string[]> }>(`/doctors/${doctorId}/availability/slots?days=${days}`);
 export const getDoctorPublic = (doctorId: string) => get<{ success: boolean; doctor: Doctor }>(`/doctors/${doctorId}/public`);
 
+// ── Hospitals — public browse, roster, services, proximity search ──
+export interface PublicHospital {
+  hospitalId: string;
+  name: string;
+  city: string | null;
+  region: string | null;
+  distance_km?: number;
+}
+export const browseHospitals = (city?: string) => get<{ success: boolean; hospitals: PublicHospital[] }>(`/hospitals${city ? `?city=${encodeURIComponent(city)}` : ''}`);
+
+export const getHospitalsNearby = (lat: number, lng: number, radiusKm = 25) =>
+  get<{ success: boolean; radius_km: number; hospitals: PublicHospital[] }>(`/hospitals/nearby?lat=${lat}&lng=${lng}&radius_km=${radiusKm}`);
+
+export const getPublicHospitalDoctors = (hospitalId: string) =>
+  get<{ success: boolean; doctors: HospitalDoctor[] }>(`/hospitals/${hospitalId}/doctors`);
+
+export const getPublicHospitalServices = (hospitalId: string) =>
+  get<{ success: boolean; services: HospitalServiceItem[] }>(`/hospitals/${hospitalId}/services`);
+
 // ── Appointments ─────────────────────────────────────────────────
 export interface Appointment {
   id: string;
@@ -73,14 +92,11 @@ export interface Appointment {
   paymentAmount: string | null;
   doctorId: string | null;
 }
-export const createAppointment = (body: {
-  doctor_id: string;
-  appointment_type: 'teleconsult';
-  requested_date: string;
-  requested_time: string;
-  global_patient_id: string;
-  notes?: string;
-}) => post<{ success: boolean; appointment: Appointment }>('/appointments', { ...body, source: 'patient_web' });
+export const createAppointment = (
+  body:
+    | { doctor_id: string; appointment_type: 'teleconsult'; requested_date: string; requested_time: string; global_patient_id: string; notes?: string }
+    | { hospital_id: string; appointment_type: 'in_person'; global_patient_id: string; notes?: string }
+) => post<{ success: boolean; appointment: Appointment }>('/appointments', { ...body, source: 'patient_web' });
 
 export const requestAppointmentPayment = (appointmentId: string, phone: string, amount: number) =>
   post<{ success: boolean; reference: string; ussd_code?: string; operator?: string }>(
@@ -344,13 +360,40 @@ export interface AdminHospital {
   name: string;
   city: string | null;
   region: string | null;
+  latitude: number | null;
+  longitude: number | null;
+  flatBookingFee: string | null;
+  appointmentSlotMinutes: number;
+  hospitalMomoNumber: string | null;
+  hospitalMomoNetwork: string | null;
   doctorRoster: HospitalDoctor[];
   services: HospitalServiceItem[];
 }
 export const getAdminHospitals = () => get<{ success: boolean; hospitals: AdminHospital[] }>('/admin/hospitals');
 
-export const createHospital = (body: { hospital_id: string; hospital_code: string; name: string; country?: string; region?: string; city?: string }) =>
+export const createHospital = (body: {
+  hospital_id: string;
+  hospital_code: string;
+  name: string;
+  country?: string;
+  region?: string;
+  city?: string;
+  latitude?: number;
+  longitude?: number;
+}) =>
   post<{ success: boolean; hospital: AdminHospital }>('/admin/hospitals', body);
+
+export const updateHospitalSettings = (
+  hospitalId: string,
+  body: {
+    latitude?: number;
+    longitude?: number;
+    flat_booking_fee?: number;
+    hospital_momo_number?: string;
+    hospital_momo_network?: string;
+    appointment_slot_minutes?: number;
+  }
+) => patch<{ success: boolean; hospital: AdminHospital }>(`/admin/hospitals/${hospitalId}`, body);
 
 export const addHospitalService = (hospitalId: string, name: string) =>
   post<{ success: boolean; service: HospitalServiceItem }>(`/admin/hospitals/${hospitalId}/services`, { name });

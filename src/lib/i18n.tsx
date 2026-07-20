@@ -241,7 +241,24 @@ const STRINGS = {
   noRosterYet: { en: 'No doctors added yet.', fr: 'Aucun médecin ajouté.' },
   addDoctorToRoster: { en: 'Add a doctor', fr: 'Ajouter un médecin' },
   setHours: { en: 'Set hours', fr: 'Définir les horaires' },
-  remove: { en: 'Remove', fr: 'Retirer' }
+  remove: { en: 'Remove', fr: 'Retirer' },
+  latitudeLabel: { en: 'Latitude', fr: 'Latitude' },
+  longitudeLabel: { en: 'Longitude', fr: 'Longitude' },
+  coordinatesLabel: { en: 'Coordinates (for "hospitals near me")', fr: 'Coordonnées (pour "hôpitaux à proximité")' },
+  coordinatesHint: { en: 'Optional — enables proximity search for this hospital.', fr: 'Facultatif — active la recherche de proximité pour cet hôpital.' },
+  paymentSettings: { en: 'Payment settings', fr: 'Paramètres de paiement' },
+  flatBookingFeeLabel: { en: 'Flat booking fee (FCFA)', fr: 'Frais de réservation fixe (FCFA)' },
+  flatBookingFeeHint: { en: 'Leave blank for no charge', fr: 'Laisser vide pour aucun frais' },
+  momoNetwork: { en: 'MoMo network', fr: 'Réseau Mobile Money' },
+  findAHospital: { en: 'Find a hospital', fr: 'Trouver un hôpital' },
+  useMyLocation: { en: 'Use my location', fr: 'Utiliser ma position' },
+  geolocationNotSupported: { en: "Your browser doesn't support location services.", fr: 'Votre navigateur ne prend pas en charge les services de localisation.' },
+  locationPermissionDenied: { en: "Couldn't get your location — check your browser's location permission.", fr: "Impossible d'obtenir votre position — vérifiez les autorisations de localisation de votre navigateur." },
+  noHospitalsFound: { en: 'No hospitals found.', fr: 'Aucun hôpital trouvé.' },
+  away: { en: 'away', fr: '' },
+  requestAppointment: { en: 'Request appointment', fr: 'Demander un rendez-vous' },
+  appointmentRequested: { en: 'Appointment requested', fr: 'Rendez-vous demandé' },
+  hospitalWillContact: { en: "The hospital's front desk will confirm a time and reach out to you.", fr: "L'accueil de l'hôpital confirmera un horaire et vous contactera." }
 } as const;
 
 export type StringKey = keyof typeof STRINGS;

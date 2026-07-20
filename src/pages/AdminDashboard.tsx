@@ -330,6 +330,8 @@ function HospitalsTab() {
   const [regCode, setRegCode] = useState('');
   const [regName, setRegName] = useState('');
   const [regCity, setRegCity] = useState('');
+  const [regLat, setRegLat] = useState('');
+  const [regLng, setRegLng] = useState('');
   const [saving, setSaving] = useState(false);
   const [loadError, setLoadError] = useState('');
 
@@ -351,11 +353,20 @@ function HospitalsTab() {
   async function handleRegister() {
     setSaving(true);
     try {
-      await api.createHospital({ hospital_id: regId, hospital_code: regCode, name: regName, city: regCity || undefined });
+      await api.createHospital({
+        hospital_id: regId,
+        hospital_code: regCode,
+        name: regName,
+        city: regCity || undefined,
+        latitude: regLat ? Number(regLat) : undefined,
+        longitude: regLng ? Number(regLng) : undefined
+      });
       setRegId('');
       setRegCode('');
       setRegName('');
       setRegCity('');
+      setRegLat('');
+      setRegLng('');
       setShowRegister(false);
       await load();
     } finally {
@@ -405,6 +416,17 @@ function HospitalsTab() {
           <input value={regCode} onChange={(e) => setRegCode(e.target.value.toUpperCase())} maxLength={3} style={smallInput} />
           <label style={{ ...smallLabel, marginTop: 10 }}>{t('city')}</label>
           <input value={regCity} onChange={(e) => setRegCity(e.target.value)} style={smallInput} />
+          <div style={{ display: 'flex', gap: 8, marginTop: 10 }}>
+            <div style={{ flex: 1 }}>
+              <label style={smallLabel}>{t('latitudeLabel')}</label>
+              <input value={regLat} onChange={(e) => setRegLat(e.target.value)} placeholder="4.0511" style={smallInput} />
+            </div>
+            <div style={{ flex: 1 }}>
+              <label style={smallLabel}>{t('longitudeLabel')}</label>
+              <input value={regLng} onChange={(e) => setRegLng(e.target.value)} placeholder="9.7679" style={smallInput} />
+            </div>
+          </div>
+          <p style={{ fontSize: 11, color: 'var(--ink-soft)', marginTop: 4 }}>{t('coordinatesHint')}</p>
           <div style={{ display: 'flex', gap: 8, marginTop: 14 }}>
             <button onClick={handleRegister} disabled={saving || !regId || !regCode || !regName} style={approveBtn}>
               {saving ? '…' : t('register')}
@@ -428,7 +450,30 @@ function HospitalDetail({ hospital, onChange, t }: { hospital: api.AdminHospital
   const [newDoctorName, setNewDoctorName] = useState('');
   const [newDoctorSpecialty, setNewDoctorSpecialty] = useState('');
   const [editingHoursFor, setEditingHoursFor] = useState<string | null>(null);
+  const [lat, setLat] = useState(hospital.latitude != null ? String(hospital.latitude) : '');
+  const [lng, setLng] = useState(hospital.longitude != null ? String(hospital.longitude) : '');
+  const [flatFee, setFlatFee] = useState(hospital.flatBookingFee != null ? String(hospital.flatBookingFee) : '');
+  const [slotMinutes, setSlotMinutes] = useState(String(hospital.appointmentSlotMinutes));
+  const [momoNumber, setMomoNumber] = useState(hospital.hospitalMomoNumber ?? '');
+  const [momoNetwork, setMomoNetwork] = useState(hospital.hospitalMomoNetwork ?? 'MTN');
   const [busy, setBusy] = useState(false);
+
+  async function handleSaveSettings() {
+    setBusy(true);
+    try {
+      await api.updateHospitalSettings(hospital.hospitalId, {
+        latitude: lat ? Number(lat) : undefined,
+        longitude: lng ? Number(lng) : undefined,
+        flat_booking_fee: flatFee ? Number(flatFee) : undefined,
+        appointment_slot_minutes: slotMinutes ? Number(slotMinutes) : undefined,
+        hospital_momo_number: momoNumber || undefined,
+        hospital_momo_network: momoNetwork || undefined
+      });
+      onChange();
+    } finally {
+      setBusy(false);
+    }
+  }
 
   async function handleAddService() {
     if (!newService) return;
@@ -492,6 +537,41 @@ function HospitalDetail({ hospital, onChange, t }: { hospital: api.AdminHospital
 
   return (
     <div style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid var(--line)' }}>
+      <h3 style={{ fontSize: 14, marginBottom: 8 }}>{t('coordinatesLabel')}</h3>
+      <div style={{ display: 'flex', gap: 8, marginBottom: 14 }}>
+        <input value={lat} onChange={(e) => setLat(e.target.value)} placeholder={t('latitudeLabel')} style={{ ...smallInput, flex: 1 }} />
+        <input value={lng} onChange={(e) => setLng(e.target.value)} placeholder={t('longitudeLabel')} style={{ ...smallInput, flex: 1 }} />
+      </div>
+
+      <h3 style={{ fontSize: 14, marginBottom: 8 }}>{t('paymentSettings')}</h3>
+      <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
+        <div style={{ flex: 1 }}>
+          <label style={smallLabel}>{t('flatBookingFeeLabel')}</label>
+          <input value={flatFee} onChange={(e) => setFlatFee(e.target.value)} placeholder={t('flatBookingFeeHint')} style={smallInput} />
+        </div>
+        <div style={{ flex: 1 }}>
+          <label style={smallLabel}>{t('slotLength')}</label>
+          <input value={slotMinutes} onChange={(e) => setSlotMinutes(e.target.value)} style={smallInput} />
+        </div>
+      </div>
+      <div style={{ display: 'flex', gap: 8, marginBottom: 14 }}>
+        <div style={{ flex: 1 }}>
+          <label style={smallLabel}>{t('momoNumberLabel')}</label>
+          <input value={momoNumber} onChange={(e) => setMomoNumber(e.target.value)} style={smallInput} />
+        </div>
+        <div style={{ flex: 1 }}>
+          <label style={smallLabel}>{t('momoNetwork')}</label>
+          <select value={momoNetwork} onChange={(e) => setMomoNetwork(e.target.value)} style={smallInput}>
+            <option value="MTN">MTN</option>
+            <option value="Orange">Orange</option>
+          </select>
+        </div>
+      </div>
+
+      <button onClick={handleSaveSettings} disabled={busy} style={{ ...approveBtn, marginBottom: 20 }}>
+        {t('save')}
+      </button>
+
       <h3 style={{ fontSize: 14, marginBottom: 8 }}>{t('hospitalServices')}</h3>
       <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 10 }}>
         {hospital.services.map((s) => (
