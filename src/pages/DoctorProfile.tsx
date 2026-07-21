@@ -7,6 +7,8 @@ export function DoctorProfile() {
   const { t } = useLang();
   const [specialty, setSpecialty] = useState('');
   const [consultationTypesText, setConsultationTypesText] = useState('');
+  const [momoNumber, setMomoNumber] = useState('');
+  const [momoNetwork, setMomoNetwork] = useState('MTN');
   const [saving, setSaving] = useState(false);
   const [savedMsg, setSavedMsg] = useState(false);
 
@@ -15,6 +17,8 @@ export function DoctorProfile() {
       setSpecialty(res.doctor.specialty ?? '');
       const types = Array.isArray(res.doctor.consultationTypes) ? res.doctor.consultationTypes : [];
       setConsultationTypesText(types.join(', '));
+      setMomoNumber(res.doctor.momoNumber ?? '');
+      setMomoNetwork(res.doctor.momoNetwork ?? 'MTN');
     });
   }, []);
 
@@ -26,7 +30,7 @@ export function DoctorProfile() {
         .split(',')
         .map((s) => s.trim())
         .filter(Boolean);
-      await api.setDoctorProfile({ specialty, consultation_types: consultation_types });
+      await api.setDoctorProfile({ specialty, consultation_types: consultation_types, momo_number: momoNumber, momo_network: momoNetwork });
       setSavedMsg(true);
     } finally {
       setSaving(false);
@@ -57,6 +61,22 @@ export function DoctorProfile() {
           style={{ width: '100%', padding: '11px 14px', fontSize: 15, border: '1.5px solid var(--line)', borderRadius: 8, boxSizing: 'border-box' }}
         />
         <p style={{ fontSize: 12, color: 'var(--ink-soft)', marginTop: 6, marginBottom: 18 }}>{t('consultationTypesHint')}</p>
+
+        <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: 'var(--navy)', marginBottom: 6 }}>{t('payoutDetails')}</label>
+        <input
+          value={momoNumber}
+          onChange={(e) => setMomoNumber(e.target.value)}
+          placeholder={t('momoNumberLabel')}
+          style={{ width: '100%', padding: '11px 14px', fontSize: 15, border: '1.5px solid var(--line)', borderRadius: 8, boxSizing: 'border-box', marginBottom: 10 }}
+        />
+        <select
+          value={momoNetwork}
+          onChange={(e) => setMomoNetwork(e.target.value)}
+          style={{ width: '100%', padding: '11px 14px', fontSize: 15, border: '1.5px solid var(--line)', borderRadius: 8, boxSizing: 'border-box', marginBottom: 18 }}
+        >
+          <option value="MTN">MTN</option>
+          <option value="Orange">Orange</option>
+        </select>
 
         <button
           onClick={handleSave}
