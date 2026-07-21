@@ -214,6 +214,8 @@ const STRINGS = {
   myProfile: { en: 'My profile', fr: 'Mon profil' },
   specialtyLabel: { en: 'Specialty', fr: 'Spécialité' },
   specialtyPlaceholder: { en: 'e.g. General Practice, Cardiology, Pediatrics', fr: 'ex. Médecine générale, Cardiologie, Pédiatrie' },
+  teleconsultFeeLabel: { en: 'Teleconsultation fee (FCFA)', fr: 'Frais de téléconsultation (FCFA)' },
+  teleconsultFeeHint: { en: 'What patients pay per consultation', fr: 'Ce que les patients paient par consultation' },
   consultationTypesLabel: { en: 'Consultation types offered', fr: 'Types de consultation offerts' },
   consultationTypesHint: { en: 'Comma-separated, e.g. General Consultation, Follow-up', fr: 'Séparés par des virgules, ex. Consultation générale, Suivi' },
   tabKycQueue: { en: 'KYC queue', fr: 'File de vérification' },

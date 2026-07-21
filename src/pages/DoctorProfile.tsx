@@ -9,6 +9,7 @@ export function DoctorProfile() {
   const [consultationTypesText, setConsultationTypesText] = useState('');
   const [momoNumber, setMomoNumber] = useState('');
   const [momoNetwork, setMomoNetwork] = useState('MTN');
+  const [teleconsultFee, setTeleconsultFee] = useState('');
   const [saving, setSaving] = useState(false);
   const [savedMsg, setSavedMsg] = useState(false);
 
@@ -19,6 +20,7 @@ export function DoctorProfile() {
       setConsultationTypesText(types.join(', '));
       setMomoNumber(res.doctor.momoNumber ?? '');
       setMomoNetwork(res.doctor.momoNetwork ?? 'MTN');
+      setTeleconsultFee(res.doctor.teleconsultFee ?? '');
     });
   }, []);
 
@@ -30,7 +32,13 @@ export function DoctorProfile() {
         .split(',')
         .map((s) => s.trim())
         .filter(Boolean);
-      await api.setDoctorProfile({ specialty, consultation_types: consultation_types, momo_number: momoNumber, momo_network: momoNetwork });
+      await api.setDoctorProfile({
+        specialty,
+        consultation_types: consultation_types,
+        momo_number: momoNumber,
+        momo_network: momoNetwork,
+        teleconsult_fee: teleconsultFee ? Number(teleconsultFee) : undefined
+      });
       setSavedMsg(true);
     } finally {
       setSaving(false);
@@ -61,6 +69,15 @@ export function DoctorProfile() {
           style={{ width: '100%', padding: '11px 14px', fontSize: 15, border: '1.5px solid var(--line)', borderRadius: 8, boxSizing: 'border-box' }}
         />
         <p style={{ fontSize: 12, color: 'var(--ink-soft)', marginTop: 6, marginBottom: 18 }}>{t('consultationTypesHint')}</p>
+
+        <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: 'var(--navy)', marginBottom: 6 }}>{t('teleconsultFeeLabel')}</label>
+        <input
+          value={teleconsultFee}
+          onChange={(e) => setTeleconsultFee(e.target.value)}
+          inputMode="numeric"
+          placeholder={t('teleconsultFeeHint')}
+          style={{ width: '100%', padding: '11px 14px', fontSize: 15, border: '1.5px solid var(--line)', borderRadius: 8, boxSizing: 'border-box', marginBottom: 18 }}
+        />
 
         <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: 'var(--navy)', marginBottom: 6 }}>{t('payoutDetails')}</label>
         <input
