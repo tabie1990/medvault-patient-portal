@@ -67,9 +67,15 @@ export interface PublicHospital {
   name: string;
   city: string | null;
   region: string | null;
+  flatBookingFee: string | null;
   distance_km?: number;
 }
 export const browseHospitals = (city?: string) => get<{ success: boolean; hospitals: PublicHospital[] }>(`/hospitals${city ? `?city=${encodeURIComponent(city)}` : ''}`);
+
+export const getPublicHospital = (hospitalId: string) => get<{ success: boolean; hospital: PublicHospital }>(`/hospitals/${hospitalId}`);
+
+export const getHospitalDoctorSlots = (hospitalId: string, rosterId: string, days = 7) =>
+  get<{ success: boolean; slots: Record<string, string[]> }>(`/hospitals/${hospitalId}/doctors/${rosterId}/slots?days=${days}`);
 
 export const getHospitalsNearby = (lat: number, lng: number, radiusKm = 25) =>
   get<{ success: boolean; radius_km: number; hospitals: PublicHospital[] }>(`/hospitals/nearby?lat=${lat}&lng=${lng}&radius_km=${radiusKm}`);
@@ -96,6 +102,15 @@ export const createAppointment = (
   body:
     | { doctor_id: string; appointment_type: 'teleconsult'; requested_date: string; requested_time: string; global_patient_id: string; notes?: string }
     | { hospital_id: string; appointment_type: 'in_person'; global_patient_id: string; notes?: string }
+    | {
+        hospital_id: string;
+        hospital_doctor_roster_id: string;
+        appointment_type: 'in_person';
+        requested_date: string;
+        requested_time: string;
+        global_patient_id: string;
+        notes?: string;
+      }
 ) => post<{ success: boolean; appointment: Appointment }>('/appointments', { ...body, source: 'patient_web' });
 
 export const requestAppointmentPayment = (appointmentId: string, phone: string, amount: number) =>
