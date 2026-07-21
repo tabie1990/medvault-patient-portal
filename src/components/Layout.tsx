@@ -82,7 +82,7 @@ function LoginMenu() {
 
 export function Layout({ children, wide }: { children: ReactNode; wide?: boolean }) {
   const { lang, setLang, t } = useLang();
-  const { token, logout } = useAuth();
+  const { token, role, logout } = useAuth();
   const navigate = useNavigate();
 
   return (
@@ -128,6 +128,19 @@ export function Layout({ children, wide }: { children: ReactNode; wide?: boolean
           </div>
           {token ? (
             <>
+              {role === 'patient' && (
+                <>
+                  <Link to="/find-a-doctor" style={{ color: 'rgba(255,255,255,0.85)', fontSize: 13, fontWeight: 600, textDecoration: 'none' }}>
+                    {t('findADoctorCta')}
+                  </Link>
+                  <Link to="/find-a-hospital" style={{ color: 'rgba(255,255,255,0.85)', fontSize: 13, fontWeight: 600, textDecoration: 'none' }}>
+                    {t('findAHospital')}
+                  </Link>
+                  <Link to="/find-a-lab" style={{ color: 'rgba(255,255,255,0.85)', fontSize: 13, fontWeight: 600, textDecoration: 'none' }}>
+                    {t('findALab')}
+                  </Link>
+                </>
+              )}
               <Link to="/appointments" style={{ color: 'rgba(255,255,255,0.85)', fontSize: 13, fontWeight: 600, textDecoration: 'none' }}>
                 {t('myAppointments')}
               </Link>

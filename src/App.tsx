@@ -9,6 +9,9 @@ import { StaffLogin } from './pages/StaffLogin';
 import { DoctorRegister } from './pages/DoctorRegister';
 import { ForgotPassword } from './pages/ForgotPassword';
 import { Doctors } from './pages/Doctors';
+import { Hospitals } from './pages/Hospitals';
+import { Labs } from './pages/Labs';
+import { HospitalDetail } from './pages/HospitalDetail';
 import { DoctorDetail } from './pages/DoctorDetail';
 import { MyAppointments } from './pages/MyAppointments';
 import { DoctorDashboard } from './pages/DoctorDashboard';
@@ -111,6 +114,30 @@ function AppRoutes() {
         element={
           <Layout>
             <DoctorDetail />
+          </Layout>
+        }
+      />
+      <Route
+        path="/find-a-hospital"
+        element={
+          <Layout>
+            <Hospitals />
+          </Layout>
+        }
+      />
+      <Route
+        path="/find-a-lab"
+        element={
+          <Layout>
+            <Labs />
+          </Layout>
+        }
+      />
+      <Route
+        path="/hospitals/:hospitalId"
+        element={
+          <Layout>
+            <HospitalDetail />
           </Layout>
         }
       />

@@ -72,6 +72,28 @@ export interface PublicHospital {
 }
 export const browseHospitals = (city?: string) => get<{ success: boolean; hospitals: PublicHospital[] }>(`/hospitals${city ? `?city=${encodeURIComponent(city)}` : ''}`);
 
+// ── Labs — public browse + patient booking ───────────────────────
+export interface PublicLabService {
+  id: string;
+  testName: string;
+  basePrice: string;
+}
+export interface PublicLabProvider {
+  id: string;
+  name: string;
+  city: string | null;
+  serviceType: 'on_site' | 'home_visit' | 'both';
+  services: PublicLabService[];
+}
+export const browseLabs = (city?: string) => get<{ success: boolean; lab_providers: PublicLabProvider[] }>(`/lab-providers${city ? `?city=${encodeURIComponent(city)}` : ''}`);
+
+export const createLabOrder = (body: {
+  lab_provider_id: string;
+  lab_service_ids: string[];
+  service_type: 'on_site' | 'home_visit' | 'both';
+  home_address?: string;
+}) => post<{ success: boolean; lab_order: { id: string; orderRef: string } }>('/lab-orders', body);
+
 export const getPublicHospital = (hospitalId: string) => get<{ success: boolean; hospital: PublicHospital }>(`/hospitals/${hospitalId}`);
 
 export const getHospitalDoctorSlots = (hospitalId: string, rosterId: string, days = 7) =>

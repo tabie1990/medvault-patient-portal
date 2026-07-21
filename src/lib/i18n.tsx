@@ -258,6 +258,13 @@ const STRINGS = {
   locationPermissionDenied: { en: "Couldn't get your location — check your browser's location permission.", fr: "Impossible d'obtenir votre position — vérifiez les autorisations de localisation de votre navigateur." },
   noHospitalsFound: { en: 'No hospitals found.', fr: 'Aucun hôpital trouvé.' },
   away: { en: 'away', fr: '' },
+  findALab: { en: 'Find a lab', fr: 'Trouver un laboratoire' },
+  noLabsFound: { en: 'No labs found.', fr: 'Aucun laboratoire trouvé.' },
+  onSite: { en: 'Visit the lab', fr: 'Se rendre au laboratoire' },
+  homeVisit: { en: 'Home visit', fr: 'Visite à domicile' },
+  homeAddress: { en: 'Your address', fr: 'Votre adresse' },
+  bookLabTest: { en: 'Book this test', fr: 'Réserver ce test' },
+  labOrderBooked: { en: 'Order booked', fr: 'Commande réservée' },
   requestAppointment: { en: 'Request appointment', fr: 'Demander un rendez-vous' },
   appointmentRequested: { en: 'Appointment requested', fr: 'Rendez-vous demandé' },
   hospitalWillContact: { en: "The hospital's front desk will confirm a time and reach out to you.", fr: "L'accueil de l'hôpital confirmera un horaire et vous contactera." }
