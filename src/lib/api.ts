@@ -219,6 +219,7 @@ export const submitDoctorKyc = (body: { national_id_key: string; medical_license
 // ── Doctor dashboard — their own appointments, with any linked session ──
 export interface AppointmentWithSession extends Appointment {
   telemedicineSession?: TelemedicineSession | null;
+  patient?: { fullName: string | null; dob: string | null; phone: string | null } | null;
 }
 export const getMyAppointments = () => get<{ success: boolean; appointments: AppointmentWithSession[] }>('/appointments/my');
 
@@ -319,6 +320,7 @@ export interface PendingDoctor {
   specialty: string | null;
   licenseNumber: string | null;
   kycSubmittedAt: string | null;
+  verificationStatus: 'pending' | 'verified' | 'rejected';
 }
 export interface PendingLabProvider {
   id: string;
@@ -326,9 +328,10 @@ export interface PendingLabProvider {
   city: string | null;
   businessRegistrationNumber: string | null;
   kycSubmittedAt: string | null;
+  verificationStatus: 'pending' | 'verified' | 'rejected';
 }
-export const getPendingKyc = () =>
-  get<{ success: boolean; doctors: PendingDoctor[]; lab_providers: PendingLabProvider[] }>('/admin/kyc/pending');
+export const getPendingKyc = (status: 'pending' | 'all' = 'pending') =>
+  get<{ success: boolean; doctors: PendingDoctor[]; lab_providers: PendingLabProvider[] }>(`/admin/kyc/pending?status=${status}`);
 
 export const getDoctorDocumentUrl = (doctorId: string, field: 'national_id' | 'medical_license' | 'selfie') =>
   get<{ success: boolean; url: string }>(`/admin/kyc/doctors/${doctorId}/document-url?field=${field}`);
@@ -366,8 +369,12 @@ export interface ErrorLogEntry {
   source: string;
   message: string;
   createdAt: string;
+  resolvedAt: string | null;
 }
-export const getErrorFeed = () => get<{ success: boolean; errors: ErrorLogEntry[] }>('/admin/errors?limit=50');
+export const getErrorFeed = (includeResolved = false) =>
+  get<{ success: boolean; errors: ErrorLogEntry[] }>(`/admin/errors?limit=50&include_resolved=${includeResolved}`);
+
+export const resolveError = (id: string) => post<{ success: boolean; error: ErrorLogEntry }>(`/admin/errors/${id}/resolve`, {});
 
 export interface StaleInstallation {
   id: string;

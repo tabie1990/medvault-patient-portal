@@ -8,6 +8,7 @@ export function DoctorDashboard() {
   const [appointments, setAppointments] = useState<api.AppointmentWithSession[] | null>(null);
   const [startingId, setStartingId] = useState<string | null>(null);
   const [verificationStatus, setVerificationStatus] = useState<string | null>(null);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
 
   async function load() {
     const res = await api.getMyAppointments();
@@ -34,6 +35,12 @@ export function DoctorDashboard() {
     } finally {
       setStartingId(null);
     }
+  }
+
+  async function handleCopyLink(appointmentId: string, roomUrl: string) {
+    await navigator.clipboard.writeText(roomUrl);
+    setCopiedId(appointmentId);
+    setTimeout(() => setCopiedId(null), 2000);
   }
 
   return (
@@ -115,27 +122,53 @@ export function DoctorDashboard() {
                 </span>
               </div>
 
+              {a.patient && (a.patient.fullName || a.patient.phone) && (
+                <div style={{ fontSize: 13, color: 'var(--ink-soft)', marginBottom: 10, paddingBottom: 10, borderBottom: '1px solid var(--line)' }}>
+                  {a.patient.fullName && <div style={{ fontWeight: 600, color: 'var(--navy)' }}>{a.patient.fullName}</div>}
+                  <div style={{ display: 'flex', gap: 12, marginTop: 2 }}>
+                    {a.patient.dob && <span>{t('dob')}: {new Date(a.patient.dob).toLocaleDateString(undefined, { timeZone: 'UTC' })}</span>}
+                    {a.patient.phone && <span>📞 {a.patient.phone}</span>}
+                  </div>
+                </div>
+              )}
+
               {!isPaid && <p style={{ fontSize: 13, color: 'var(--ink-soft)', margin: 0 }}>{t('waitingForPayment')}</p>}
 
               {isPaid && hasRoom && (
-                <a
-                  href={session!.roomUrl!}
-                  target="_blank"
-                  rel="noreferrer"
-                  style={{
-                    display: 'block',
-                    textAlign: 'center',
-                    padding: '11px 16px',
-                    fontSize: 14,
-                    fontWeight: 700,
-                    color: 'var(--white)',
-                    background: 'var(--success)',
-                    borderRadius: 8,
-                    textDecoration: 'none'
-                  }}
-                >
-                  {t('joinCall')}
-                </a>
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <a
+                    href={session!.roomUrl!}
+                    target="_blank"
+                    rel="noreferrer"
+                    style={{
+                      flex: 1,
+                      textAlign: 'center',
+                      padding: '11px 16px',
+                      fontSize: 14,
+                      fontWeight: 700,
+                      color: 'var(--white)',
+                      background: 'var(--success)',
+                      borderRadius: 8,
+                      textDecoration: 'none'
+                    }}
+                  >
+                    {t('joinCall')}
+                  </a>
+                  <button
+                    onClick={() => handleCopyLink(a.id, session!.roomUrl!)}
+                    style={{
+                      padding: '11px 16px',
+                      fontSize: 14,
+                      fontWeight: 700,
+                      color: 'var(--navy)',
+                      background: 'var(--white)',
+                      border: '1.5px solid var(--line)',
+                      borderRadius: 8
+                    }}
+                  >
+                    {copiedId === a.id ? `✓ ${t('copied')}` : t('copyLink')}
+                  </button>
+                </div>
               )}
 
               {isPaid && !hasRoom && (

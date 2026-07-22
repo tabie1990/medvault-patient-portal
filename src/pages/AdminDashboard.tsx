@@ -55,9 +55,10 @@ function KycQueue() {
   const [rejectingId, setRejectingId] = useState<string | null>(null);
   const [rejectReason, setRejectReason] = useState('');
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [showAll, setShowAll] = useState(false);
 
-  async function load() {
-    const res = await api.getPendingKyc();
+  async function load(all = showAll) {
+    const res = await api.getPendingKyc(all ? 'all' : 'pending');
     setDoctors(res.doctors);
     setLabs(res.lab_providers);
   }
@@ -132,7 +133,19 @@ function KycQueue() {
 
   return (
     <div>
-      <h1 style={{ fontSize: 24, marginBottom: 18 }}>{t('kycReviewQueue')}</h1>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 18 }}>
+        <h1 style={{ fontSize: 24 }}>{t('kycReviewQueue')}</h1>
+        <button
+          onClick={() => {
+            const next = !showAll;
+            setShowAll(next);
+            load(next);
+          }}
+          style={{ padding: '8px 14px', fontSize: 13, fontWeight: 700, color: 'var(--teal)', background: 'none', border: '1.5px solid var(--teal)', borderRadius: 6 }}
+        >
+          {showAll ? t('showPendingOnly') : t('showAll')}
+        </button>
+      </div>
 
       {nothingPending && <p style={{ color: 'var(--ink-soft)', fontSize: 14 }}>{t('noPendingReviews')}</p>}
 
@@ -142,7 +155,10 @@ function KycQueue() {
           <div style={{ display: 'grid', gap: 12, marginBottom: 24 }}>
             {doctors.map((d) => (
               <div key={d.id} style={cardStyle}>
-                <div style={{ fontWeight: 700, fontSize: 15, color: 'var(--navy)' }}>{d.fullName}</div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                  <div style={{ fontWeight: 700, fontSize: 15, color: 'var(--navy)' }}>{d.fullName}</div>
+                  <StatusBadge status={d.verificationStatus} t={t} />
+                </div>
                 <div style={{ fontSize: 13, color: 'var(--ink-soft)', marginBottom: 10 }}>
                   {d.email ?? d.phone} {d.specialty ? `· ${d.specialty}` : ''}
                 </div>
@@ -152,25 +168,26 @@ function KycQueue() {
                   <DocLink label={t('selfieDoc')} onClick={() => viewDoctorDoc(d.id, 'selfie')} />
                 </div>
 
-                {rejectingId === d.id ? (
-                  <RejectForm
-                    reason={rejectReason}
-                    setReason={setRejectReason}
-                    onConfirm={() => handleRejectDoctor(d.id)}
-                    onCancel={() => setRejectingId(null)}
-                    busy={busyId === d.id}
-                    t={t}
-                  />
-                ) : (
-                  <div style={{ display: 'flex', gap: 8 }}>
-                    <button onClick={() => handleApproveDoctor(d.id)} disabled={busyId === d.id} style={approveBtn}>
-                      {t('approve')}
-                    </button>
-                    <button onClick={() => setRejectingId(d.id)} disabled={busyId === d.id} style={rejectBtn}>
-                      {t('reject')}
-                    </button>
-                  </div>
-                )}
+                {d.verificationStatus === 'pending' &&
+                  (rejectingId === d.id ? (
+                    <RejectForm
+                      reason={rejectReason}
+                      setReason={setRejectReason}
+                      onConfirm={() => handleRejectDoctor(d.id)}
+                      onCancel={() => setRejectingId(null)}
+                      busy={busyId === d.id}
+                      t={t}
+                    />
+                  ) : (
+                    <div style={{ display: 'flex', gap: 8 }}>
+                      <button onClick={() => handleApproveDoctor(d.id)} disabled={busyId === d.id} style={approveBtn}>
+                        {t('approve')}
+                      </button>
+                      <button onClick={() => setRejectingId(d.id)} disabled={busyId === d.id} style={rejectBtn}>
+                        {t('reject')}
+                      </button>
+                    </div>
+                  ))}
               </div>
             ))}
           </div>
@@ -183,7 +200,10 @@ function KycQueue() {
           <div style={{ display: 'grid', gap: 12 }}>
             {labs.map((l) => (
               <div key={l.id} style={cardStyle}>
-                <div style={{ fontWeight: 700, fontSize: 15, color: 'var(--navy)' }}>{l.name}</div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                  <div style={{ fontWeight: 700, fontSize: 15, color: 'var(--navy)' }}>{l.name}</div>
+                  <StatusBadge status={l.verificationStatus} t={t} />
+                </div>
                 <div style={{ fontSize: 13, color: 'var(--ink-soft)', marginBottom: 10 }}>
                   {l.city} {l.businessRegistrationNumber ? `· #${l.businessRegistrationNumber}` : ''}
                 </div>
@@ -193,25 +213,26 @@ function KycQueue() {
                   <DocLink label={t('ownerIdDoc')} onClick={() => viewLabDoc(l.id, 'owner_id')} />
                 </div>
 
-                {rejectingId === l.id ? (
-                  <RejectForm
-                    reason={rejectReason}
-                    setReason={setRejectReason}
-                    onConfirm={() => handleRejectLab(l.id)}
-                    onCancel={() => setRejectingId(null)}
-                    busy={busyId === l.id}
-                    t={t}
-                  />
-                ) : (
-                  <div style={{ display: 'flex', gap: 8 }}>
-                    <button onClick={() => handleApproveLab(l.id)} disabled={busyId === l.id} style={approveBtn}>
-                      {t('approve')}
-                    </button>
-                    <button onClick={() => setRejectingId(l.id)} disabled={busyId === l.id} style={rejectBtn}>
-                      {t('reject')}
-                    </button>
-                  </div>
-                )}
+                {l.verificationStatus === 'pending' &&
+                  (rejectingId === l.id ? (
+                    <RejectForm
+                      reason={rejectReason}
+                      setReason={setRejectReason}
+                      onConfirm={() => handleRejectLab(l.id)}
+                      onCancel={() => setRejectingId(null)}
+                      busy={busyId === l.id}
+                      t={t}
+                    />
+                  ) : (
+                    <div style={{ display: 'flex', gap: 8 }}>
+                      <button onClick={() => handleApproveLab(l.id)} disabled={busyId === l.id} style={approveBtn}>
+                        {t('approve')}
+                      </button>
+                      <button onClick={() => setRejectingId(l.id)} disabled={busyId === l.id} style={rejectBtn}>
+                        {t('reject')}
+                      </button>
+                    </div>
+                  ))}
               </div>
             ))}
           </div>
@@ -263,24 +284,67 @@ function RevenueTab() {
 function ErrorFeedTab() {
   const { t } = useLang();
   const [errors, setErrors] = useState<api.ErrorLogEntry[] | null>(null);
+  const [includeResolved, setIncludeResolved] = useState(false);
+  const [resolvingId, setResolvingId] = useState<string | null>(null);
+
+  async function load(withResolved = includeResolved) {
+    const res = await api.getErrorFeed(withResolved);
+    setErrors(res.errors);
+  }
 
   useEffect(() => {
-    api.getErrorFeed().then((res) => setErrors(res.errors));
+    load();
   }, []);
+
+  async function handleResolve(id: string) {
+    setResolvingId(id);
+    try {
+      await api.resolveError(id);
+      await load();
+    } finally {
+      setResolvingId(null);
+    }
+  }
 
   if (!errors) return null;
 
   return (
     <div>
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 14 }}>
+        <button
+          onClick={() => {
+            const next = !includeResolved;
+            setIncludeResolved(next);
+            load(next);
+          }}
+          style={{ padding: '8px 14px', fontSize: 13, fontWeight: 700, color: 'var(--teal)', background: 'none', border: '1.5px solid var(--teal)', borderRadius: 6 }}
+        >
+          {includeResolved ? t('showPendingOnly') : t('showResolved')}
+        </button>
+      </div>
+
       {errors.length === 0 && <p style={{ color: 'var(--ink-soft)', fontSize: 14 }}>{t('noErrorsLogged')}</p>}
       <div style={{ display: 'grid', gap: 8 }}>
         {errors.map((e) => (
-          <div key={e.id} style={{ ...cardStyle, padding: '12px 16px' }}>
+          <div key={e.id} style={{ ...cardStyle, padding: '12px 16px', opacity: e.resolvedAt ? 0.6 : 1 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-              <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--danger)' }}>{e.source}</span>
+              <span style={{ fontSize: 12, fontWeight: 700, color: e.resolvedAt ? 'var(--success)' : 'var(--danger)' }}>
+                {e.source} {e.resolvedAt && `· ${t('resolved')}`}
+              </span>
               <span style={{ fontSize: 12, color: 'var(--ink-soft)' }}>{new Date(e.createdAt).toLocaleString()}</span>
             </div>
-            <div style={{ fontSize: 13, fontFamily: 'monospace', color: 'var(--ink)', wordBreak: 'break-word' }}>{e.message}</div>
+            <div style={{ fontSize: 13, fontFamily: 'monospace', color: 'var(--ink)', wordBreak: 'break-word', marginBottom: e.resolvedAt ? 0 : 10 }}>
+              {e.message}
+            </div>
+            {!e.resolvedAt && (
+              <button
+                onClick={() => handleResolve(e.id)}
+                disabled={resolvingId === e.id}
+                style={{ padding: '6px 12px', fontSize: 12, fontWeight: 700, color: 'var(--white)', background: 'var(--teal)', border: 'none', borderRadius: 6 }}
+              >
+                {resolvingId === e.id ? '…' : t('resolve')}
+              </button>
+            )}
           </div>
         ))}
       </div>
@@ -647,6 +711,19 @@ function StatCard({ label, value, accent }: { label: string; value: string; acce
       <div style={{ fontSize: 12, color: 'var(--ink-soft)', marginBottom: 6 }}>{label}</div>
       <div style={{ fontSize: 22, fontWeight: 700, color: accent, fontFamily: 'var(--font-display)' }}>{value}</div>
     </div>
+  );
+}
+
+function StatusBadge({ status, t }: { status: 'pending' | 'verified' | 'rejected'; t: (k: any) => string }) {
+  const colors = {
+    pending: { bg: '#FBF1E8', fg: 'var(--clay)' },
+    verified: { bg: '#E4F3EA', fg: 'var(--success)' },
+    rejected: { bg: '#FBEAE8', fg: 'var(--danger)' }
+  }[status];
+  return (
+    <span style={{ fontSize: 11, fontWeight: 700, padding: '3px 9px', borderRadius: 20, background: colors.bg, color: colors.fg, textTransform: 'uppercase' }}>
+      {status}
+    </span>
   );
 }
 
