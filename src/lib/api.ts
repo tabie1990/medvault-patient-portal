@@ -219,6 +219,7 @@ export const submitDoctorKyc = (body: { national_id_key: string; medical_license
 // ── Doctor dashboard — their own appointments, with any linked session ──
 export interface AppointmentWithSession extends Appointment {
   telemedicineSession?: TelemedicineSession | null;
+  patient?: { fullName: string | null; dob: string | null; phone: string | null } | null;
 }
 export const getMyAppointments = () => get<{ success: boolean; appointments: AppointmentWithSession[] }>('/appointments/my');
 
