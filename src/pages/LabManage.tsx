@@ -21,6 +21,7 @@ export function LabManage() {
 
   const [momoNumber, setMomoNumber] = useState('');
   const [momoNetwork, setMomoNetwork] = useState('MTN');
+  const [email, setEmail] = useState('');
   const [savingMomo, setSavingMomo] = useState(false);
   const [savingHours, setSavingHours] = useState(false);
 
@@ -32,6 +33,7 @@ export function LabManage() {
       setLab(found);
       setMomoNumber(found.momoNumber ?? '');
       setMomoNetwork(found.momoNetwork ?? 'MTN');
+      setEmail(found.email ?? '');
     }
     const staffRes = await api.getLabStaff(id);
     setStaff(staffRes.staff);
@@ -73,7 +75,7 @@ export function LabManage() {
     if (!id) return;
     setSavingMomo(true);
     try {
-      await api.setLabPayoutDetails(id, { momo_number: momoNumber, momo_network: momoNetwork });
+      await api.setLabPayoutDetails(id, { momo_number: momoNumber, momo_network: momoNetwork, email });
       await load();
     } finally {
       setSavingMomo(false);
@@ -142,6 +144,8 @@ export function LabManage() {
           <option value="MTN">MTN</option>
           <option value="Orange">Orange</option>
         </select>
+        <label style={{ ...labelStyle, marginTop: 10 }}>{t('contactEmailLabel')}</label>
+        <input value={email} onChange={(e) => setEmail(e.target.value)} placeholder={t('contactEmailHint')} style={inputStyle} />
         <button onClick={handleSaveMomo} disabled={savingMomo} style={{ ...primaryBtn, marginTop: 10, opacity: savingMomo ? 0.6 : 1 }}>
           {t('save')}
         </button>

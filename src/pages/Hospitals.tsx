@@ -45,8 +45,6 @@ export function Hospitals() {
         }
       },
       () => {
-        // Browser denied or failed to get a location — a real, common
-        // case (permission refused, no GPS signal), not a bug to chase.
         setLocationError(t('locationPermissionDenied'));
         setLoading(false);
       }

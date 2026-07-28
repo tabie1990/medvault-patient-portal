@@ -219,7 +219,6 @@ export const submitDoctorKyc = (body: { national_id_key: string; medical_license
 // ── Doctor dashboard — their own appointments, with any linked session ──
 export interface AppointmentWithSession extends Appointment {
   telemedicineSession?: TelemedicineSession | null;
-  patient?: { fullName: string | null; dob: string | null; phone: string | null } | null;
 }
 export const getMyAppointments = () => get<{ success: boolean; appointments: AppointmentWithSession[] }>('/appointments/my');
 
@@ -271,6 +270,7 @@ export interface MyLabProvider {
   verificationStatus: 'pending' | 'verified' | 'rejected';
   momoNumber: string | null;
   momoNetwork: string | null;
+  email: string | null;
   kycSubmittedAt: string | null;
   services: LabService[];
   workingHours: LabWorkingHoursWindow[];
@@ -283,7 +283,7 @@ export const setLabWorkingHours = (labId: string, windows: { day_of_week: number
 export const registerLab = (body: { name: string; service_type: string; city?: string }) =>
   post<{ success: boolean; lab_provider: MyLabProvider }>('/lab-providers/register', body);
 
-export const setLabPayoutDetails = (labId: string, body: { momo_number?: string; momo_network?: string; home_service_fee?: number }) =>
+export const setLabPayoutDetails = (labId: string, body: { momo_number?: string; momo_network?: string; home_service_fee?: number; email?: string }) =>
   patch<{ success: boolean; lab_provider: MyLabProvider }>(`/lab-providers/${labId}`, body);
 
 export const addLabService = (labId: string, body: { test_name: string; base_price: number }) =>
@@ -320,7 +320,6 @@ export interface PendingDoctor {
   specialty: string | null;
   licenseNumber: string | null;
   kycSubmittedAt: string | null;
-  verificationStatus: 'pending' | 'verified' | 'rejected';
 }
 export interface PendingLabProvider {
   id: string;
@@ -328,10 +327,9 @@ export interface PendingLabProvider {
   city: string | null;
   businessRegistrationNumber: string | null;
   kycSubmittedAt: string | null;
-  verificationStatus: 'pending' | 'verified' | 'rejected';
 }
-export const getPendingKyc = (status: 'pending' | 'all' = 'pending') =>
-  get<{ success: boolean; doctors: PendingDoctor[]; lab_providers: PendingLabProvider[] }>(`/admin/kyc/pending?status=${status}`);
+export const getPendingKyc = () =>
+  get<{ success: boolean; doctors: PendingDoctor[]; lab_providers: PendingLabProvider[] }>('/admin/kyc/pending');
 
 export const getDoctorDocumentUrl = (doctorId: string, field: 'national_id' | 'medical_license' | 'selfie') =>
   get<{ success: boolean; url: string }>(`/admin/kyc/doctors/${doctorId}/document-url?field=${field}`);
@@ -369,12 +367,8 @@ export interface ErrorLogEntry {
   source: string;
   message: string;
   createdAt: string;
-  resolvedAt: string | null;
 }
-export const getErrorFeed = (includeResolved = false) =>
-  get<{ success: boolean; errors: ErrorLogEntry[] }>(`/admin/errors?limit=50&include_resolved=${includeResolved}`);
-
-export const resolveError = (id: string) => post<{ success: boolean; error: ErrorLogEntry }>(`/admin/errors/${id}/resolve`, {});
+export const getErrorFeed = () => get<{ success: boolean; errors: ErrorLogEntry[] }>('/admin/errors?limit=50');
 
 export interface StaleInstallation {
   id: string;
@@ -415,6 +409,7 @@ export interface AdminHospital {
   appointmentSlotMinutes: number;
   hospitalMomoNumber: string | null;
   hospitalMomoNetwork: string | null;
+  email: string | null;
   doctorRoster: HospitalDoctor[];
   services: HospitalServiceItem[];
 }
@@ -441,6 +436,7 @@ export const updateHospitalSettings = (
     hospital_momo_number?: string;
     hospital_momo_network?: string;
     appointment_slot_minutes?: number;
+    email?: string;
   }
 ) => patch<{ success: boolean; hospital: AdminHospital }>(`/admin/hospitals/${hospitalId}`, body);
 
