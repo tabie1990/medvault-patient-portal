@@ -13,6 +13,9 @@ export function LabManage() {
   const [testName, setTestName] = useState('');
   const [price, setPrice] = useState('');
   const [addingService, setAddingService] = useState(false);
+  const [editingServiceId, setEditingServiceId] = useState<string | null>(null);
+  const [editingPrice, setEditingPrice] = useState('');
+  const [savingServiceId, setSavingServiceId] = useState<string | null>(null);
 
   const [staffName, setStaffName] = useState('');
   const [staffEmail, setStaffEmail] = useState('');
@@ -53,6 +56,18 @@ export function LabManage() {
       await load();
     } finally {
       setAddingService(false);
+    }
+  }
+
+  async function handleSavePrice(serviceId: string) {
+    if (!id || !editingPrice) return;
+    setSavingServiceId(serviceId);
+    try {
+      await api.updateLabService(id, serviceId, { base_price: Number(editingPrice) });
+      setEditingServiceId(null);
+      await load();
+    } finally {
+      setSavingServiceId(null);
     }
   }
 
@@ -163,9 +178,42 @@ export function LabManage() {
       <Section title={t('labServices')}>
         {lab.services.length === 0 && <p style={{ color: 'var(--ink-soft)', fontSize: 13 }}>{t('noServicesYet')}</p>}
         {lab.services.map((s) => (
-          <div key={s.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid var(--line)', fontSize: 14 }}>
+          <div key={s.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', borderBottom: '1px solid var(--line)', fontSize: 14 }}>
             <span>{s.testName}</span>
-            <span style={{ fontWeight: 700, color: 'var(--teal)' }}>{Number(s.basePrice).toLocaleString()} FCFA</span>
+            {editingServiceId === s.id ? (
+              <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
+                <input
+                  value={editingPrice}
+                  onChange={(e) => setEditingPrice(e.target.value)}
+                  inputMode="numeric"
+                  style={{ ...inputStyle, width: 90, padding: '5px 8px' }}
+                  autoFocus
+                />
+                <button
+                  onClick={() => handleSavePrice(s.id)}
+                  disabled={savingServiceId === s.id}
+                  style={{ ...primaryBtn, padding: '5px 10px', fontSize: 12 }}
+                >
+                  {savingServiceId === s.id ? '…' : t('save')}
+                </button>
+                <button
+                  onClick={() => setEditingServiceId(null)}
+                  style={{ background: 'none', border: 'none', color: 'var(--ink-soft)', fontSize: 12 }}
+                >
+                  {t('cancel')}
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={() => {
+                  setEditingServiceId(s.id);
+                  setEditingPrice(String(s.basePrice));
+                }}
+                style={{ background: 'none', border: 'none', fontWeight: 700, color: 'var(--teal)', cursor: 'pointer', padding: 0 }}
+              >
+                {Number(s.basePrice).toLocaleString()} FCFA ✏️
+              </button>
+            )}
           </div>
         ))}
         <div style={{ display: 'flex', gap: 8, marginTop: 14 }}>

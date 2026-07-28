@@ -290,6 +290,9 @@ export const setLabPayoutDetails = (labId: string, body: { momo_number?: string;
 export const addLabService = (labId: string, body: { test_name: string; base_price: number }) =>
   post<{ success: boolean; lab_service: LabService }>(`/lab-providers/${labId}/services`, body);
 
+export const updateLabService = (labId: string, serviceId: string, body: { test_name?: string; base_price?: number }) =>
+  patch<{ success: boolean; lab_service: LabService }>(`/lab-providers/${labId}/services/${serviceId}`, body);
+
 export interface LabStaffMember {
   id: string;
   fullName: string;
