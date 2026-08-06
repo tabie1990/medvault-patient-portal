@@ -15,6 +15,9 @@ export function DoctorProfile() {
   const [teleconsultFee, setTeleconsultFee] = useState('');
   const [saving, setSaving] = useState(false);
   const [savedMsg, setSavedMsg] = useState(false);
+  const [referralLink, setReferralLink] = useState('');
+  const [generatingLink, setGeneratingLink] = useState(false);
+  const [doctorPhone, setDoctorPhone] = useState('');
 
   useEffect(() => {
     api.getMyDoctorProfile().then((res) => {
@@ -27,6 +30,7 @@ export function DoctorProfile() {
       setMomoNumber(res.doctor.momoNumber ?? '');
       setMomoNetwork(res.doctor.momoNetwork ?? 'MTN');
       setTeleconsultFee(res.doctor.teleconsultFee ?? '');
+      setDoctorPhone(res.doctor.phone ?? '');
     });
   }, []);
 
@@ -51,6 +55,22 @@ export function DoctorProfile() {
       setSavedMsg(true);
     } finally {
       setSaving(false);
+    }
+  }
+
+  async function handleGenerateReferralLink() {
+    if (!fullName || !doctorPhone) return;
+    setGeneratingLink(true);
+    try {
+      const res = await api.generateReferralCode({
+        referrer_name: fullName,
+        referrer_phone: doctorPhone,
+        referrer_momo_number: momoNumber || undefined,
+        referrer_momo_network: momoNumber ? momoNetwork : undefined
+      });
+      setReferralLink(res.share_link);
+    } finally {
+      setGeneratingLink(false);
     }
   }
 
@@ -144,6 +164,31 @@ export function DoctorProfile() {
           {saving ? t('sending') : t('save')}
         </button>
         {savedMsg && <p style={{ fontSize: 13, color: 'var(--success)', marginTop: 12, fontWeight: 600 }}>{t('savedSuccessfully')}</p>}
+      </div>
+
+      <div style={{ background: 'var(--white)', border: '1px solid var(--line)', borderRadius: 'var(--radius)', padding: 18, marginTop: 16 }}>
+        <h2 style={{ fontSize: 15, marginBottom: 6, color: 'var(--navy)' }}>{t('myReferralLink')}</h2>
+        <p style={{ fontSize: 13, color: 'var(--ink-soft)', marginBottom: 14 }}>{t('myReferralLinkHint')}</p>
+        {referralLink ? (
+          <div style={{ background: 'var(--teal-light)', borderRadius: 8, padding: '10px 14px', fontSize: 13, wordBreak: 'break-all' }}>{referralLink}</div>
+        ) : (
+          <button
+            onClick={handleGenerateReferralLink}
+            disabled={generatingLink || !doctorPhone}
+            style={{
+              padding: '10px 18px',
+              fontSize: 13,
+              fontWeight: 700,
+              color: 'var(--white)',
+              background: 'var(--teal)',
+              border: 'none',
+              borderRadius: 8,
+              opacity: generatingLink || !doctorPhone ? 0.6 : 1
+            }}
+          >
+            {generatingLink ? t('sending') : t('generateLink')}
+          </button>
+        )}
       </div>
     </div>
   );

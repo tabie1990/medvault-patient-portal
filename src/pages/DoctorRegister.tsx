@@ -1,10 +1,12 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { useLang } from '../lib/i18n';
 import * as api from '../lib/api';
 
 export function DoctorRegister() {
   const { t } = useLang();
+  const [searchParams] = useSearchParams();
+  const referralCode = searchParams.get('ref');
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
@@ -16,7 +18,7 @@ export function DoctorRegister() {
     setLoading(true);
     setError('');
     try {
-      await api.registerDoctor({ full_name: fullName, email: email || undefined, phone: phone || undefined });
+      await api.registerDoctor({ full_name: fullName, email: email || undefined, phone: phone || undefined, referral_code: referralCode ?? undefined });
       setDone(true);
     } catch (e: any) {
       setError(e?.raw?.error === 'a_doctor_with_this_email_or_phone_already_exists' ? t('accountAlreadyExists') : t('somethingWentWrong'));
@@ -42,6 +44,12 @@ export function DoctorRegister() {
     <div style={{ maxWidth: 380, margin: '40px auto 0' }}>
       <h1 style={{ fontSize: 24, marginBottom: 8 }}>{t('doctorRegisterTitle')}</h1>
       <p style={{ color: 'var(--ink-soft)', fontSize: 14, marginBottom: 24 }}>{t('doctorRegisterIntro')}</p>
+
+      {referralCode && (
+        <div style={{ background: 'var(--teal-light)', borderRadius: 8, padding: '10px 14px', fontSize: 13, marginBottom: 20 }}>
+          🎉 {t('referredByCode')}: <strong>{referralCode}</strong>
+        </div>
+      )}
 
       {error && (
         <div style={{ background: '#FBEAE8', color: 'var(--danger)', borderRadius: 8, padding: '10px 12px', fontSize: 13, marginBottom: 16 }}>

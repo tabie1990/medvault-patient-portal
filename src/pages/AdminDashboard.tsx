@@ -3,7 +3,7 @@ import { useLang } from '../lib/i18n';
 import * as api from '../lib/api';
 import { WeeklyScheduleEditor, type WeeklyWindow } from '../components/WeeklyScheduleEditor';
 
-type Tab = 'kyc' | 'revenue' | 'errors' | 'stale' | 'hospitals';
+type Tab = 'kyc' | 'revenue' | 'errors' | 'stale' | 'hospitals' | 'referrals';
 
 export function AdminDashboard() {
   const { t } = useLang();
@@ -14,7 +14,8 @@ export function AdminDashboard() {
     { key: 'revenue', label: t('tabRevenue') },
     { key: 'errors', label: t('tabErrors') },
     { key: 'stale', label: t('tabStaleSync') },
-    { key: 'hospitals', label: t('tabHospitals') }
+    { key: 'hospitals', label: t('tabHospitals') },
+    { key: 'referrals', label: t('referrals') }
   ];
 
   return (
@@ -44,6 +45,7 @@ export function AdminDashboard() {
       {tab === 'errors' && <ErrorFeedTab />}
       {tab === 'stale' && <StaleSyncTab />}
       {tab === 'hospitals' && <HospitalsTab />}
+      {tab === 'referrals' && <ReferralsTab />}
     </div>
   );
 }
@@ -283,6 +285,76 @@ function ErrorFeedTab() {
             <div style={{ fontSize: 13, fontFamily: 'monospace', color: 'var(--ink)', wordBreak: 'break-word' }}>{e.message}</div>
           </div>
         ))}
+      </div>
+    </div>
+  );
+}
+
+function ReferralsTab() {
+  const { t } = useLang();
+  const [referrals, setReferrals] = useState<api.ReferralEntry[] | null>(null);
+  const [payingId, setPayingId] = useState<string | null>(null);
+
+  async function load() {
+    const res = await api.getReferrals();
+    setReferrals(res.referrals);
+  }
+
+  useEffect(() => {
+    load();
+  }, []);
+
+  async function handleMarkPaid(id: string) {
+    setPayingId(id);
+    try {
+      await api.markReferralPaid(id);
+      await load();
+    } finally {
+      setPayingId(null);
+    }
+  }
+
+  if (!referrals) return null;
+
+  const statusColors: Record<string, { bg: string; fg: string }> = {
+    pending: { bg: '#FBF1E8', fg: 'var(--clay)' },
+    reward_owed: { bg: '#FFF4CC', fg: '#8A6D00' },
+    paid: { bg: '#E4F3EA', fg: 'var(--success)' }
+  };
+
+  return (
+    <div>
+      {referrals.length === 0 && <p style={{ color: 'var(--ink-soft)', fontSize: 14 }}>{t('noReferralsYet')}</p>}
+      <div style={{ display: 'grid', gap: 10 }}>
+        {referrals.map((r) => {
+          const colors = statusColors[r.status];
+          return (
+            <div key={r.id} style={cardStyle}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 8 }}>
+                <div>
+                  <div style={{ fontWeight: 700, fontSize: 15, color: 'var(--navy)' }}>{r.referralCode.referrerName}</div>
+                  <div style={{ fontSize: 12, color: 'var(--ink-soft)' }}>{r.referralCode.referrerPhone} · {t('referredDoctor')}: {r.referredDoctorName ?? '—'}</div>
+                </div>
+                <span style={{ fontSize: 11, fontWeight: 700, padding: '3px 9px', borderRadius: 20, background: colors.bg, color: colors.fg, textTransform: 'uppercase' }}>
+                  {r.status === 'reward_owed' ? t('rewardOwed') : r.status === 'paid' ? t('paid') : t('pending')}
+                </span>
+              </div>
+              <div style={{ fontSize: 13, color: 'var(--ink-soft)', marginBottom: r.status === 'reward_owed' ? 12 : 0 }}>
+                {t('referralReward')}: {Number(r.rewardAmount).toLocaleString()} FCFA
+                {r.referralCode.referrerMomoNumber && ` · ${r.referralCode.referrerMomoNumber} (${r.referralCode.referrerMomoNetwork ?? ''})`}
+              </div>
+              {r.status === 'reward_owed' && (
+                <button
+                  onClick={() => handleMarkPaid(r.id)}
+                  disabled={payingId === r.id}
+                  style={{ padding: '7px 14px', fontSize: 12, fontWeight: 700, color: 'var(--white)', background: 'var(--teal)', border: 'none', borderRadius: 6 }}
+                >
+                  {payingId === r.id ? '…' : t('markPaid')}
+                </button>
+              )}
+            </div>
+          );
+        })}
       </div>
     </div>
   );

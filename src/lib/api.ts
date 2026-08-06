@@ -44,6 +44,7 @@ export const verifyOtp = (phone: string, code: string) =>
 export interface Doctor {
   id: string;
   fullName: string;
+  phone: string | null;
   specialty: string | null;
   consultationTypes: string[] | null;
   teleconsultFee: string | null;
@@ -185,7 +186,7 @@ export const forgotPassword = (identifier: string) => post<{ success: boolean }>
 export const resetPassword = (identifier: string, code: string, newPassword: string) =>
   post<{ success: boolean }>('/auth/reset-password', { identifier, code, new_password: newPassword });
 
-export const registerDoctor = (body: { full_name: string; email?: string; phone?: string; specialty?: string }) =>
+export const registerDoctor = (body: { full_name: string; email?: string; phone?: string; specialty?: string; referral_code?: string }) =>
   post<{ success: boolean; doctor: FullDoctor }>('/doctors/register', body);
 
 export interface FullDoctor extends Doctor {
@@ -378,6 +379,31 @@ export interface ErrorLogEntry {
   createdAt: string;
 }
 export const getErrorFeed = () => get<{ success: boolean; errors: ErrorLogEntry[] }>('/admin/errors?limit=50');
+
+// ── Doctor referral program ──────────────────────────────────────
+export interface ReferralEntry {
+  id: string;
+  status: 'pending' | 'reward_owed' | 'paid';
+  rewardAmount: string;
+  createdAt: string;
+  completedAt: string | null;
+  paidAt: string | null;
+  referredDoctorName: string | null;
+  referralCode: {
+    code: string;
+    referrerName: string;
+    referrerPhone: string;
+    referrerMomoNumber: string | null;
+    referrerMomoNetwork: string | null;
+  };
+}
+export const getReferrals = (status?: string) =>
+  get<{ success: boolean; referrals: ReferralEntry[] }>(`/admin/referrals${status ? `?status=${status}` : ''}`);
+
+export const markReferralPaid = (id: string) => post<{ success: boolean; referral: ReferralEntry }>(`/admin/referrals/${id}/mark-paid`, {});
+
+export const generateReferralCode = (body: { referrer_name: string; referrer_phone: string; referrer_momo_number?: string; referrer_momo_network?: string }) =>
+  post<{ success: boolean; code: string; share_link: string }>('/referrals/generate-code', body);
 
 export interface StaleInstallation {
   id: string;
