@@ -10,6 +10,7 @@ import { DoctorRegister } from './pages/DoctorRegister';
 import { ForgotPassword } from './pages/ForgotPassword';
 import { Doctors } from './pages/Doctors';
 import { Hospitals } from './pages/Hospitals';
+import { Refer } from './pages/Refer';
 import { Labs } from './pages/Labs';
 import { HospitalDetail } from './pages/HospitalDetail';
 import { DoctorDetail } from './pages/DoctorDetail';
@@ -122,6 +123,14 @@ function AppRoutes() {
         element={
           <Layout>
             <Hospitals />
+          </Layout>
+        }
+      />
+      <Route
+        path="/refer"
+        element={
+          <Layout>
+            <Refer />
           </Layout>
         }
       />

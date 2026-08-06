@@ -172,22 +172,35 @@ export function DoctorProfile() {
         {referralLink ? (
           <div style={{ background: 'var(--teal-light)', borderRadius: 8, padding: '10px 14px', fontSize: 13, wordBreak: 'break-all' }}>{referralLink}</div>
         ) : (
-          <button
-            onClick={handleGenerateReferralLink}
-            disabled={generatingLink || !doctorPhone}
-            style={{
-              padding: '10px 18px',
-              fontSize: 13,
-              fontWeight: 700,
-              color: 'var(--white)',
-              background: 'var(--teal)',
-              border: 'none',
-              borderRadius: 8,
-              opacity: generatingLink || !doctorPhone ? 0.6 : 1
-            }}
-          >
-            {generatingLink ? t('sending') : t('generateLink')}
-          </button>
+          <>
+            {!doctorPhone && (
+              <>
+                <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: 'var(--navy)', marginBottom: 6 }}>{t('phoneLabel')}</label>
+                <input
+                  value={doctorPhone}
+                  onChange={(e) => setDoctorPhone(e.target.value)}
+                  placeholder={t('phonePlaceholder')}
+                  style={{ width: '100%', padding: '11px 14px', fontSize: 15, border: '1.5px solid var(--line)', borderRadius: 8, boxSizing: 'border-box', marginBottom: 12 }}
+                />
+              </>
+            )}
+            <button
+              onClick={handleGenerateReferralLink}
+              disabled={generatingLink || !doctorPhone}
+              style={{
+                padding: '10px 18px',
+                fontSize: 13,
+                fontWeight: 700,
+                color: 'var(--white)',
+                background: 'var(--teal)',
+                border: 'none',
+                borderRadius: 8,
+                opacity: generatingLink || !doctorPhone ? 0.6 : 1
+              }}
+            >
+              {generatingLink ? t('sending') : t('generateLink')}
+            </button>
+          </>
         )}
       </div>
     </div>

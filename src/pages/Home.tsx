@@ -71,6 +71,21 @@ export function Home() {
               >
                 {t('forProvidersCta')}
               </Link>
+              <Link
+                to="/refer"
+                style={{
+                  padding: '13px 22px',
+                  background: 'rgba(255,255,255,0.1)',
+                  color: 'var(--white)',
+                  borderRadius: 10,
+                  fontWeight: 700,
+                  fontSize: 15,
+                  textDecoration: 'none',
+                  border: '1.5px solid rgba(255,255,255,0.3)'
+                }}
+              >
+                🎉 {t('referADoctor')}
+              </Link>
             </div>
           </div>
 
