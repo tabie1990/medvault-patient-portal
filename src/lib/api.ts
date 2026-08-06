@@ -193,6 +193,8 @@ export interface FullDoctor extends Doctor {
   momoNetwork: string | null;
   verificationStatus: 'pending' | 'verified' | 'rejected';
   teleconsultSlotMinutes: number;
+  dob: string | null;
+  address: string | null;
 }
 export const getMyDoctorProfile = () => get<{ success: boolean; doctor: FullDoctor }>('/doctors/me');
 
@@ -249,6 +251,9 @@ export const setDoctorProfile = (body: {
   momo_number?: string;
   momo_network?: string;
   teleconsult_fee?: number;
+  full_name?: string;
+  dob?: string;
+  address?: string;
 }) => patch<{ success: boolean; doctor: FullDoctor }>('/doctors/me', body);
 
 // ── A doctor's own labs — registration, staff, services, KYC ────

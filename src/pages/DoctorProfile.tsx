@@ -5,6 +5,9 @@ import * as api from '../lib/api';
 
 export function DoctorProfile() {
   const { t } = useLang();
+  const [fullName, setFullName] = useState('');
+  const [dob, setDob] = useState('');
+  const [address, setAddress] = useState('');
   const [specialty, setSpecialty] = useState('');
   const [consultationTypesText, setConsultationTypesText] = useState('');
   const [momoNumber, setMomoNumber] = useState('');
@@ -15,6 +18,9 @@ export function DoctorProfile() {
 
   useEffect(() => {
     api.getMyDoctorProfile().then((res) => {
+      setFullName(res.doctor.fullName ?? '');
+      setDob(res.doctor.dob ? res.doctor.dob.slice(0, 10) : '');
+      setAddress(res.doctor.address ?? '');
       setSpecialty(res.doctor.specialty ?? '');
       const types = Array.isArray(res.doctor.consultationTypes) ? res.doctor.consultationTypes : [];
       setConsultationTypesText(types.join(', '));
@@ -33,6 +39,9 @@ export function DoctorProfile() {
         .map((s) => s.trim())
         .filter(Boolean);
       await api.setDoctorProfile({
+        full_name: fullName,
+        dob: dob || undefined,
+        address,
         specialty,
         consultation_types: consultation_types,
         momo_number: momoNumber,
@@ -54,6 +63,29 @@ export function DoctorProfile() {
       <h1 style={{ fontSize: 24, marginBottom: 20 }}>{t('myProfile')}</h1>
 
       <div style={{ background: 'var(--white)', border: '1px solid var(--line)', borderRadius: 'var(--radius)', padding: 18 }}>
+        <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: 'var(--navy)', marginBottom: 6 }}>{t('fullNameLabel')}</label>
+        <input
+          value={fullName}
+          onChange={(e) => setFullName(e.target.value)}
+          style={{ width: '100%', padding: '11px 14px', fontSize: 15, border: '1.5px solid var(--line)', borderRadius: 8, boxSizing: 'border-box', marginBottom: 18 }}
+        />
+
+        <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: 'var(--navy)', marginBottom: 6 }}>{t('dobLabel')}</label>
+        <input
+          type="date"
+          value={dob}
+          onChange={(e) => setDob(e.target.value)}
+          style={{ width: '100%', padding: '11px 14px', fontSize: 15, border: '1.5px solid var(--line)', borderRadius: 8, boxSizing: 'border-box', marginBottom: 18 }}
+        />
+
+        <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: 'var(--navy)', marginBottom: 6 }}>{t('addressLabel')}</label>
+        <input
+          value={address}
+          onChange={(e) => setAddress(e.target.value)}
+          placeholder={t('addressPlaceholder')}
+          style={{ width: '100%', padding: '11px 14px', fontSize: 15, border: '1.5px solid var(--line)', borderRadius: 8, boxSizing: 'border-box', marginBottom: 18 }}
+        />
+
         <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: 'var(--navy)', marginBottom: 6 }}>{t('specialtyLabel')}</label>
         <input
           value={specialty}
