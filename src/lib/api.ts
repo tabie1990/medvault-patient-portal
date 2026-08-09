@@ -405,6 +405,91 @@ export const markReferralPaid = (id: string) => post<{ success: boolean; referra
 export const generateReferralCode = (body: { referrer_name: string; referrer_phone: string; referrer_momo_number?: string; referrer_momo_network?: string }) =>
   post<{ success: boolean; code: string; share_link: string }>('/referrals/generate-code', body);
 
+// ── Pediatric / immunization / postnatal ─────────────────────────
+export interface ChildSummary {
+  globalPatientId: string;
+  fullName: string;
+  dob: string;
+  sex: string | null;
+  relationship: string;
+}
+export interface VaccinationEntry {
+  id: string;
+  status: string;
+  scheduledDate: string;
+  administeredAt: string | null;
+  batchNumber: string | null;
+  administeredBy: string | null;
+  reportedByGuardianAt: string | null;
+  reportedDate: string | null;
+  proofImageKey: string | null;
+  scheduleItem: { vaccineName: string };
+}
+export interface GrowthMeasurementEntry {
+  id: string;
+  measuredAt: string;
+  weightKg: string | null;
+  heightCm: string | null;
+  headCircumferenceCm: string | null;
+  muacCm: string | null;
+  notes: string | null;
+}
+export interface MilestoneEntry {
+  id: string;
+  milestoneName: string;
+  achievedAt: string | null;
+  ageAtAssessmentMonths: number | null;
+  concernFlagged: boolean;
+  notes: string | null;
+}
+export interface NeonatalRecordEntry {
+  birthWeightKg: string | null;
+  birthLengthCm: string | null;
+  headCircumferenceCm: string | null;
+  apgar1Min: number | null;
+  apgar5Min: number | null;
+  modeOfDelivery: string | null;
+  gestationalAgeWeeks: number | null;
+  complications: string | null;
+  vitaminKGiven: boolean;
+  hepBBirthDoseGiven: boolean;
+  newbornScreeningResult: string | null;
+}
+export interface ChildFullRecord {
+  child: { globalPatientId: string; fullName: string; dob: string; sex: string | null };
+  guardians: { guardianPatientId: string; relationship: string }[];
+  growth_measurements: GrowthMeasurementEntry[];
+  vaccinations: VaccinationEntry[];
+  neonatal_record: NeonatalRecordEntry | null;
+  milestones: MilestoneEntry[];
+}
+
+export const registerChild = (body: { full_name: string; dob: string; sex?: string; relationship: string }) =>
+  post<{ success: boolean; child: { globalPatientId: string } }>('/pediatric/children', body);
+
+export const linkGuardianToChild = (childPatientId: string, body: { relationship: string }) =>
+  post<{ success: boolean }>(`/pediatric/children/${childPatientId}/guardians`, body);
+
+export const getMyChildren = () => get<{ success: boolean; children: ChildSummary[] }>('/pediatric/children');
+
+export const getChildFullRecord = (childPatientId: string) => get<ChildFullRecord & { success: boolean }>(`/pediatric/children/${childPatientId}`);
+
+export const recordGrowthMeasurement = (
+  childPatientId: string,
+  body: { weight_kg?: number; height_cm?: number; head_circumference_cm?: number; muac_cm?: number; notes?: string }
+) => post<{ success: boolean; measurement: GrowthMeasurementEntry }>(`/pediatric/children/${childPatientId}/growth-measurements`, body);
+
+export const administerVaccination = (vaccinationRecordId: string, body: { batch_number?: string; administered_by?: string; administered_at?: string }) =>
+  post<{ success: boolean }>(`/pediatric/vaccination-records/${vaccinationRecordId}/administer`, body);
+
+export const setNeonatalRecord = (childPatientId: string, body: Record<string, unknown>) =>
+  post<{ success: boolean; neonatal_record: NeonatalRecordEntry }>(`/pediatric/children/${childPatientId}/neonatal-record`, body);
+
+export const recordMilestone = (
+  childPatientId: string,
+  body: { milestone_name: string; achieved_at?: string; age_at_assessment_months?: number; concern_flagged?: boolean; notes?: string }
+) => post<{ success: boolean; milestone: MilestoneEntry }>(`/pediatric/children/${childPatientId}/milestones`, body);
+
 export interface StaleInstallation {
   id: string;
   installationId: string;

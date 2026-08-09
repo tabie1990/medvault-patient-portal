@@ -139,7 +139,15 @@ export function Layout({ children, wide }: { children: ReactNode; wide?: boolean
                   <Link to="/find-a-lab" style={{ color: 'rgba(255,255,255,0.85)', fontSize: 13, fontWeight: 600, textDecoration: 'none' }}>
                     {t('findALab')}
                   </Link>
+                  <Link to="/children" style={{ color: 'rgba(255,255,255,0.85)', fontSize: 13, fontWeight: 600, textDecoration: 'none' }}>
+                    {t('myChildren')}
+                  </Link>
                 </>
+              )}
+              {role === 'doctor' && (
+                <Link to="/children" style={{ color: 'rgba(255,255,255,0.85)', fontSize: 13, fontWeight: 600, textDecoration: 'none' }}>
+                  {t('lookUpAChild')}
+                </Link>
               )}
               <Link to="/appointments" style={{ color: 'rgba(255,255,255,0.85)', fontSize: 13, fontWeight: 600, textDecoration: 'none' }}>
                 {t('myAppointments')}

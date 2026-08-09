@@ -11,6 +11,8 @@ import { ForgotPassword } from './pages/ForgotPassword';
 import { Doctors } from './pages/Doctors';
 import { Hospitals } from './pages/Hospitals';
 import { Refer } from './pages/Refer';
+import { Children } from './pages/Children';
+import { ChildDetail } from './pages/ChildDetail';
 import { Labs } from './pages/Labs';
 import { HospitalDetail } from './pages/HospitalDetail';
 import { DoctorDetail } from './pages/DoctorDetail';
@@ -132,6 +134,26 @@ function AppRoutes() {
           <Layout>
             <Refer />
           </Layout>
+        }
+      />
+      <Route
+        path="/children"
+        element={
+          <RequireAuth>
+            <Layout>
+              <Children />
+            </Layout>
+          </RequireAuth>
+        }
+      />
+      <Route
+        path="/children/:childId"
+        element={
+          <RequireAuth>
+            <Layout>
+              <ChildDetail />
+            </Layout>
+          </RequireAuth>
         }
       />
       <Route
