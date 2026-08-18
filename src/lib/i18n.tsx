@@ -234,6 +234,7 @@ const STRINGS = {
   },
   instantConsultsNeedsPhone: { en: 'Add a phone number below before turning this on.', fr: 'Ajoutez un numéro de téléphone ci-dessous avant d\'activer cette option.' },
   phoneAlreadyInUse: { en: 'That phone number is already registered to another doctor.', fr: 'Ce numéro de téléphone est déjà enregistré pour un autre médecin.' },
+  saveFailed: { en: "Couldn't save your changes — please try again, or check your connection.", fr: "Impossible d'enregistrer vos modifications — veuillez réessayer ou vérifier votre connexion." },
   tabKycQueue: { en: 'KYC queue', fr: 'File de vérification' },
   tabRevenue: { en: 'Revenue', fr: 'Revenus' },
   tabErrors: { en: 'Error feed', fr: 'Journal des erreurs' },

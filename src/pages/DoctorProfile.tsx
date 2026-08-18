@@ -23,6 +23,7 @@ export function DoctorProfile() {
   const [photoError, setPhotoError] = useState<string | null>(null);
   const [acceptingInstantConsults, setAcceptingInstantConsults] = useState(false);
   const [phoneError, setPhoneError] = useState<string | null>(null);
+  const [saveError, setSaveError] = useState<string | null>(null);
 
   useEffect(() => {
     api.getMyDoctorProfile().then((res) => {
@@ -67,6 +68,7 @@ export function DoctorProfile() {
     setSaving(true);
     setSavedMsg(false);
     setPhoneError(null);
+    setSaveError(null);
     try {
       const consultation_types = consultationTypesText
         .split(',')
@@ -83,11 +85,33 @@ export function DoctorProfile() {
         teleconsult_fee: teleconsultFee ? Number(teleconsultFee) : undefined,
         phone: doctorPhone || undefined
       });
+      // "Saved." previously just meant "the request didn't throw" — it
+      // kept showing whatever was locally typed regardless of what
+      // actually landed in the database. Re-syncing every field from the
+      // server's own response is what actually proves persistence, not
+      // just a lack of errors. Found the gap this was masking: a doctor
+      // saw "Saved." after updating their fee, with no way to tell
+      // whether it had really taken effect without a direct DB query.
+      setFullName(res.doctor.fullName ?? '');
+      setDob(res.doctor.dob ? res.doctor.dob.slice(0, 10) : '');
+      setAddress(res.doctor.address ?? '');
+      setSpecialty(res.doctor.specialty ?? '');
+      const savedTypes = Array.isArray(res.doctor.consultationTypes) ? res.doctor.consultationTypes : [];
+      setConsultationTypesText(savedTypes.join(', '));
+      setMomoNumber(res.doctor.momoNumber ?? '');
+      setMomoNetwork(res.doctor.momoNetwork ?? 'MTN');
+      setTeleconsultFee(res.doctor.teleconsultFee ?? '');
       setDoctorPhone(res.doctor.phone ?? '');
       setSavedMsg(true);
     } catch (e: any) {
       if (e?.status === 409) {
         setPhoneError(t('phoneAlreadyInUse'));
+      } else {
+        // Previously silent — any failure that wasn't specifically a 409
+        // duplicate-phone error left the form showing neither "Saved."
+        // nor any indication something went wrong, which is exactly how
+        // a save can fail with no visible sign of it.
+        setSaveError(t('saveFailed'));
       }
     } finally {
       setSaving(false);
@@ -304,6 +328,7 @@ export function DoctorProfile() {
           {saving ? t('sending') : t('save')}
         </button>
         {savedMsg && <p style={{ fontSize: 13, color: 'var(--success)', marginTop: 12, fontWeight: 600 }}>{t('savedSuccessfully')}</p>}
+        {saveError && <p style={{ fontSize: 13, color: 'var(--danger)', marginTop: 12, fontWeight: 600 }}>{saveError}</p>}
       </div>
 
       <div style={{ background: 'var(--white)', border: '1px solid var(--line)', borderRadius: 'var(--radius)', padding: 18, marginTop: 16 }}>
