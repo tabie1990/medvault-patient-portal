@@ -61,8 +61,31 @@ export function Doctors() {
               boxShadow: 'var(--shadow)'
             }}
           >
-            <div style={{ fontWeight: 700, fontSize: 16, color: 'var(--navy)' }}>{d.fullName}</div>
-            {d.specialty && <div style={{ fontSize: 13, color: 'var(--ink-soft)', marginTop: 2 }}>{d.specialty}</div>}
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <div
+                style={{
+                  width: 44,
+                  height: 44,
+                  borderRadius: '50%',
+                  overflow: 'hidden',
+                  background: 'var(--teal-light)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  flexShrink: 0
+                }}
+              >
+                {d.photoUrl ? (
+                  <img src={d.photoUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                ) : (
+                  <span style={{ fontSize: 16, fontWeight: 700, color: 'var(--teal)' }}>{d.fullName.trim().charAt(0).toUpperCase()}</span>
+                )}
+              </div>
+              <div>
+                <div style={{ fontWeight: 700, fontSize: 16, color: 'var(--navy)' }}>{d.fullName}</div>
+                {d.specialty && <div style={{ fontSize: 13, color: 'var(--ink-soft)', marginTop: 2 }}>{d.specialty}</div>}
+              </div>
+            </div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 10 }}>
               <span style={{ fontSize: 13, color: 'var(--teal)', fontWeight: 700 }}>
                 {d.teleconsultFee ? `${Number(d.teleconsultFee).toLocaleString()} FCFA` : ''} {d.teleconsultFee && t('perConsult')}

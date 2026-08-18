@@ -18,6 +18,10 @@ export function DoctorProfile() {
   const [referralLink, setReferralLink] = useState('');
   const [generatingLink, setGeneratingLink] = useState(false);
   const [doctorPhone, setDoctorPhone] = useState('');
+  const [photoUrl, setPhotoUrl] = useState<string | null>(null);
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const [photoError, setPhotoError] = useState<string | null>(null);
+  const [acceptingInstantConsults, setAcceptingInstantConsults] = useState(false);
 
   useEffect(() => {
     api.getMyDoctorProfile().then((res) => {
@@ -31,8 +35,32 @@ export function DoctorProfile() {
       setMomoNetwork(res.doctor.momoNetwork ?? 'MTN');
       setTeleconsultFee(res.doctor.teleconsultFee ?? '');
       setDoctorPhone(res.doctor.phone ?? '');
+      setPhotoUrl(res.doctor.photoUrl ?? null);
+      setAcceptingInstantConsults(res.doctor.acceptingInstantConsults ?? false);
     });
   }, []);
+
+  async function handlePhotoChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setPhotoError(null);
+    setUploadingPhoto(true);
+    try {
+      const { upload_url, key } = await api.getPhotoUploadUrl(file.name, file.type);
+      await api.uploadToPresignedUrl(upload_url, file);
+      const res = await api.setDoctorPhoto(key);
+      // Bust any stale cached copy of the old photo at this same URL
+      // (GET /doctors/:id/photo is cached for 24h — see doctors.routes.ts)
+      // by appending a cache-busting query param just for this immediate
+      // preview; the stored photoUrl itself stays clean.
+      setPhotoUrl(`${res.photo_url}?t=${Date.now()}`);
+    } catch {
+      setPhotoError(t('photoUploadFailed'));
+    } finally {
+      setUploadingPhoto(false);
+      e.target.value = '';
+    }
+  }
 
   async function handleSave() {
     setSaving(true);
@@ -55,6 +83,18 @@ export function DoctorProfile() {
       setSavedMsg(true);
     } finally {
       setSaving(false);
+    }
+  }
+
+  async function handleToggleInstantConsults(next: boolean) {
+    // Optimistic — the backend rejects turning this on without a phone
+    // number, so revert immediately if that happens instead of leaving
+    // the toggle showing a state that didn't actually save.
+    setAcceptingInstantConsults(next);
+    try {
+      await api.setDoctorProfile({ accepting_instant_consults: next });
+    } catch {
+      setAcceptingInstantConsults(!next);
     }
   }
 
@@ -81,6 +121,89 @@ export function DoctorProfile() {
       </Link>
 
       <h1 style={{ fontSize: 24, marginBottom: 20 }}>{t('myProfile')}</h1>
+
+      <div style={{ background: 'var(--white)', border: '1px solid var(--line)', borderRadius: 'var(--radius)', padding: 18, marginBottom: 16 }}>
+        <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: 'var(--navy)', marginBottom: 6 }}>{t('profilePhotoLabel')}</label>
+        <p style={{ fontSize: 12, color: 'var(--ink-soft)', marginBottom: 12 }}>{t('profilePhotoHint')}</p>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+          <div
+            style={{
+              width: 64,
+              height: 64,
+              borderRadius: '50%',
+              overflow: 'hidden',
+              background: 'var(--teal-light)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexShrink: 0
+            }}
+          >
+            {photoUrl ? (
+              <img src={photoUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            ) : (
+              <span style={{ fontSize: 22, fontWeight: 700, color: 'var(--teal)' }}>
+                {fullName ? fullName.trim().charAt(0).toUpperCase() : '?'}
+              </span>
+            )}
+          </div>
+          <label
+            style={{
+              padding: '9px 16px',
+              fontSize: 13,
+              fontWeight: 700,
+              color: 'var(--navy)',
+              background: 'var(--white)',
+              border: '1.5px solid var(--line)',
+              borderRadius: 8,
+              cursor: uploadingPhoto ? 'default' : 'pointer',
+              opacity: uploadingPhoto ? 0.6 : 1
+            }}
+          >
+            {uploadingPhoto ? t('uploadingPhoto') : t('uploadPhoto')}
+            <input type="file" accept="image/*" onChange={handlePhotoChange} disabled={uploadingPhoto} style={{ display: 'none' }} />
+          </label>
+        </div>
+        {photoError && <p style={{ fontSize: 12, color: 'var(--danger)', marginTop: 10 }}>{photoError}</p>}
+      </div>
+
+      <div style={{ background: 'var(--white)', border: '1px solid var(--line)', borderRadius: 'var(--radius)', padding: 18, marginBottom: 16 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 12 }}>
+          <div>
+            <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--navy)', marginBottom: 4 }}>{t('acceptingInstantConsultsLabel')}</div>
+            <p style={{ fontSize: 12, color: 'var(--ink-soft)' }}>{t('acceptingInstantConsultsHint')}</p>
+            {!doctorPhone && <p style={{ fontSize: 12, color: 'var(--clay)', marginTop: 6, fontWeight: 600 }}>{t('instantConsultsNeedsPhone')}</p>}
+          </div>
+          <button
+            onClick={() => handleToggleInstantConsults(!acceptingInstantConsults)}
+            disabled={!doctorPhone && !acceptingInstantConsults}
+            style={{
+              flexShrink: 0,
+              width: 46,
+              height: 26,
+              borderRadius: 13,
+              border: 'none',
+              background: acceptingInstantConsults ? 'var(--teal)' : 'var(--line)',
+              position: 'relative',
+              cursor: !doctorPhone && !acceptingInstantConsults ? 'not-allowed' : 'pointer',
+              opacity: !doctorPhone && !acceptingInstantConsults ? 0.6 : 1
+            }}
+          >
+            <span
+              style={{
+                position: 'absolute',
+                top: 3,
+                left: acceptingInstantConsults ? 23 : 3,
+                width: 20,
+                height: 20,
+                borderRadius: '50%',
+                background: 'var(--white)',
+                transition: 'left 0.15s ease'
+              }}
+            />
+          </button>
+        </div>
+      </div>
 
       <div style={{ background: 'var(--white)', border: '1px solid var(--line)', borderRadius: 'var(--radius)', padding: 18 }}>
         <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: 'var(--navy)', marginBottom: 6 }}>{t('fullNameLabel')}</label>

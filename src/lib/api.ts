@@ -48,6 +48,7 @@ export interface Doctor {
   specialty: string | null;
   consultationTypes: string[] | null;
   teleconsultFee: string | null;
+  photoUrl: string | null;
 }
 export const listDoctors = (params: { specialty?: string; name?: string } = {}) => {
   // URLSearchParams doesn't drop undefined values — it stringifies them to
@@ -196,6 +197,7 @@ export interface FullDoctor extends Doctor {
   teleconsultSlotMinutes: number;
   dob: string | null;
   address: string | null;
+  acceptingInstantConsults: boolean;
 }
 export const getMyDoctorProfile = () => get<{ success: boolean; doctor: FullDoctor }>('/doctors/me');
 
@@ -255,7 +257,17 @@ export const setDoctorProfile = (body: {
   full_name?: string;
   dob?: string;
   address?: string;
+  accepting_instant_consults?: boolean;
 }) => patch<{ success: boolean; doctor: FullDoctor }>('/doctors/me', body);
+
+// ── Doctor profile photo — direct-to-storage upload, same pattern as KYC ──
+export const getPhotoUploadUrl = (fileName: string, contentType: string) =>
+  post<{ success: boolean; upload_url: string; key: string }>('/doctors/me/photo/upload-url', {
+    file_name: fileName,
+    content_type: contentType
+  });
+
+export const setDoctorPhoto = (key: string) => post<{ success: boolean; photo_url: string }>('/doctors/me/photo', { key });
 
 // ── A doctor's own labs — registration, staff, services, KYC ────
 export interface LabService {

@@ -222,6 +222,17 @@ const STRINGS = {
   teleconsultFeeHint: { en: 'What patients pay per consultation', fr: 'Ce que les patients paient par consultation' },
   consultationTypesLabel: { en: 'Consultation types offered', fr: 'Types de consultation offerts' },
   consultationTypesHint: { en: 'Comma-separated, e.g. General Consultation, Follow-up', fr: 'Séparés par des virgules, ex. Consultation générale, Suivi' },
+  profilePhotoLabel: { en: 'Profile photo', fr: 'Photo de profil' },
+  profilePhotoHint: { en: 'Patients see this when booking with you.', fr: 'Les patients la voient lors de la prise de rendez-vous.' },
+  uploadPhoto: { en: 'Upload photo', fr: 'Téléverser une photo' },
+  uploadingPhoto: { en: 'Uploading…', fr: 'Téléversement…' },
+  photoUploadFailed: { en: "Couldn't upload that photo — try a smaller image.", fr: "Impossible de téléverser cette photo — essayez une image plus légère." },
+  acceptingInstantConsultsLabel: { en: 'Accept instant teleconsults via WhatsApp', fr: 'Accepter les téléconsultations instantanées via WhatsApp' },
+  acceptingInstantConsultsHint: {
+    en: "When on, you'll get a WhatsApp message the moment a patient requests an immediate consultation — first doctor to accept gets the patient. Requires a phone number on file.",
+    fr: "Une fois activé, vous recevrez un message WhatsApp dès qu'un patient demande une consultation immédiate — le premier médecin à accepter reçoit le patient. Un numéro de téléphone est requis."
+  },
+  instantConsultsNeedsPhone: { en: 'Add a phone number below before turning this on.', fr: 'Ajoutez un numéro de téléphone ci-dessous avant d\'activer cette option.' },
   tabKycQueue: { en: 'KYC queue', fr: 'File de vérification' },
   tabRevenue: { en: 'Revenue', fr: 'Revenus' },
   tabErrors: { en: 'Error feed', fr: 'Journal des erreurs' },

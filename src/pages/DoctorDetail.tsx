@@ -73,6 +73,34 @@ export function DoctorDetail() {
 
       <h1 style={{ fontSize: 22, marginBottom: 4 }}>{t('selectADate')}</h1>
 
+      {doctor && (
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, margin: '14px 0 18px' }}>
+          <div
+            style={{
+              width: 52,
+              height: 52,
+              borderRadius: '50%',
+              overflow: 'hidden',
+              background: 'var(--teal-light)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexShrink: 0
+            }}
+          >
+            {doctor.photoUrl ? (
+              <img src={doctor.photoUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+            ) : (
+              <span style={{ fontSize: 18, fontWeight: 700, color: 'var(--teal)' }}>{doctor.fullName.trim().charAt(0).toUpperCase()}</span>
+            )}
+          </div>
+          <div>
+            <div style={{ fontWeight: 700, fontSize: 16, color: 'var(--navy)' }}>{doctor.fullName}</div>
+            {doctor.specialty && <div style={{ fontSize: 13, color: 'var(--ink-soft)', marginTop: 2 }}>{doctor.specialty}</div>}
+          </div>
+        </div>
+      )}
+
       {!slots && <p style={{ color: 'var(--ink-soft)', fontSize: 14 }}>…</p>}
 
       {slots && (
