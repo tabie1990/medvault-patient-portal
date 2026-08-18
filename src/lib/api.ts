@@ -258,6 +258,7 @@ export const setDoctorProfile = (body: {
   dob?: string;
   address?: string;
   accepting_instant_consults?: boolean;
+  phone?: string;
 }) => patch<{ success: boolean; doctor: FullDoctor }>('/doctors/me', body);
 
 // ── Doctor profile photo — direct-to-storage upload, same pattern as KYC ──

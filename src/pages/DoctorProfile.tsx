@@ -22,6 +22,7 @@ export function DoctorProfile() {
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [photoError, setPhotoError] = useState<string | null>(null);
   const [acceptingInstantConsults, setAcceptingInstantConsults] = useState(false);
+  const [phoneError, setPhoneError] = useState<string | null>(null);
 
   useEffect(() => {
     api.getMyDoctorProfile().then((res) => {
@@ -65,12 +66,13 @@ export function DoctorProfile() {
   async function handleSave() {
     setSaving(true);
     setSavedMsg(false);
+    setPhoneError(null);
     try {
       const consultation_types = consultationTypesText
         .split(',')
         .map((s) => s.trim())
         .filter(Boolean);
-      await api.setDoctorProfile({
+      const res = await api.setDoctorProfile({
         full_name: fullName,
         dob: dob || undefined,
         address,
@@ -78,9 +80,15 @@ export function DoctorProfile() {
         consultation_types: consultation_types,
         momo_number: momoNumber,
         momo_network: momoNetwork,
-        teleconsult_fee: teleconsultFee ? Number(teleconsultFee) : undefined
+        teleconsult_fee: teleconsultFee ? Number(teleconsultFee) : undefined,
+        phone: doctorPhone || undefined
       });
+      setDoctorPhone(res.doctor.phone ?? '');
       setSavedMsg(true);
+    } catch (e: any) {
+      if (e?.status === 409) {
+        setPhoneError(t('phoneAlreadyInUse'));
+      }
     } finally {
       setSaving(false);
     }
@@ -212,6 +220,15 @@ export function DoctorProfile() {
           onChange={(e) => setFullName(e.target.value)}
           style={{ width: '100%', padding: '11px 14px', fontSize: 15, border: '1.5px solid var(--line)', borderRadius: 8, boxSizing: 'border-box', marginBottom: 18 }}
         />
+
+        <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: 'var(--navy)', marginBottom: 6 }}>{t('phoneLabel')}</label>
+        <input
+          value={doctorPhone}
+          onChange={(e) => setDoctorPhone(e.target.value)}
+          placeholder={t('phonePlaceholder')}
+          style={{ width: '100%', padding: '11px 14px', fontSize: 15, border: '1.5px solid var(--line)', borderRadius: 8, boxSizing: 'border-box', marginBottom: phoneError ? 6 : 18 }}
+        />
+        {phoneError && <p style={{ fontSize: 12, color: 'var(--danger)', marginBottom: 18 }}>{phoneError}</p>}
 
         <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: 'var(--navy)', marginBottom: 6 }}>{t('dobLabel')}</label>
         <input
