@@ -102,10 +102,19 @@ export function DoctorDashboard() {
                 <div>
                   <div style={{ fontWeight: 700, fontSize: 15, color: 'var(--navy)' }}>{t('teleconsult')}</div>
                   <div style={{ fontSize: 13, color: 'var(--ink-soft)', marginTop: 3 }}>
-                    {a.requestedDate
-                      ? new Date(a.requestedDate).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' })
-                      : ''}{' '}
-                    {a.requestedTime}
+                    {a.requestedDate ? (
+                      <>
+                        {new Date(a.requestedDate).toLocaleDateString(undefined, { year: 'numeric', month: 'long', day: 'numeric', timeZone: 'UTC' })}{' '}
+                        {a.requestedTime}
+                      </>
+                    ) : (
+                      // Instant-consult appointments genuinely have no
+                      // scheduled slot (see teleconsult-request.service.ts
+                      // — there's no date to book, only "now"), so this
+                      // line was rendering as a blank space rather than
+                      // just being missing data to fall back for.
+                      <>⚡ {t('instantConsultation')}</>
+                    )}
                   </div>
                 </div>
                 <span

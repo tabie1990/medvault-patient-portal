@@ -43,6 +43,7 @@ const STRINGS = {
   backToDoctors: { en: 'Back to doctors', fr: 'Retour aux médecins' },
   noAppointmentsYet: { en: "You don't have any appointments yet.", fr: "Vous n'avez pas encore de rendez-vous." },
   teleconsult: { en: 'Teleconsult', fr: 'Téléconsultation' },
+  instantConsultation: { en: 'Instant consultation', fr: 'Consultation instantanée' },
   somethingWentWrong: { en: 'Something went wrong. Please try again.', fr: "Une erreur s'est produite. Veuillez réessayer." },
   invalidCode: { en: 'That code is incorrect or has expired.', fr: 'Ce code est incorrect ou a expiré.' },
   staffLoginTitle: { en: 'Doctor / staff login', fr: 'Connexion médecin / personnel' },

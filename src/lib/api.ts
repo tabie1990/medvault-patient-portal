@@ -121,6 +121,7 @@ export interface Appointment {
   paymentStatus: string;
   paymentAmount: string | null;
   doctorId: string | null;
+  channel: string | null;
 }
 export const createAppointment = (
   body:
