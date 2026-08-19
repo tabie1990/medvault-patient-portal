@@ -18,6 +18,11 @@ export function DoctorDashboard() {
   const [rxItemsText, setRxItemsText] = useState('');
   const [creatingRx, setCreatingRx] = useState(false);
   const [sendingRxId, setSendingRxId] = useState<string | null>(null);
+  const [expandedIds, setExpandedIds] = useState<Record<string, boolean>>({});
+
+  function toggleExpanded(id: string) {
+    setExpandedIds((prev) => ({ ...prev, [id]: !prev[id] }));
+  }
 
   async function load() {
     const res = await api.getMyAppointments();
@@ -172,7 +177,10 @@ export function DoctorDashboard() {
                 boxShadow: 'var(--shadow)'
               }}
             >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 }}>
+              <div
+                onClick={() => toggleExpanded(a.id)}
+                style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: expandedIds[a.id] ? 12 : 0, cursor: 'pointer' }}
+              >
                 <div>
                   <div style={{ fontWeight: 700, fontSize: 15, color: 'var(--navy)' }}>{t('teleconsult')}</div>
                   <div style={{ fontSize: 13, color: 'var(--ink-soft)', marginTop: 3 }}>
@@ -201,21 +209,37 @@ export function DoctorDashboard() {
                     )}
                   </div>
                 </div>
-                <span
-                  style={{
-                    fontSize: 12,
-                    fontWeight: 700,
-                    padding: '4px 10px',
-                    borderRadius: 20,
-                    background: isPaid ? '#E4F3EA' : '#FBF1E8',
-                    color: isPaid ? 'var(--success)' : 'var(--clay)'
-                  }}
-                >
-                  {isPaid ? t('paid') : a.paymentStatus === 'pending' ? t('pending') : t('unpaid')}
-                </span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
+                  <span
+                    style={{
+                      fontSize: 12,
+                      fontWeight: 700,
+                      padding: '4px 10px',
+                      borderRadius: 20,
+                      background: isPaid ? '#E4F3EA' : '#FBF1E8',
+                      color: isPaid ? 'var(--success)' : 'var(--clay)'
+                    }}
+                  >
+                    {isPaid ? t('paid') : a.paymentStatus === 'pending' ? t('pending') : t('unpaid')}
+                  </span>
+                  <span
+                    style={{
+                      display: 'inline-block',
+                      fontSize: 14,
+                      color: 'var(--ink-soft)',
+                      transform: expandedIds[a.id] ? 'rotate(180deg)' : 'rotate(0deg)',
+                      transition: 'transform 0.15s ease'
+                    }}
+                    aria-label={expandedIds[a.id] ? t('collapse') : t('expand')}
+                  >
+                    ▾
+                  </span>
+                </div>
               </div>
 
-              {a.patient && (a.patient.fullName || a.patient.phone) && (
+              {expandedIds[a.id] && (
+                <>
+                  {a.patient && (a.patient.fullName || a.patient.phone) && (
                 <div style={{ fontSize: 13, color: 'var(--ink-soft)', marginBottom: 10, paddingBottom: 10, borderBottom: '1px solid var(--line)' }}>
                   {a.patient.fullName && <div style={{ fontWeight: 600, color: 'var(--navy)' }}>{a.patient.fullName}</div>}
                   <div style={{ display: 'flex', gap: 12, marginTop: 2 }}>
@@ -406,6 +430,8 @@ export function DoctorDashboard() {
                     </button>
                   )}
                 </div>
+              )}
+                </>
               )}
             </div>
           );

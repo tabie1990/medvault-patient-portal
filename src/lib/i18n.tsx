@@ -205,6 +205,8 @@ const STRINGS = {
   rejectionReason: { en: 'Reason for rejection', fr: 'Motif du rejet' },
   confirmReject: { en: 'Confirm rejection', fr: 'Confirmer le rejet' },
   cancel: { en: 'Cancel', fr: 'Annuler' },
+  expand: { en: 'Expand', fr: 'Développer' },
+  collapse: { en: 'Collapse', fr: 'Réduire' },
   applySameHoursToAllDays: { en: 'Apply same hours to all checked days', fr: 'Appliquer les mêmes horaires à tous les jours cochés' },
   myAvailability: { en: 'My availability', fr: 'Mes disponibilités' },
   availabilityIntro: {
