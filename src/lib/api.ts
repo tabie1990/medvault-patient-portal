@@ -122,6 +122,7 @@ export interface Appointment {
   paymentAmount: string | null;
   doctorId: string | null;
   channel: string | null;
+  createdAt: string;
 }
 export const createAppointment = (
   body:
@@ -199,6 +200,8 @@ export interface FullDoctor extends Doctor {
   dob: string | null;
   address: string | null;
   acceptingInstantConsults: boolean;
+  hasSignature: boolean;
+  hasStamp: boolean;
 }
 export const getMyDoctorProfile = () => get<{ success: boolean; doctor: FullDoctor }>('/doctors/me');
 
@@ -228,6 +231,48 @@ export interface AppointmentWithSession extends Appointment {
   patient?: { fullName: string | null; dob: string | null; phone: string | null } | null;
 }
 export const getMyAppointments = () => get<{ success: boolean; appointments: AppointmentWithSession[] }>('/appointments/my');
+
+export const markAppointmentCompleted = (appointmentId: string) =>
+  patch<{ success: boolean; appointment: Appointment }>(`/appointments/${appointmentId}/complete`, {});
+
+// ── Prescriptions ──
+export interface PrescriptionItem {
+  type: 'medication' | 'lab_request' | 'imaging_request';
+  name: string;
+  dose?: string;
+  frequency?: string;
+  duration?: string;
+  notes?: string;
+}
+export interface Prescription {
+  id: string;
+  prescriptionRef: string;
+  appointmentId: string;
+  symptoms: string | null;
+  diagnosis: string | null;
+  notes: string | null;
+  items: PrescriptionItem[];
+  status: string;
+  sentAt: string | null;
+  createdAt: string;
+}
+export const createPrescription = (body: { appointment_id: string; symptoms?: string; diagnosis?: string; notes?: string; items: PrescriptionItem[] }) =>
+  post<{ success: boolean; prescription: Prescription }>('/prescriptions', body);
+
+export const getPrescriptionsForAppointment = (appointmentId: string) =>
+  get<{ success: boolean; prescriptions: Prescription[] }>(`/prescriptions/appointment/${appointmentId}`);
+
+export const sendPrescription = (prescriptionId: string) =>
+  post<{ success: boolean; prescription: Prescription }>(`/prescriptions/${prescriptionId}/send`, {});
+
+// ── Doctor signature & stamp — same direct-to-storage pattern as photo ──
+export const getSignatureUploadUrl = (fileName: string, contentType: string) =>
+  post<{ success: boolean; upload_url: string; key: string }>('/doctors/me/signature/upload-url', { file_name: fileName, content_type: contentType });
+export const setDoctorSignature = (key: string) => post<{ success: boolean }>('/doctors/me/signature', { key });
+
+export const getStampUploadUrl = (fileName: string, contentType: string) =>
+  post<{ success: boolean; upload_url: string; key: string }>('/doctors/me/stamp/upload-url', { file_name: fileName, content_type: contentType });
+export const setDoctorStamp = (key: string) => post<{ success: boolean }>('/doctors/me/stamp', { key });
 
 export const createTelemedicineSession = (appointmentId: string) =>
   post<{ success: boolean; session: TelemedicineSession }>('/telemedicine/sessions', { appointment_id: appointmentId });

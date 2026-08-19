@@ -24,6 +24,12 @@ export function DoctorProfile() {
   const [acceptingInstantConsults, setAcceptingInstantConsults] = useState(false);
   const [phoneError, setPhoneError] = useState<string | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
+  const [hasSignature, setHasSignature] = useState(false);
+  const [hasStamp, setHasStamp] = useState(false);
+  const [uploadingSignature, setUploadingSignature] = useState(false);
+  const [uploadingStamp, setUploadingStamp] = useState(false);
+  const [signatureError, setSignatureError] = useState<string | null>(null);
+  const [stampError, setStampError] = useState<string | null>(null);
 
   useEffect(() => {
     api.getMyDoctorProfile().then((res) => {
@@ -39,6 +45,8 @@ export function DoctorProfile() {
       setDoctorPhone(res.doctor.phone ?? '');
       setPhotoUrl(res.doctor.photoUrl ?? null);
       setAcceptingInstantConsults(res.doctor.acceptingInstantConsults ?? false);
+      setHasSignature(res.doctor.hasSignature ?? false);
+      setHasStamp(res.doctor.hasStamp ?? false);
     });
   }, []);
 
@@ -60,6 +68,29 @@ export function DoctorProfile() {
       setPhotoError(t('photoUploadFailed'));
     } finally {
       setUploadingPhoto(false);
+      e.target.value = '';
+    }
+  }
+
+  async function handleSignatureOrStampChange(kind: 'signature' | 'stamp', e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const setUploading = kind === 'signature' ? setUploadingSignature : setUploadingStamp;
+    const setError = kind === 'signature' ? setSignatureError : setStampError;
+    const setHas = kind === 'signature' ? setHasSignature : setHasStamp;
+    setError(null);
+    setUploading(true);
+    try {
+      const { upload_url, key } =
+        kind === 'signature' ? await api.getSignatureUploadUrl(file.name, file.type) : await api.getStampUploadUrl(file.name, file.type);
+      await api.uploadToPresignedUrl(upload_url, file);
+      if (kind === 'signature') await api.setDoctorSignature(key);
+      else await api.setDoctorStamp(key);
+      setHas(true);
+    } catch {
+      setError(t('photoUploadFailed'));
+    } finally {
+      setUploading(false);
       e.target.value = '';
     }
   }
@@ -197,6 +228,69 @@ export function DoctorProfile() {
           </label>
         </div>
         {photoError && <p style={{ fontSize: 12, color: 'var(--danger)', marginTop: 10 }}>{photoError}</p>}
+      </div>
+
+      <div style={{ background: 'var(--white)', border: '1px solid var(--line)', borderRadius: 'var(--radius)', padding: 18, marginBottom: 16 }}>
+        <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: 'var(--navy)', marginBottom: 6 }}>{t('signatureAndStampLabel')}</label>
+        <p style={{ fontSize: 12, color: 'var(--ink-soft)', marginBottom: 14 }}>{t('signatureAndStampHint')}</p>
+        <div style={{ display: 'flex', gap: 24, flexWrap: 'wrap' }}>
+          <div>
+            <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--navy)', marginBottom: 6 }}>{t('signatureLabel')}</div>
+            <label
+              style={{
+                display: 'inline-block',
+                padding: '9px 16px',
+                fontSize: 13,
+                fontWeight: 700,
+                color: 'var(--navy)',
+                background: 'var(--white)',
+                border: '1.5px solid var(--line)',
+                borderRadius: 8,
+                cursor: uploadingSignature ? 'default' : 'pointer',
+                opacity: uploadingSignature ? 0.6 : 1
+              }}
+            >
+              {uploadingSignature ? t('uploadingPhoto') : hasSignature ? t('replaceFile') : t('uploadPhoto')}
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => handleSignatureOrStampChange('signature', e)}
+                disabled={uploadingSignature}
+                style={{ display: 'none' }}
+              />
+            </label>
+            {hasSignature && <p style={{ fontSize: 12, color: 'var(--success)', marginTop: 6 }}>✓ {t('onFile')}</p>}
+            {signatureError && <p style={{ fontSize: 12, color: 'var(--danger)', marginTop: 6 }}>{signatureError}</p>}
+          </div>
+          <div>
+            <div style={{ fontSize: 12, fontWeight: 600, color: 'var(--navy)', marginBottom: 6 }}>{t('stampLabel')}</div>
+            <label
+              style={{
+                display: 'inline-block',
+                padding: '9px 16px',
+                fontSize: 13,
+                fontWeight: 700,
+                color: 'var(--navy)',
+                background: 'var(--white)',
+                border: '1.5px solid var(--line)',
+                borderRadius: 8,
+                cursor: uploadingStamp ? 'default' : 'pointer',
+                opacity: uploadingStamp ? 0.6 : 1
+              }}
+            >
+              {uploadingStamp ? t('uploadingPhoto') : hasStamp ? t('replaceFile') : t('uploadPhoto')}
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => handleSignatureOrStampChange('stamp', e)}
+                disabled={uploadingStamp}
+                style={{ display: 'none' }}
+              />
+            </label>
+            {hasStamp && <p style={{ fontSize: 12, color: 'var(--success)', marginTop: 6 }}>✓ {t('onFile')}</p>}
+            {stampError && <p style={{ fontSize: 12, color: 'var(--danger)', marginTop: 6 }}>{stampError}</p>}
+          </div>
+        </div>
       </div>
 
       <div style={{ background: 'var(--white)', border: '1px solid var(--line)', borderRadius: 'var(--radius)', padding: 18, marginBottom: 16 }}>

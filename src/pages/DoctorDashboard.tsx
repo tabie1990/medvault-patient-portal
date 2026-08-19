@@ -9,10 +9,27 @@ export function DoctorDashboard() {
   const [startingId, setStartingId] = useState<string | null>(null);
   const [verificationStatus, setVerificationStatus] = useState<string | null>(null);
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [completingId, setCompletingId] = useState<string | null>(null);
+  const [prescriptionsByAppointment, setPrescriptionsByAppointment] = useState<Record<string, api.Prescription[]>>({});
+  const [openPrescriptionFormId, setOpenPrescriptionFormId] = useState<string | null>(null);
+  const [rxSymptoms, setRxSymptoms] = useState('');
+  const [rxDiagnosis, setRxDiagnosis] = useState('');
+  const [rxNotes, setRxNotes] = useState('');
+  const [rxItemsText, setRxItemsText] = useState('');
+  const [creatingRx, setCreatingRx] = useState(false);
+  const [sendingRxId, setSendingRxId] = useState<string | null>(null);
 
   async function load() {
     const res = await api.getMyAppointments();
     setAppointments(res.appointments);
+    const completed = res.appointments.filter((a) => a.status === 'completed');
+    const entries = await Promise.all(
+      completed.map(async (a) => {
+        const r = await api.getPrescriptionsForAppointment(a.id);
+        return [a.id, r.prescriptions] as const;
+      })
+    );
+    setPrescriptionsByAppointment(Object.fromEntries(entries));
   }
 
   useEffect(() => {
@@ -41,6 +58,63 @@ export function DoctorDashboard() {
     await navigator.clipboard.writeText(roomUrl);
     setCopiedId(appointmentId);
     setTimeout(() => setCopiedId(null), 2000);
+  }
+
+  async function handleMarkCompleted(appointmentId: string) {
+    setCompletingId(appointmentId);
+    try {
+      await api.markAppointmentCompleted(appointmentId);
+      await load();
+    } finally {
+      setCompletingId(null);
+    }
+  }
+
+  function openPrescriptionForm(appointmentId: string) {
+    setRxSymptoms('');
+    setRxDiagnosis('');
+    setRxNotes('');
+    setRxItemsText('');
+    setOpenPrescriptionFormId(appointmentId);
+  }
+
+  async function handleCreatePrescription(appointmentId: string) {
+    const items: api.PrescriptionItem[] = rxItemsText
+      .split('\n')
+      .map((line) => line.trim())
+      .filter(Boolean)
+      .map((name) => ({ type: 'medication', name }));
+    if (items.length === 0) return;
+    setCreatingRx(true);
+    try {
+      const res = await api.createPrescription({
+        appointment_id: appointmentId,
+        symptoms: rxSymptoms || undefined,
+        diagnosis: rxDiagnosis || undefined,
+        notes: rxNotes || undefined,
+        items
+      });
+      setPrescriptionsByAppointment((prev) => ({
+        ...prev,
+        [appointmentId]: [res.prescription, ...(prev[appointmentId] ?? [])]
+      }));
+      setOpenPrescriptionFormId(null);
+    } finally {
+      setCreatingRx(false);
+    }
+  }
+
+  async function handleSendPrescription(appointmentId: string, prescriptionId: string) {
+    setSendingRxId(prescriptionId);
+    try {
+      const res = await api.sendPrescription(prescriptionId);
+      setPrescriptionsByAppointment((prev) => ({
+        ...prev,
+        [appointmentId]: (prev[appointmentId] ?? []).map((p) => (p.id === prescriptionId ? res.prescription : p))
+      }));
+    } finally {
+      setSendingRxId(null);
+    }
   }
 
   return (
@@ -110,10 +184,20 @@ export function DoctorDashboard() {
                     ) : (
                       // Instant-consult appointments genuinely have no
                       // scheduled slot (see teleconsult-request.service.ts
-                      // — there's no date to book, only "now"), so this
-                      // line was rendering as a blank space rather than
-                      // just being missing data to fall back for.
-                      <>⚡ {t('instantConsultation')}</>
+                      // — there's no date to book, only "now") — but the
+                      // exact moment it was actually booked (createdAt)
+                      // is real data worth showing, not just a generic
+                      // label with no time at all.
+                      <>
+                        ⚡ {t('instantConsultation')} —{' '}
+                        {new Date(a.createdAt).toLocaleString(undefined, {
+                          year: 'numeric',
+                          month: 'short',
+                          day: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        })}
+                      </>
                     )}
                   </div>
                 </div>
@@ -198,6 +282,130 @@ export function DoctorDashboard() {
                 >
                   {startingId === a.id ? t('startingSession') : t('startSession')}
                 </button>
+              )}
+
+              {isPaid && a.status !== 'completed' && (
+                <button
+                  onClick={() => handleMarkCompleted(a.id)}
+                  disabled={completingId === a.id}
+                  style={{
+                    width: '100%',
+                    marginTop: 8,
+                    padding: '11px 16px',
+                    fontSize: 14,
+                    fontWeight: 700,
+                    color: 'var(--navy)',
+                    background: 'var(--white)',
+                    border: '1.5px solid var(--line)',
+                    borderRadius: 8,
+                    opacity: completingId === a.id ? 0.6 : 1
+                  }}
+                >
+                  {completingId === a.id ? t('markingCompleted') : t('markCompleted')}
+                </button>
+              )}
+
+              {a.status === 'completed' && (
+                <div style={{ marginTop: 8, paddingTop: 10, borderTop: '1px solid var(--line)' }}>
+                  <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--success)', marginBottom: 8 }}>✓ {t('consultationCompleted')}</div>
+
+                  {(prescriptionsByAppointment[a.id] ?? []).map((rx) => (
+                    <div
+                      key={rx.id}
+                      style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', borderBottom: '1px solid var(--line)' }}
+                    >
+                      <div>
+                        <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--navy)' }}>{rx.prescriptionRef}</div>
+                        <div style={{ fontSize: 12, color: 'var(--ink-soft)' }}>{rx.items.length} {t('items')}</div>
+                      </div>
+                      {rx.status === 'sent_to_patient' ? (
+                        <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--success)' }}>✓ {t('sentToPatient')}</span>
+                      ) : (
+                        <button
+                          onClick={() => handleSendPrescription(a.id, rx.id)}
+                          disabled={sendingRxId === rx.id}
+                          style={{
+                            padding: '7px 12px',
+                            fontSize: 12,
+                            fontWeight: 700,
+                            color: 'var(--white)',
+                            background: 'var(--teal)',
+                            border: 'none',
+                            borderRadius: 6,
+                            opacity: sendingRxId === rx.id ? 0.6 : 1
+                          }}
+                        >
+                          {sendingRxId === rx.id ? t('sending') : t('sendToPatient')}
+                        </button>
+                      )}
+                    </div>
+                  ))}
+
+                  {openPrescriptionFormId === a.id ? (
+                    <div style={{ marginTop: 10, display: 'grid', gap: 8 }}>
+                      <textarea
+                        value={rxSymptoms}
+                        onChange={(e) => setRxSymptoms(e.target.value)}
+                        placeholder={t('symptomsPlaceholder')}
+                        rows={2}
+                        style={{ padding: '8px 10px', fontSize: 13, border: '1.5px solid var(--line)', borderRadius: 8, resize: 'vertical' }}
+                      />
+                      <textarea
+                        value={rxDiagnosis}
+                        onChange={(e) => setRxDiagnosis(e.target.value)}
+                        placeholder={t('diagnosisPlaceholder')}
+                        rows={2}
+                        style={{ padding: '8px 10px', fontSize: 13, border: '1.5px solid var(--line)', borderRadius: 8, resize: 'vertical' }}
+                      />
+                      <textarea
+                        value={rxItemsText}
+                        onChange={(e) => setRxItemsText(e.target.value)}
+                        placeholder={t('itemsPlaceholder')}
+                        rows={3}
+                        style={{ padding: '8px 10px', fontSize: 13, border: '1.5px solid var(--line)', borderRadius: 8, resize: 'vertical' }}
+                      />
+                      <textarea
+                        value={rxNotes}
+                        onChange={(e) => setRxNotes(e.target.value)}
+                        placeholder={t('notesPlaceholder')}
+                        rows={2}
+                        style={{ padding: '8px 10px', fontSize: 13, border: '1.5px solid var(--line)', borderRadius: 8, resize: 'vertical' }}
+                      />
+                      <div style={{ display: 'flex', gap: 8 }}>
+                        <button
+                          onClick={() => handleCreatePrescription(a.id)}
+                          disabled={creatingRx || !rxItemsText.trim()}
+                          style={{
+                            flex: 1,
+                            padding: '10px 16px',
+                            fontSize: 13,
+                            fontWeight: 700,
+                            color: 'var(--white)',
+                            background: 'var(--teal)',
+                            border: 'none',
+                            borderRadius: 8,
+                            opacity: creatingRx || !rxItemsText.trim() ? 0.6 : 1
+                          }}
+                        >
+                          {creatingRx ? t('creating') : t('createPrescription')}
+                        </button>
+                        <button
+                          onClick={() => setOpenPrescriptionFormId(null)}
+                          style={{ padding: '10px 16px', fontSize: 13, fontWeight: 700, color: 'var(--navy)', background: 'var(--white)', border: '1.5px solid var(--line)', borderRadius: 8 }}
+                        >
+                          {t('cancel')}
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => openPrescriptionForm(a.id)}
+                      style={{ marginTop: 8, padding: '9px 14px', fontSize: 13, fontWeight: 700, color: 'var(--teal)', background: 'transparent', border: '1.5px solid var(--teal)', borderRadius: 8 }}
+                    >
+                      + {t('writePrescription')}
+                    </button>
+                  )}
+                </div>
               )}
             </div>
           );
