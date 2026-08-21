@@ -242,6 +242,13 @@ const STRINGS = {
   back: { en: 'Back', fr: 'Retour' },
   goBack: { en: 'Go back', fr: 'Retour' },
   emailAlreadyInUse: { en: 'That email is already registered to another account.', fr: 'Cet e-mail est déjà enregistré pour un autre compte.' },
+  bulkAddServices: { en: 'Bulk add services', fr: 'Ajouter des services en masse' },
+  bulkAddButton: { en: 'Add all', fr: 'Tout ajouter' },
+  bulkAddPartialFailure: { en: "Some lines couldn't be added", fr: "Certaines lignes n'ont pas pu être ajoutées" },
+  bulkServicesPlaceholder: { en: 'Full Blood Count, 5000\nMalaria Test, 3000\nUrinalysis, 2500', fr: 'Numération formule sanguine, 5000\nTest du paludisme, 3000\nAnalyse urinaire, 2500' },
+  bulkServicesHint: { en: 'One test per line, as "Name, Price". Existing services are unaffected.', fr: 'Un test par ligne, sous la forme "Nom, Prix". Les services existants ne sont pas affectés.' },
+  bulkHospitalServicesPlaceholder: { en: 'Emergency Care\nMaternity\nPediatrics', fr: 'Urgences\nMaternité\nPédiatrie' },
+  bulkHospitalServicesHint: { en: 'One service per line — no price, since hospitals bill a single flat fee per visit, not per service.', fr: 'Un service par ligne — sans prix, les hôpitaux facturant des frais fixes par visite.' },
   applySameHoursToAllDays: { en: 'Apply same hours to all checked days', fr: 'Appliquer les mêmes horaires à tous les jours cochés' },
   myAvailability: { en: 'My availability', fr: 'Mes disponibilités' },
   availabilityIntro: {
