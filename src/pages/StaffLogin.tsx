@@ -74,6 +74,10 @@ export function StaffLogin() {
         <Link to="/doctor-register" style={{ color: 'var(--teal)', fontWeight: 700 }}>
           {t('registerAsDoctor')}
         </Link>
+        {' · '}
+        <Link to="/lab-register" style={{ color: 'var(--teal)', fontWeight: 700 }}>
+          {t('registerAsLab')}
+        </Link>
       </p>
     </div>
   );

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { useLang } from '../lib/i18n';
 import * as api from '../lib/api';
+import { TermsAgreement } from '../components/TermsAgreement';
 
 export function DoctorRegister() {
   const { t } = useLang();
@@ -10,6 +11,7 @@ export function DoctorRegister() {
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
+  const [termsAccepted, setTermsAccepted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [done, setDone] = useState(false);
@@ -18,7 +20,13 @@ export function DoctorRegister() {
     setLoading(true);
     setError('');
     try {
-      await api.registerDoctor({ full_name: fullName, email: email || undefined, phone: phone || undefined, referral_code: referralCode ?? undefined });
+      await api.registerDoctor({
+        full_name: fullName,
+        email: email || undefined,
+        phone: phone || undefined,
+        referral_code: referralCode ?? undefined,
+        terms_accepted: termsAccepted
+      });
       setDone(true);
     } catch (e: any) {
       setError(e?.raw?.error === 'a_doctor_with_this_email_or_phone_already_exists' ? t('accountAlreadyExists') : t('somethingWentWrong'));
@@ -66,10 +74,12 @@ export function DoctorRegister() {
       <label style={{ ...labelStyle, marginTop: 14 }}>{t('phoneOptional')}</label>
       <input value={phone} onChange={(e) => setPhone(e.target.value)} style={inputStyle} />
 
+      <TermsAgreement checked={termsAccepted} onChange={setTermsAccepted} />
+
       <button
         onClick={handleRegister}
-        disabled={loading || !fullName || !email}
-        style={{ ...buttonStyle, marginTop: 20, opacity: loading || !fullName || !email ? 0.6 : 1 }}
+        disabled={loading || !fullName || !email || !termsAccepted}
+        style={{ ...buttonStyle, marginTop: 20, opacity: loading || !fullName || !email || !termsAccepted ? 0.6 : 1 }}
       >
         {loading ? t('sending') : t('register')}
       </button>
