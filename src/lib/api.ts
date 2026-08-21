@@ -189,8 +189,31 @@ export const forgotPassword = (identifier: string) => post<{ success: boolean }>
 export const resetPassword = (identifier: string, code: string, newPassword: string) =>
   post<{ success: boolean }>('/auth/reset-password', { identifier, code, new_password: newPassword });
 
-export const registerDoctor = (body: { full_name: string; email?: string; phone?: string; specialty?: string; referral_code?: string }) =>
-  post<{ success: boolean; doctor: FullDoctor }>('/doctors/register', body);
+// ── Legal — shared across every self-registration flow ──
+export const getTerms = (lang: 'en' | 'fr' = 'en') => get<{ success: boolean; version: string; text: string }>(`/legal/terms?lang=${lang}`);
+
+export const registerDoctor = (body: {
+  full_name: string;
+  email?: string;
+  phone?: string;
+  specialty?: string;
+  referral_code?: string;
+  terms_accepted: boolean;
+}) => post<{ success: boolean; doctor: FullDoctor }>('/doctors/register', body);
+
+// ── Lab self-registration ──
+export const registerLabSelf = (body: {
+  name: string;
+  service_type: string;
+  city?: string;
+  region?: string;
+  home_service_fee?: number;
+  owner_full_name: string;
+  owner_email?: string;
+  owner_phone?: string;
+  password: string;
+  terms_accepted: boolean;
+}) => post<{ success: boolean; lab_provider: any; staff: any; message: string }>('/lab-providers/register-self', body);
 
 export interface FullDoctor extends Doctor {
   momoNumber: string | null;

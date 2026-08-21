@@ -207,6 +207,26 @@ const STRINGS = {
   cancel: { en: 'Cancel', fr: 'Annuler' },
   expand: { en: 'Expand', fr: 'Développer' },
   collapse: { en: 'Collapse', fr: 'Réduire' },
+  agreeToTerms: { en: 'I have read and agree to the Terms & Conditions above.', fr: "J'ai lu et j'accepte les Conditions Générales ci-dessus." },
+  labRegisterTitle: { en: 'Register your lab', fr: 'Enregistrer votre laboratoire' },
+  labRegisterIntro: {
+    en: 'Register directly — no doctor account needed. Submit KYC documents after signing up to get verified.',
+    fr: "Enregistrez-vous directement — aucun compte médecin requis. Soumettez vos documents KYC après l'inscription pour être vérifié."
+  },
+  labRegisterSentBody: {
+    en: 'Your lab account has been created. Log in and submit your KYC documents (owner ID, business registration, lab accreditation) to get verified before you appear to patients.',
+    fr: "Votre compte laboratoire a été créé. Connectez-vous et soumettez vos documents KYC (pièce d'identité du propriétaire, immatriculation, accréditation) pour être vérifié."
+  },
+  labNameLabel: { en: 'Laboratory name', fr: 'Nom du laboratoire' },
+  serviceTypeLabel: { en: 'Service type', fr: 'Type de service' },
+  labServiceOnSite: { en: 'On-site (patients come to you)', fr: 'Sur place (les patients viennent à vous)' },
+  labServiceHome: { en: 'Home service (you go to patients)', fr: 'À domicile (vous allez chez les patients)' },
+  labServiceBoth: { en: 'Both', fr: 'Les deux' },
+  cityOptional: { en: 'City (optional)', fr: 'Ville (facultatif)' },
+  ownerDetailsHeading: { en: 'Owner / account holder details', fr: 'Détails du propriétaire / titulaire du compte' },
+  choosePasswordLabel: { en: 'Choose a password', fr: 'Choisissez un mot de passe' },
+  passwordMinLength: { en: 'At least 8 characters.', fr: 'Au moins 8 caractères.' },
+  registerAsLab: { en: 'Register as a lab', fr: 'Enregistrer un laboratoire' },
   applySameHoursToAllDays: { en: 'Apply same hours to all checked days', fr: 'Appliquer les mêmes horaires à tous les jours cochés' },
   myAvailability: { en: 'My availability', fr: 'Mes disponibilités' },
   availabilityIntro: {
