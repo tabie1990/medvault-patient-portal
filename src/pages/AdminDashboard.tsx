@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useLang } from '../lib/i18n';
 import * as api from '../lib/api';
 import { WeeklyScheduleEditor, type WeeklyWindow } from '../components/WeeklyScheduleEditor';
+import { CollapsibleSection } from '../components/CollapsibleSection';
 
 type Tab = 'kyc' | 'revenue' | 'errors' | 'stale' | 'hospitals' | 'labs' | 'referrals';
 
@@ -566,6 +567,9 @@ function HospitalsTab() {
 
 function HospitalDetail({ hospital, onChange, t }: { hospital: api.AdminHospital; onChange: () => void; t: (k: any) => string }) {
   const [newService, setNewService] = useState('');
+  const [showBulkServices, setShowBulkServices] = useState(false);
+  const [bulkServicesText, setBulkServicesText] = useState('');
+  const [bulkServiceError, setBulkServiceError] = useState('');
   const [newDoctorName, setNewDoctorName] = useState('');
   const [newDoctorSpecialty, setNewDoctorSpecialty] = useState('');
   const [editingHoursFor, setEditingHoursFor] = useState<string | null>(null);
@@ -606,6 +610,38 @@ function HospitalDetail({ hospital, onChange, t }: { hospital: api.AdminHospital
     } finally {
       setBusy(false);
     }
+  }
+
+  // Bulk add — one service name per line, no price (hospitals have no
+  // per-service price at all; a single flatBookingFee covers a whole
+  // visit regardless of which service it's for). Same loop-over-the-
+  // existing-single-add-call pattern as the lab side, for the same
+  // reason — this is an infrequent setup task, not worth a dedicated
+  // backend bulk endpoint.
+  async function handleBulkAddServices() {
+    if (!bulkServicesText.trim()) return;
+    setBusy(true);
+    setBulkServiceError('');
+    const names = bulkServicesText
+      .split('\n')
+      .map((l) => l.trim())
+      .filter(Boolean);
+    const failed: string[] = [];
+    for (const name of names) {
+      try {
+        await api.addHospitalService(hospital.hospitalId, name);
+      } catch {
+        failed.push(name);
+      }
+    }
+    if (failed.length > 0) {
+      setBulkServiceError(`${t('bulkAddPartialFailure')}: ${failed.join(' · ')}`);
+    } else {
+      setBulkServicesText('');
+      setShowBulkServices(false);
+    }
+    onChange();
+    setBusy(false);
   }
 
   async function handleRemoveService(serviceId: string) {
@@ -658,13 +694,14 @@ function HospitalDetail({ hospital, onChange, t }: { hospital: api.AdminHospital
 
   return (
     <div style={{ marginTop: 16, paddingTop: 16, borderTop: '1px solid var(--line)' }}>
+      <CollapsibleSection title={t('paymentSettings')}>
       <h3 style={{ fontSize: 14, marginBottom: 8 }}>{t('coordinatesLabel')}</h3>
       <div style={{ display: 'flex', gap: 8, marginBottom: 14 }}>
         <input value={lat} onChange={(e) => setLat(e.target.value)} placeholder={t('latitudeLabel')} style={{ ...smallInput, flex: 1 }} />
         <input value={lng} onChange={(e) => setLng(e.target.value)} placeholder={t('longitudeLabel')} style={{ ...smallInput, flex: 1 }} />
       </div>
 
-      <h3 style={{ fontSize: 14, marginBottom: 8 }}>{t('paymentSettings')}</h3>
+      <h3 style={{ fontSize: 14, marginTop: 14, marginBottom: 8 }}>{t('paymentSettings')}</h3>
       <div style={{ display: 'flex', gap: 8, marginBottom: 8 }}>
         <div style={{ flex: 1 }}>
           <label style={smallLabel}>{t('flatBookingFeeLabel')}</label>
@@ -697,11 +734,12 @@ function HospitalDetail({ hospital, onChange, t }: { hospital: api.AdminHospital
         style={{ ...smallInput, marginBottom: 14, width: '100%' }}
       />
 
-      <button onClick={handleSaveSettings} disabled={busy} style={{ ...approveBtn, marginBottom: 20 }}>
+      <button onClick={handleSaveSettings} disabled={busy} style={{ ...approveBtn, marginBottom: 4 }}>
         {t('save')}
       </button>
+      </CollapsibleSection>
 
-      <h3 style={{ fontSize: 14, marginBottom: 8 }}>{t('hospitalServices')}</h3>
+      <CollapsibleSection title={t('hospitalServices')}>
       <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 10 }}>
         {hospital.services.map((s) => (
           <span key={s.id} style={{ fontSize: 12, padding: '5px 10px', background: 'var(--teal-light)', borderRadius: 20, display: 'flex', alignItems: 'center', gap: 6 }}>
@@ -712,14 +750,50 @@ function HospitalDetail({ hospital, onChange, t }: { hospital: api.AdminHospital
           </span>
         ))}
       </div>
-      <div style={{ display: 'flex', gap: 8, marginBottom: 20 }}>
+      <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
         <input value={newService} onChange={(e) => setNewService(e.target.value)} placeholder={t('addAHospitalService')} style={{ ...smallInput, flex: 1 }} />
         <button onClick={handleAddService} disabled={busy || !newService} style={approveBtn}>
           {t('add')}
         </button>
       </div>
 
-      <h3 style={{ fontSize: 14, marginBottom: 8 }}>{t('hospitalDoctorRoster')}</h3>
+      {showBulkServices ? (
+        <div style={{ marginBottom: 12 }}>
+          <textarea
+            value={bulkServicesText}
+            onChange={(e) => setBulkServicesText(e.target.value)}
+            placeholder={t('bulkHospitalServicesPlaceholder')}
+            rows={4}
+            style={{ ...smallInput, resize: 'vertical', fontFamily: 'monospace', width: '100%' }}
+          />
+          <p style={{ fontSize: 11, color: 'var(--ink-soft)', marginTop: 4 }}>{t('bulkHospitalServicesHint')}</p>
+          {bulkServiceError && <p style={{ fontSize: 11, color: 'var(--danger)', marginTop: 4 }}>{bulkServiceError}</p>}
+          <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
+            <button onClick={handleBulkAddServices} disabled={busy || !bulkServicesText.trim()} style={approveBtn}>
+              {busy ? '…' : t('bulkAddButton')}
+            </button>
+            <button
+              onClick={() => {
+                setShowBulkServices(false);
+                setBulkServiceError('');
+              }}
+              style={{ ...rejectBtn, background: 'var(--ink-soft)' }}
+            >
+              {t('cancel')}
+            </button>
+          </div>
+        </div>
+      ) : (
+        <button
+          onClick={() => setShowBulkServices(true)}
+          style={{ marginBottom: 20, padding: '7px 12px', fontSize: 12, fontWeight: 700, color: 'var(--teal)', background: 'transparent', border: '1.5px solid var(--teal)', borderRadius: 6 }}
+        >
+          + {t('bulkAddServices')}
+        </button>
+      )}
+      </CollapsibleSection>
+
+      <CollapsibleSection title={t('hospitalDoctorRoster')}>
       {hospital.doctorRoster.length === 0 && <p style={{ fontSize: 13, color: 'var(--ink-soft)' }}>{t('noRosterYet')}</p>}
       <div style={{ display: 'grid', gap: 8, marginBottom: 12 }}>
         {hospital.doctorRoster.map((d) => (
@@ -762,6 +836,7 @@ function HospitalDetail({ hospital, onChange, t }: { hospital: api.AdminHospital
           {t('add')}
         </button>
       </div>
+      </CollapsibleSection>
     </div>
   );
 }

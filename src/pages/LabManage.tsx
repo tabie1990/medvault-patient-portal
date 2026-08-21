@@ -1,9 +1,10 @@
-import { useEffect, useState, type ReactNode } from 'react';
+import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useLang } from '../lib/i18n';
 import { useAuth } from '../lib/auth';
 import * as api from '../lib/api';
 import { WeeklyScheduleEditor, type WeeklyWindow } from '../components/WeeklyScheduleEditor';
+import { CollapsibleSection } from '../components/CollapsibleSection';
 
 export function LabManage() {
   const { id: paramId } = useParams<{ id: string }>();
@@ -27,6 +28,9 @@ export function LabManage() {
   const [testName, setTestName] = useState('');
   const [price, setPrice] = useState('');
   const [addingService, setAddingService] = useState(false);
+  const [showBulkServices, setShowBulkServices] = useState(false);
+  const [bulkServicesText, setBulkServicesText] = useState('');
+  const [bulkServiceError, setBulkServiceError] = useState('');
   const [editingServiceId, setEditingServiceId] = useState<string | null>(null);
   const [editingPrice, setEditingPrice] = useState('');
   const [savingServiceId, setSavingServiceId] = useState<string | null>(null);
@@ -100,6 +104,44 @@ export function LabManage() {
     } finally {
       setAddingService(false);
     }
+  }
+
+  // Bulk add — one "Test name, Price" per line. Reuses the same
+  // single-item addLabService call in a loop rather than adding a new
+  // backend bulk-create endpoint — these are lightweight, low-frequency
+  // writes (a lab setting up its price list once), not worth the extra
+  // backend surface for what a simple client-side loop already handles
+  // correctly and atomically-enough per line.
+  async function handleBulkAddServices() {
+    if (!id || !bulkServicesText.trim()) return;
+    setAddingService(true);
+    setBulkServiceError('');
+    const lines = bulkServicesText
+      .split('\n')
+      .map((l) => l.trim())
+      .filter(Boolean);
+    const failed: string[] = [];
+    for (const line of lines) {
+      const [name, priceStr] = line.split(',').map((p) => p.trim());
+      const parsedPrice = Number(priceStr);
+      if (!name || !priceStr || Number.isNaN(parsedPrice)) {
+        failed.push(line);
+        continue;
+      }
+      try {
+        await api.addLabService(id, { test_name: name, base_price: parsedPrice });
+      } catch {
+        failed.push(line);
+      }
+    }
+    if (failed.length > 0) {
+      setBulkServiceError(`${t('bulkAddPartialFailure')}: ${failed.join(' · ')}`);
+    } else {
+      setBulkServicesText('');
+      setShowBulkServices(false);
+    }
+    await load();
+    setAddingService(false);
   }
 
   async function handleSavePrice(serviceId: string) {
@@ -196,7 +238,7 @@ export function LabManage() {
       )}
 
       {role === 'lab_staff' && (
-        <Section title={t('myAccountTitle')}>
+        <CollapsibleSection title={t('myAccountTitle')}>
           <p style={{ fontSize: 13, color: 'var(--ink-soft)', marginBottom: 14 }}>{t('myAccountHint')}</p>
           <label style={labelStyle}>{t('fullName')}</label>
           <input value={accountName} onChange={(e) => setAccountName(e.target.value)} style={inputStyle} />
@@ -209,10 +251,10 @@ export function LabManage() {
           <button onClick={handleSaveAccount} disabled={savingAccount} style={{ ...primaryBtn, marginTop: 10, opacity: savingAccount ? 0.6 : 1 }}>
             {savingAccount ? t('sending') : t('save')}
           </button>
-        </Section>
+        </CollapsibleSection>
       )}
 
-      <Section title={t('payoutDetails')}>
+      <CollapsibleSection title={t('payoutDetails')}>
         <label style={labelStyle}>{t('momoNumberLabel')}</label>
         <input value={momoNumber} onChange={(e) => setMomoNumber(e.target.value)} style={inputStyle} />
         <select value={momoNetwork} onChange={(e) => setMomoNetwork(e.target.value)} style={{ ...inputStyle, marginTop: 10 }}>
@@ -224,18 +266,18 @@ export function LabManage() {
         <button onClick={handleSaveMomo} disabled={savingMomo} style={{ ...primaryBtn, marginTop: 10, opacity: savingMomo ? 0.6 : 1 }}>
           {t('save')}
         </button>
-      </Section>
+      </CollapsibleSection>
 
-      <Section title={t('workingHours')}>
+      <CollapsibleSection title={t('workingHours')}>
         <p style={{ fontSize: 13, color: 'var(--ink-soft)', marginBottom: 14 }}>{t('workingHoursIntro')}</p>
         <WeeklyScheduleEditor
           initialWindows={lab.workingHours.map((w) => ({ dayOfWeek: w.dayOfWeek, start: w.openTime, end: w.closeTime }))}
           onSave={handleSaveWorkingHours}
           saving={savingHours}
         />
-      </Section>
+      </CollapsibleSection>
 
-      <Section title={t('labServices')}>
+      <CollapsibleSection title={t('labServices')}>
         {lab.services.length === 0 && <p style={{ color: 'var(--ink-soft)', fontSize: 13 }}>{t('noServicesYet')}</p>}
         {lab.services.map((s) => (
           <div key={s.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '8px 0', borderBottom: '1px solid var(--line)', fontSize: 14 }}>
@@ -283,9 +325,48 @@ export function LabManage() {
             {t('add')}
           </button>
         </div>
-      </Section>
 
-      <Section title={t('labStaffTitle')}>
+        {showBulkServices ? (
+          <div style={{ marginTop: 14 }}>
+            <textarea
+              value={bulkServicesText}
+              onChange={(e) => setBulkServicesText(e.target.value)}
+              placeholder={t('bulkServicesPlaceholder')}
+              rows={5}
+              style={{ ...inputStyle, resize: 'vertical', fontFamily: 'monospace', fontSize: 13 }}
+            />
+            <p style={{ fontSize: 12, color: 'var(--ink-soft)', marginTop: 4 }}>{t('bulkServicesHint')}</p>
+            {bulkServiceError && <p style={{ fontSize: 12, color: 'var(--danger)', marginTop: 6 }}>{bulkServiceError}</p>}
+            <div style={{ display: 'flex', gap: 8, marginTop: 10 }}>
+              <button
+                onClick={handleBulkAddServices}
+                disabled={addingService || !bulkServicesText.trim()}
+                style={{ ...primaryBtn, opacity: addingService || !bulkServicesText.trim() ? 0.6 : 1 }}
+              >
+                {addingService ? t('sending') : t('bulkAddButton')}
+              </button>
+              <button
+                onClick={() => {
+                  setShowBulkServices(false);
+                  setBulkServiceError('');
+                }}
+                style={{ padding: '11px 18px', fontSize: 14, fontWeight: 700, color: 'var(--navy)', background: 'var(--white)', border: '1.5px solid var(--line)', borderRadius: 8 }}
+              >
+                {t('cancel')}
+              </button>
+            </div>
+          </div>
+        ) : (
+          <button
+            onClick={() => setShowBulkServices(true)}
+            style={{ marginTop: 10, padding: '9px 14px', fontSize: 13, fontWeight: 700, color: 'var(--teal)', background: 'transparent', border: '1.5px solid var(--teal)', borderRadius: 8 }}
+          >
+            + {t('bulkAddServices')}
+          </button>
+        )}
+      </CollapsibleSection>
+
+      <CollapsibleSection title={t('labStaffTitle')}>
         {staff.length === 0 && <p style={{ color: 'var(--ink-soft)', fontSize: 13 }}>{t('noStaffYet')}</p>}
         {staff.map((s) => (
           <div key={s.id} style={{ padding: '8px 0', borderBottom: '1px solid var(--line)', fontSize: 14 }}>
@@ -300,16 +381,7 @@ export function LabManage() {
             {t('addStaff')}
           </button>
         </div>
-      </Section>
-    </div>
-  );
-}
-
-function Section({ title, children }: { title: string; children: ReactNode }) {
-  return (
-    <div style={{ background: 'var(--white)', border: '1px solid var(--line)', borderRadius: 'var(--radius)', padding: 18, marginBottom: 16 }}>
-      <h2 style={{ fontSize: 16, marginBottom: 12 }}>{title}</h2>
-      {children}
+      </CollapsibleSection>
     </div>
   );
 }
