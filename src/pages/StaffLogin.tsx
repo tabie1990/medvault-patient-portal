@@ -47,23 +47,30 @@ export function StaffLogin() {
         </div>
       )}
 
-      <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: 'var(--navy)', marginBottom: 6 }}>
-        {t('emailOrPhone')}
-      </label>
-      <input value={identifier} onChange={(e) => setIdentifier(e.target.value)} style={inputStyle} />
-
-      <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: 'var(--navy)', margin: '14px 0 6px' }}>
-        {t('password')}
-      </label>
-      <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} style={inputStyle} />
-
-      <button
-        onClick={handleLogin}
-        disabled={loading || !identifier || !password}
-        style={{ ...buttonStyle, marginTop: 18, opacity: loading || !identifier || !password ? 0.6 : 1 }}
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          if (!loading && identifier && password) handleLogin();
+        }}
       >
-        {loading ? t('verifying') : t('logIn')}
-      </button>
+        <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: 'var(--navy)', marginBottom: 6 }}>
+          {t('emailOrPhone')}
+        </label>
+        <input value={identifier} onChange={(e) => setIdentifier(e.target.value)} style={inputStyle} />
+
+        <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: 'var(--navy)', margin: '14px 0 6px' }}>
+          {t('password')}
+        </label>
+        <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} style={inputStyle} />
+
+        <button
+          type="submit"
+          disabled={loading || !identifier || !password}
+          style={{ ...buttonStyle, marginTop: 18, opacity: loading || !identifier || !password ? 0.6 : 1 }}
+        >
+          {loading ? t('verifying') : t('logIn')}
+        </button>
+      </form>
 
       <Link to="/forgot-password" style={{ display: 'block', textAlign: 'center', marginTop: 14, color: 'var(--teal)', fontSize: 13, fontWeight: 600 }}>
         {t('forgotPasswordLink')}

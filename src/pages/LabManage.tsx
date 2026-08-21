@@ -1,14 +1,28 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useLang } from '../lib/i18n';
+import { useAuth } from '../lib/auth';
 import * as api from '../lib/api';
 import { WeeklyScheduleEditor, type WeeklyWindow } from '../components/WeeklyScheduleEditor';
 
 export function LabManage() {
-  const { id } = useParams<{ id: string }>();
+  const { id: paramId } = useParams<{ id: string }>();
   const { t } = useLang();
+  const { userId, role } = useAuth();
   const [lab, setLab] = useState<api.MyLabProvider | null>(null);
   const [staff, setStaff] = useState<api.LabStaffMember[]>([]);
+  // Same self-service resolution as LabKycSubmit — /lab/manage has no
+  // :id in the URL at all, since a self-registered lab's own staff only
+  // ever has the one lab to manage.
+  const [id, setId] = useState<string | undefined>(paramId);
+  const backTo = paramId ? '/doctor/labs' : '/lab';
+
+  const [accountName, setAccountName] = useState('');
+  const [accountEmail, setAccountEmail] = useState('');
+  const [accountPhone, setAccountPhone] = useState('');
+  const [savingAccount, setSavingAccount] = useState(false);
+  const [accountError, setAccountError] = useState('');
+  const [accountSaved, setAccountSaved] = useState(false);
 
   const [testName, setTestName] = useState('');
   const [price, setPrice] = useState('');
@@ -29,22 +43,51 @@ export function LabManage() {
   const [savingHours, setSavingHours] = useState(false);
 
   async function load() {
-    if (!id) return;
     const labsRes = await api.getMyLabs();
-    const found = labsRes.lab_providers.find((l) => l.id === id);
+    // When there's no :id (self-service /lab/manage), there's exactly
+    // one lab to find — the caller's own.
+    const found = id ? labsRes.lab_providers.find((l) => l.id === id) : labsRes.lab_providers[0];
     if (found) {
       setLab(found);
+      setId(found.id);
       setMomoNumber(found.momoNumber ?? '');
       setMomoNetwork(found.momoNetwork ?? 'MTN');
       setEmail(found.email ?? '');
     }
-    const staffRes = await api.getLabStaff(id);
-    setStaff(staffRes.staff);
+    if (found) {
+      const staffRes = await api.getLabStaff(found.id);
+      setStaff(staffRes.staff);
+      const me = staffRes.staff.find((s) => s.id === userId);
+      if (me) {
+        setAccountName(me.fullName);
+        setAccountEmail(me.email ?? '');
+        setAccountPhone(me.phone ?? '');
+      }
+    }
   }
 
   useEffect(() => {
     load();
-  }, [id]);
+  }, [paramId]);
+
+  async function handleSaveAccount() {
+    setSavingAccount(true);
+    setAccountError('');
+    setAccountSaved(false);
+    try {
+      await api.updateLabStaffAccount({ full_name: accountName, email: accountEmail || undefined, phone: accountPhone || undefined });
+      setAccountSaved(true);
+      await load();
+    } catch (e: any) {
+      setAccountError(
+        e?.raw?.error === 'an_account_with_this_email_already_exists' || e?.raw?.error === 'an_account_with_this_phone_already_exists'
+          ? t('accountAlreadyExists')
+          : t('somethingWentWrong')
+      );
+    } finally {
+      setSavingAccount(false);
+    }
+  }
 
   async function handleAddService() {
     if (!id || !testName || !price) return;
@@ -112,7 +155,7 @@ export function LabManage() {
 
   return (
     <div>
-      <Link to="/doctor/labs" style={{ fontSize: 13, color: 'var(--teal)', fontWeight: 600, display: 'inline-block', marginBottom: 16 }}>
+      <Link to={backTo} style={{ fontSize: 13, color: 'var(--teal)', fontWeight: 600, display: 'inline-block', marginBottom: 16 }}>
         {t('backToLabs')}
       </Link>
 
@@ -134,7 +177,7 @@ export function LabManage() {
 
       {lab.verificationStatus !== 'verified' && (
         <Link
-          to={`/doctor/labs/${lab.id}/kyc`}
+          to={paramId ? `/doctor/labs/${lab.id}/kyc` : '/lab/kyc'}
           style={{
             display: 'block',
             background: 'var(--teal-light)',
@@ -150,6 +193,23 @@ export function LabManage() {
         >
           {t('verifyThisLab')} →
         </Link>
+      )}
+
+      {role === 'lab_staff' && (
+        <Section title={t('myAccountTitle')}>
+          <p style={{ fontSize: 13, color: 'var(--ink-soft)', marginBottom: 14 }}>{t('myAccountHint')}</p>
+          <label style={labelStyle}>{t('fullName')}</label>
+          <input value={accountName} onChange={(e) => setAccountName(e.target.value)} style={inputStyle} />
+          <label style={{ ...labelStyle, marginTop: 10 }}>{t('emailLabel')}</label>
+          <input type="email" value={accountEmail} onChange={(e) => setAccountEmail(e.target.value)} style={inputStyle} />
+          <label style={{ ...labelStyle, marginTop: 10 }}>{t('phoneOptional')}</label>
+          <input value={accountPhone} onChange={(e) => setAccountPhone(e.target.value)} style={inputStyle} />
+          {accountError && <p style={{ fontSize: 13, color: 'var(--danger)', marginTop: 10 }}>{accountError}</p>}
+          {accountSaved && !accountError && <p style={{ fontSize: 13, color: 'var(--success)', marginTop: 10 }}>{t('savedSuccessfully')}</p>}
+          <button onClick={handleSaveAccount} disabled={savingAccount} style={{ ...primaryBtn, marginTop: 10, opacity: savingAccount ? 0.6 : 1 }}>
+            {savingAccount ? t('sending') : t('save')}
+          </button>
+        </Section>
       )}
 
       <Section title={t('payoutDetails')}>

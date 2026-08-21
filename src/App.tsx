@@ -291,6 +291,26 @@ function AppRoutes() {
           </RequireRole>
         }
       />
+      <Route
+        path="/lab/kyc"
+        element={
+          <RequireRole role="lab_staff">
+            <Layout>
+              <LabKycSubmit />
+            </Layout>
+          </RequireRole>
+        }
+      />
+      <Route
+        path="/lab/manage"
+        element={
+          <RequireRole role="lab_staff">
+            <Layout>
+              <LabManage />
+            </Layout>
+          </RequireRole>
+        }
+      />
       <Route path="*" element={<CatchAllRedirect />} />
     </Routes>
   );

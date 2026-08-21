@@ -1,5 +1,5 @@
 import { type ReactNode, useState, useRef, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useLang } from '../lib/i18n';
 import { useAuth } from '../lib/auth';
 
@@ -84,6 +84,17 @@ export function Layout({ children, wide }: { children: ReactNode; wide?: boolean
   const { lang, setLang, t } = useLang();
   const { token, role, logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  // Shown on every page except the home page — there's nowhere more
+  // "back" than that. location.key === 'default' is React Router's own
+  // signal that this tab has no earlier entry in its history (a direct
+  // link or a fresh reload), in which case navigate(-1) would do nothing
+  // visible — falling back to home is the only sensible target then.
+  const showBackButton = location.pathname !== '/';
+  function handleBack() {
+    if (location.key === 'default') navigate('/');
+    else navigate(-1);
+  }
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
@@ -168,6 +179,26 @@ export function Layout({ children, wide }: { children: ReactNode; wide?: boolean
         </div>
       </header>
       <main style={{ flex: 1, width: '100%', maxWidth: wide ? 'none' : 720, margin: wide ? 0 : '0 auto', padding: wide ? 0 : '24px 20px 60px' }}>
+        {showBackButton && (
+          <button
+            onClick={handleBack}
+            aria-label={t('goBack')}
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 6,
+              background: 'none',
+              border: 'none',
+              color: 'var(--teal)',
+              fontSize: 13,
+              fontWeight: 700,
+              padding: wide ? '16px 20px 0' : '0 0 14px',
+              cursor: 'pointer'
+            }}
+          >
+            ← {t('back')}
+          </button>
+        )}
         {children}
       </main>
     </div>

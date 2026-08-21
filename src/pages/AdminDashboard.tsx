@@ -3,7 +3,7 @@ import { useLang } from '../lib/i18n';
 import * as api from '../lib/api';
 import { WeeklyScheduleEditor, type WeeklyWindow } from '../components/WeeklyScheduleEditor';
 
-type Tab = 'kyc' | 'revenue' | 'errors' | 'stale' | 'hospitals' | 'referrals';
+type Tab = 'kyc' | 'revenue' | 'errors' | 'stale' | 'hospitals' | 'labs' | 'referrals';
 
 export function AdminDashboard() {
   const { t } = useLang();
@@ -15,6 +15,7 @@ export function AdminDashboard() {
     { key: 'errors', label: t('tabErrors') },
     { key: 'stale', label: t('tabStaleSync') },
     { key: 'hospitals', label: t('tabHospitals') },
+    { key: 'labs', label: t('adminLabsTab') },
     { key: 'referrals', label: t('referrals') }
   ];
 
@@ -45,6 +46,7 @@ export function AdminDashboard() {
       {tab === 'errors' && <ErrorFeedTab />}
       {tab === 'stale' && <StaleSyncTab />}
       {tab === 'hospitals' && <HospitalsTab />}
+      {tab === 'labs' && <LabsTab />}
       {tab === 'referrals' && <ReferralsTab />}
     </div>
   );
@@ -385,6 +387,51 @@ function StaleSyncTab() {
             </div>
             <div style={{ fontSize: 12, color: 'var(--clay)', fontWeight: 700 }}>
               {t('lastSeen')}: {inst.lastSeenAt ? new Date(inst.lastSeenAt).toLocaleString() : t('never')}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function LabsTab() {
+  const { t } = useLang();
+  const [labs, setLabs] = useState<api.AdminLabProvider[] | null>(null);
+
+  useEffect(() => {
+    api.getAdminLabs().then((res) => setLabs(res.labs));
+  }, []);
+
+  return (
+    <div>
+      <h1 style={{ fontSize: 24, marginBottom: 18 }}>{t('allLabs')}</h1>
+      {labs && labs.length === 0 && <p style={{ color: 'var(--ink-soft)', fontSize: 14 }}>{t('noLabsRegisteredYet')}</p>}
+      <div style={{ display: 'grid', gap: 12 }}>
+        {labs?.map((l) => (
+          <div key={l.id} style={{ background: 'var(--white)', border: '1px solid var(--line)', borderRadius: 'var(--radius)', padding: '16px 18px', boxShadow: 'var(--shadow)' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+              <div>
+                <div style={{ fontWeight: 700, fontSize: 15, color: 'var(--navy)' }}>{l.name}</div>
+                <div style={{ fontSize: 13, color: 'var(--ink-soft)', marginTop: 3 }}>
+                  {l.city ?? '—'} · {l.services.length} {t('labServices').toLowerCase()} · {l.staff.length} {t('staffCount')}
+                </div>
+                <div style={{ fontSize: 12, color: 'var(--ink-soft)', marginTop: 4 }}>
+                  {l.ownerDoctor ? `${t('ownedByDoctor')}: ${l.ownerDoctor.fullName}` : t('selfRegistered')}
+                </div>
+              </div>
+              <span
+                style={{
+                  fontSize: 12,
+                  fontWeight: 700,
+                  padding: '4px 10px',
+                  borderRadius: 20,
+                  background: l.verificationStatus === 'verified' ? '#E4F3EA' : '#FBF1E8',
+                  color: l.verificationStatus === 'verified' ? 'var(--success)' : 'var(--clay)'
+                }}
+              >
+                {l.verificationStatus}
+              </span>
             </div>
           </div>
         ))}

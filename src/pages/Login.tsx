@@ -54,7 +54,12 @@ export function Login() {
       )}
 
       {step === 'phone' ? (
-        <>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (!loading && phone.length >= 9) handleRequestOtp();
+          }}
+        >
           <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: 'var(--navy)', marginBottom: 6 }}>
             {t('phoneLabel')}
           </label>
@@ -65,15 +70,20 @@ export function Login() {
             style={inputStyle}
           />
           <button
-            onClick={handleRequestOtp}
+            type="submit"
             disabled={loading || phone.length < 9}
             style={{ ...primaryButtonStyle, marginTop: 16, opacity: loading || phone.length < 9 ? 0.6 : 1 }}
           >
             {loading ? t('sending') : t('sendCode')}
           </button>
-        </>
+        </form>
       ) : (
-        <>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (!loading && code.length >= 4) handleVerify();
+          }}
+        >
           <p style={{ fontSize: 13, color: 'var(--ink-soft)', marginBottom: 12 }}>
             {t('codeSentTo')} <strong style={{ color: 'var(--navy)' }}>{phone}</strong>
           </p>
@@ -88,19 +98,20 @@ export function Login() {
             style={{ ...inputStyle, letterSpacing: 6, fontSize: 20, textAlign: 'center' }}
           />
           <button
-            onClick={handleVerify}
+            type="submit"
             disabled={loading || code.length < 4}
             style={{ ...primaryButtonStyle, marginTop: 16, opacity: loading || code.length < 4 ? 0.6 : 1 }}
           >
             {loading ? t('verifying') : t('verify')}
           </button>
           <button
+            type="button"
             onClick={() => setStep('phone')}
             style={{ background: 'none', border: 'none', color: 'var(--teal)', fontSize: 13, fontWeight: 600, marginTop: 14, width: '100%' }}
           >
             {t('changeNumber')}
           </button>
-        </>
+        </form>
       )}
     </div>
   );

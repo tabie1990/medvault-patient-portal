@@ -18,11 +18,13 @@ export function DoctorProfile() {
   const [referralLink, setReferralLink] = useState('');
   const [generatingLink, setGeneratingLink] = useState(false);
   const [doctorPhone, setDoctorPhone] = useState('');
+  const [doctorEmail, setDoctorEmail] = useState('');
   const [photoUrl, setPhotoUrl] = useState<string | null>(null);
   const [uploadingPhoto, setUploadingPhoto] = useState(false);
   const [photoError, setPhotoError] = useState<string | null>(null);
   const [acceptingInstantConsults, setAcceptingInstantConsults] = useState(false);
   const [phoneError, setPhoneError] = useState<string | null>(null);
+  const [emailError, setEmailError] = useState<string | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [hasSignature, setHasSignature] = useState(false);
   const [hasStamp, setHasStamp] = useState(false);
@@ -43,6 +45,7 @@ export function DoctorProfile() {
       setMomoNetwork(res.doctor.momoNetwork ?? 'MTN');
       setTeleconsultFee(res.doctor.teleconsultFee ?? '');
       setDoctorPhone(res.doctor.phone ?? '');
+      setDoctorEmail(res.doctor.email ?? '');
       setPhotoUrl(res.doctor.photoUrl ?? null);
       setAcceptingInstantConsults(res.doctor.acceptingInstantConsults ?? false);
       setHasSignature(res.doctor.hasSignature ?? false);
@@ -114,7 +117,8 @@ export function DoctorProfile() {
         momo_number: momoNumber,
         momo_network: momoNetwork,
         teleconsult_fee: teleconsultFee ? Number(teleconsultFee) : undefined,
-        phone: doctorPhone || undefined
+        phone: doctorPhone || undefined,
+        email: doctorEmail || undefined
       });
       // "Saved." previously just meant "the request didn't throw" — it
       // kept showing whatever was locally typed regardless of what
@@ -133,9 +137,12 @@ export function DoctorProfile() {
       setMomoNetwork(res.doctor.momoNetwork ?? 'MTN');
       setTeleconsultFee(res.doctor.teleconsultFee ?? '');
       setDoctorPhone(res.doctor.phone ?? '');
+      setDoctorEmail(res.doctor.email ?? '');
       setSavedMsg(true);
     } catch (e: any) {
-      if (e?.status === 409) {
+      if (e?.status === 409 && e?.raw?.error === 'a_doctor_with_this_email_already_exists') {
+        setEmailError(t('emailAlreadyInUse'));
+      } else if (e?.status === 409) {
         setPhoneError(t('phoneAlreadyInUse'));
       } else {
         // Previously silent — any failure that wasn't specifically a 409
@@ -347,6 +354,15 @@ export function DoctorProfile() {
           style={{ width: '100%', padding: '11px 14px', fontSize: 15, border: '1.5px solid var(--line)', borderRadius: 8, boxSizing: 'border-box', marginBottom: phoneError ? 6 : 18 }}
         />
         {phoneError && <p style={{ fontSize: 12, color: 'var(--danger)', marginBottom: 18 }}>{phoneError}</p>}
+
+        <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: 'var(--navy)', marginBottom: 6 }}>{t('emailLabel')}</label>
+        <input
+          type="email"
+          value={doctorEmail}
+          onChange={(e) => setDoctorEmail(e.target.value)}
+          style={{ width: '100%', padding: '11px 14px', fontSize: 15, border: '1.5px solid var(--line)', borderRadius: 8, boxSizing: 'border-box', marginBottom: emailError ? 6 : 18 }}
+        />
+        {emailError && <p style={{ fontSize: 12, color: 'var(--danger)', marginBottom: 18 }}>{emailError}</p>}
 
         <label style={{ display: 'block', fontSize: 13, fontWeight: 600, color: 'var(--navy)', marginBottom: 6 }}>{t('dobLabel')}</label>
         <input

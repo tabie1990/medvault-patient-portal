@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { useLang } from '../lib/i18n';
 import * as api from '../lib/api';
 
@@ -17,10 +18,13 @@ export function LabDashboard() {
   const { t } = useLang();
   const [orders, setOrders] = useState<api.FullLabOrder[] | null>(null);
   const [updatingId, setUpdatingId] = useState<string | null>(null);
+  const [verificationStatus, setVerificationStatus] = useState<string | null>(null);
 
   async function load() {
     const res = await api.getMyLabOrders();
     setOrders(res.lab_orders);
+    const labsRes = await api.getMyLabs();
+    setVerificationStatus(labsRes.lab_providers[0]?.verificationStatus ?? null);
   }
 
   useEffect(() => {
@@ -39,6 +43,33 @@ export function LabDashboard() {
 
   return (
     <div>
+      <div style={{ display: 'flex', gap: 20, marginBottom: 16 }}>
+        <Link to="/lab/manage" style={{ display: 'inline-block', fontSize: 13, fontWeight: 700, color: 'var(--teal)' }}>
+          {t('myLabSettings')} →
+        </Link>
+        <Link to="/refer" style={{ display: 'inline-block', fontSize: 13, fontWeight: 700, color: 'var(--teal)' }}>
+          {t('referAndEarn')} →
+        </Link>
+      </div>
+
+      {verificationStatus && verificationStatus !== 'verified' && (
+        <Link
+          to="/lab/kyc"
+          style={{
+            display: 'block',
+            background: 'var(--teal-light)',
+            border: '1px solid var(--teal)',
+            borderRadius: 'var(--radius)',
+            padding: '14px 18px',
+            marginBottom: 20,
+            textDecoration: 'none'
+          }}
+        >
+          <div style={{ fontWeight: 700, fontSize: 14, color: 'var(--navy)', marginBottom: 3 }}>{t('verifyMyLab')}</div>
+          <div style={{ fontSize: 13, color: 'var(--ink-soft)' }}>{t('verifyMyLabBody')}</div>
+        </Link>
+      )}
+
       <h1 style={{ fontSize: 24, marginBottom: 18 }}>{t('labOrders')}</h1>
 
       {orders && orders.length === 0 && <p style={{ color: 'var(--ink-soft)', fontSize: 14 }}>{t('noLabOrdersYet')}</p>}

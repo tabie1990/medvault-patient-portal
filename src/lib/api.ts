@@ -218,6 +218,7 @@ export const registerLabSelf = (body: {
 export interface FullDoctor extends Doctor {
   momoNumber: string | null;
   momoNetwork: string | null;
+  email: string | null;
   verificationStatus: 'pending' | 'verified' | 'rejected';
   teleconsultSlotMinutes: number;
   dob: string | null;
@@ -328,6 +329,7 @@ export const setDoctorProfile = (body: {
   address?: string;
   accepting_instant_consults?: boolean;
   phone?: string;
+  email?: string;
 }) => patch<{ success: boolean; doctor: FullDoctor }>('/doctors/me', body);
 
 // ── Doctor profile photo — direct-to-storage upload, same pattern as KYC ──
@@ -388,6 +390,18 @@ export interface LabStaffMember {
   phone: string | null;
 }
 export const getLabStaff = (labId: string) => get<{ success: boolean; staff: LabStaffMember[] }>(`/lab-providers/${labId}/staff`);
+
+// A lab_staff member's own login identity — distinct from the lab's own
+// contact email set via setLabPayoutDetails.
+export const updateLabStaffAccount = (body: { full_name?: string; email?: string; phone?: string }) =>
+  patch<{ success: boolean; staff: LabStaffMember }>('/lab-providers/staff/me', body);
+
+// ── Admin — all labs, any verification status ──
+export const getAdminLabs = () => get<{ success: boolean; labs: AdminLabProvider[] }>('/admin/labs');
+export interface AdminLabProvider extends MyLabProvider {
+  staff: LabStaffMember[];
+  ownerDoctor: { id: string; fullName: string } | null;
+}
 
 export const addLabStaff = (labId: string, body: { full_name: string; email?: string; phone?: string }) =>
   post<{ success: boolean; staff: LabStaffMember }>(`/lab-providers/${labId}/staff`, body);

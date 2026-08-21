@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useLang } from '../lib/i18n';
 import * as api from '../lib/api';
@@ -12,9 +12,23 @@ interface UploadState {
 }
 
 export function LabKycSubmit() {
-  const { id } = useParams<{ id: string }>();
+  const { id: paramId } = useParams<{ id: string }>();
   const { t } = useLang();
   const navigate = useNavigate();
+
+  // No :id in the URL means this was reached via /lab/kyc (a
+  // self-registered lab's own staff member) rather than
+  // /doctor/labs/:id/kyc — resolve it to their own (only) lab instead of
+  // requiring them to know or pick an id they were never shown.
+  const [id, setId] = useState<string | undefined>(paramId);
+  useEffect(() => {
+    if (!paramId) {
+      api.getMyLabs().then((res) => {
+        if (res.lab_providers[0]) setId(res.lab_providers[0].id);
+      });
+    }
+  }, [paramId]);
+  const backTo = paramId ? `/doctor/labs/${paramId}` : '/lab';
 
   const [regNumber, setRegNumber] = useState('');
   const [docs, setDocs] = useState<Record<DocKind, UploadState>>({
@@ -69,7 +83,7 @@ export function LabKycSubmit() {
         <div style={{ fontSize: 40, marginBottom: 16 }}>✓</div>
         <h1 style={{ fontSize: 22, marginBottom: 10 }}>{t('kycSubmitted')}</h1>
         <p style={{ color: 'var(--ink-soft)', fontSize: 14, lineHeight: 1.6, marginBottom: 24 }}>{t('kycSubmittedBody')}</p>
-        <Link to={`/doctor/labs/${id}`} style={{ color: 'var(--teal)', fontWeight: 700, fontSize: 14 }}>
+        <Link to={backTo} style={{ color: 'var(--teal)', fontWeight: 700, fontSize: 14 }}>
           {t('backToLabs')}
         </Link>
       </div>
