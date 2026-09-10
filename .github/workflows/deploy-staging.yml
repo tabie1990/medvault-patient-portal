@@ -1,0 +1,140 @@
+name: Deploy Patient Portal - Staging
+
+on:
+  push:
+    branches:
+      - staging
+
+concurrency:
+  group: medvault-patient-portal-staging
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build Patient Portal
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build React/Vite application
+        run: npm run build
+
+      - name: Package build
+        run: tar -czf medvault-patient-portal.tar.gz -C dist .
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: medvault-patient-portal
+          path: medvault-patient-portal.tar.gz
+          retention-days: 3
+
+  deploy:
+    name: Deploy to Hetzner Staging
+    needs: build
+    runs-on: ubuntu-latest
+    environment: staging
+
+    steps:
+      - name: Download build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: medvault-patient-portal
+
+      - name: Configure SSH
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p ~/.ssh
+
+          printf '%s\n' "${{ secrets.STAGING_SSH_KEY }}" > ~/.ssh/staging_key
+          chmod 600 ~/.ssh/staging_key
+
+          printf '%s\n' "${{ secrets.STAGING_KNOWN_HOSTS }}" > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+
+      - name: Upload build to staging
+        shell: bash
+        run: |
+          set -euo pipefail
+          scp \
+            -i ~/.ssh/staging_key \
+            medvault-patient-portal.tar.gz \
+            "${{ secrets.STAGING_USER }}@${{ secrets.STAGING_HOST }}:/tmp/medvault-patient-portal.tar.gz"
+
+      - name: Deploy build atomically
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          ssh \
+            -i ~/.ssh/staging_key \
+            "${{ secrets.STAGING_USER }}@${{ secrets.STAGING_HOST }}" << 'EOF'
+
+          set -euo pipefail
+
+          APP_DIR="/opt/medvault-patient-portal"
+          ARCHIVE="/tmp/medvault-patient-portal.tar.gz"
+
+          test -d "$APP_DIR"
+          test -f "$ARCHIVE"
+
+          echo "Preparing new release..."
+          rm -rf "$APP_DIR/dist.new"
+          mkdir -p "$APP_DIR/dist.new"
+
+          tar -xzf "$ARCHIVE" -C "$APP_DIR/dist.new"
+
+          test -f "$APP_DIR/dist.new/index.html"
+
+          echo "Preserving previous release..."
+          rm -rf "$APP_DIR/dist.previous"
+
+          if [ -d "$APP_DIR/dist" ]; then
+            mv "$APP_DIR/dist" "$APP_DIR/dist.previous"
+          fi
+
+          echo "Activating new release..."
+          mv "$APP_DIR/dist.new" "$APP_DIR/dist"
+
+          rm -f "$ARCHIVE"
+
+          echo "Frontend deployment completed."
+          EOF
+
+      - name: Verify staging website
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          for attempt in 1 2 3 4 5; do
+            if curl \
+              --fail \
+              --silent \
+              --show-error \
+              --location \
+              --max-time 20 \
+              https://staging.med-vault.com/ \
+              > /dev/null; then
+
+              echo "MedVAULT Patient Portal staging is reachable."
+              exit 0
+            fi
+
+            echo "Health check attempt ${attempt}/5 failed; retrying..."
+            sleep 5
+          done
+
+          echo "Staging health check failed."
+          exit 1
