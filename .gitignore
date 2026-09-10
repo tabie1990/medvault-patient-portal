@@ -1,0 +1,9 @@
+node_modules/
+dist/
+.env
+.env.*
+!.env.example
+
+# Local deployment keys
+medvault_patient_staging
+medvault_patient_staging.pub
