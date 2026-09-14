@@ -56,36 +56,45 @@ function SidePanel({ side, doctor }: { side: 'left' | 'right'; doctor: { id: str
     top: '50%',
     [side]: 24,
     transform: 'translateY(-50%)',
-    width: 168,
+    width: 190,
     zIndex: 5
   };
   return (
     <div className="doctor-side-panel" style={style}>
-      <div key={doctor.id} className="doctor-slide-fade" style={{ background: 'var(--white)', border: '1px solid var(--line)', borderRadius: 'var(--radius)', padding: '16px 14px', boxShadow: 'var(--shadow)', textAlign: 'center' }}>
-        <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--ink-soft)', letterSpacing: 0.3, marginBottom: 10, textTransform: 'uppercase' }}>
-          {t('meetOurDoctorsHeadline')}
+      <div
+        key={doctor.id}
+        className="doctor-slide-fade"
+        style={{ background: 'var(--white)', border: '1px solid var(--line)', borderRadius: 'var(--radius)', boxShadow: 'var(--shadow)', textAlign: 'center', overflow: 'hidden' }}
+      >
+        <div style={{ padding: '12px 14px 0' }}>
+          <div style={{ fontSize: 11, fontWeight: 700, color: 'var(--ink-soft)', letterSpacing: 0.3, marginBottom: 10, textTransform: 'uppercase' }}>
+            {t('meetOurDoctorsHeadline')}
+          </div>
         </div>
+        {/* A large portrait frame, not a tight facial crop — these are real
+            waist-up photos, and a small circle cropped in on the face was
+            losing most of the actual picture. */}
         <div
           style={{
-            width: 64,
-            height: 64,
-            borderRadius: '50%',
+            width: '100%',
+            aspectRatio: '3 / 4',
             overflow: 'hidden',
             background: 'var(--teal-light)',
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'center',
-            margin: '0 auto 10px'
+            justifyContent: 'center'
           }}
         >
           {doctor.photo ? (
-            <img src={doctor.photo} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 15%' }} />
+            <img src={doctor.photo} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center top' }} />
           ) : (
-            <span style={{ fontSize: 22, fontWeight: 700, color: 'var(--teal)' }}>{doctor.fullName.trim().charAt(0).toUpperCase()}</span>
+            <span style={{ fontSize: 32, fontWeight: 700, color: 'var(--teal)' }}>{doctor.fullName.trim().charAt(0).toUpperCase()}</span>
           )}
         </div>
-        <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--navy)', lineHeight: 1.3 }}>{doctor.fullName}</div>
-        {doctor.specialty && <div style={{ fontSize: 12, color: 'var(--ink-soft)', marginTop: 2 }}>{doctor.specialty}</div>}
+        <div style={{ padding: '10px 14px 14px' }}>
+          <div style={{ fontSize: 13, fontWeight: 700, color: 'var(--navy)', lineHeight: 1.3 }}>{doctor.fullName}</div>
+          {doctor.specialty && <div style={{ fontSize: 12, color: 'var(--ink-soft)', marginTop: 2 }}>{doctor.specialty}</div>}
+        </div>
       </div>
     </div>
   );

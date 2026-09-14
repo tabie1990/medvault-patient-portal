@@ -310,39 +310,38 @@ export function Home() {
                   background: 'var(--white)',
                   border: '1px solid var(--line)',
                   borderRadius: 'var(--radius)',
-                  padding: '20px',
+                  overflow: 'hidden',
                   textDecoration: 'none',
                   color: 'inherit',
                   boxShadow: 'var(--shadow)'
                 };
                 const content = (
                   <>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                      <div
-                        style={{
-                          width: 52,
-                          height: 52,
-                          borderRadius: '50%',
-                          overflow: 'hidden',
-                          background: 'var(--teal-light)',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          flexShrink: 0
-                        }}
-                      >
-                        {d.photo ? (
-                          <img src={d.photo} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 15%' }} />
-                        ) : (
-                          <span style={{ fontSize: 18, fontWeight: 700, color: 'var(--teal)' }}>{d.fullName.trim().charAt(0).toUpperCase()}</span>
-                        )}
-                      </div>
-                      <div>
-                        <div style={{ fontWeight: 700, fontSize: 16, color: 'var(--navy)' }}>{d.fullName}</div>
-                        {d.specialty && <div style={{ fontSize: 13, color: 'var(--ink-soft)', marginTop: 2 }}>{d.specialty}</div>}
-                      </div>
+                    {/* A large portrait frame, not a tight facial crop — these
+                        are real waist-up photos, and a small circle cropped
+                        in on the face was losing most of the actual picture. */}
+                    <div
+                      style={{
+                        width: '100%',
+                        aspectRatio: '3 / 4',
+                        overflow: 'hidden',
+                        background: 'var(--teal-light)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                      }}
+                    >
+                      {d.photo ? (
+                        <img src={d.photo} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center top' }} />
+                      ) : (
+                        <span style={{ fontSize: 40, fontWeight: 700, color: 'var(--teal)' }}>{d.fullName.trim().charAt(0).toUpperCase()}</span>
+                      )}
                     </div>
-                    {d.fee && <div style={{ marginTop: 14, fontSize: 13, color: 'var(--teal)', fontWeight: 700 }}>{d.fee}</div>}
+                    <div style={{ padding: '16px 18px' }}>
+                      <div style={{ fontWeight: 700, fontSize: 16, color: 'var(--navy)' }}>{d.fullName}</div>
+                      {d.specialty && <div style={{ fontSize: 13, color: 'var(--ink-soft)', marginTop: 2 }}>{d.specialty}</div>}
+                      {d.fee && <div style={{ marginTop: 10, fontSize: 13, color: 'var(--teal)', fontWeight: 700 }}>{d.fee}</div>}
+                    </div>
                   </>
                 );
                 return d.linkTo ? (

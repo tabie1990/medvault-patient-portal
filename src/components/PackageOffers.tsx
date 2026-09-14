@@ -106,7 +106,11 @@ function OfferCard({ offer, onBook }: { offer: api.PackageOffer; onBook: () => v
           <h3 className="sr-only">
             {offer.name} — {offer.base_price.toLocaleString()} FCFA {t('perChild')}
           </h3>
-          <img src={imageSrc} alt={offer.name} style={{ width: '100%', maxWidth: 160, display: 'block', margin: '0 auto' }} />
+          {/* 836 = 2/3 of the source PNG's native 1254px width, per request.
+              In this 2-column grid the card itself is ~550px wide, so this
+              cap rarely binds — it just means the image fills the card
+              rather than being artificially shrunk further. */}
+          <img src={imageSrc} alt={offer.name} style={{ width: '100%', maxWidth: 836, display: 'block', margin: '0 auto' }} />
         </>
       ) : (
         <div style={{ padding: '24px 20px 0' }}>
