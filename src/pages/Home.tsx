@@ -424,33 +424,44 @@ export function Home() {
         </div>
       </section>
 
-      {/* Partners — real logos, looping in a CSS-only marquee (the list is
-          duplicated once so the loop point at -50% is seamless). */}
-      <section style={{ padding: '40px 0', background: '#F3F1EC', overflow: 'hidden' }}>
+      {/* Partners — with only a handful of logos, a scrolling marquee never
+          settles into a centered rest state (it starts flush-left on wide
+          screens, which read as "not centered"). Below the threshold, just
+          center them as a plain wrapped row; only switch to the looping
+          marquee once there are enough logos to actually need it. */}
+      <section style={{ padding: '40px 20px', background: '#F3F1EC', overflow: 'hidden' }}>
         <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--ink-soft)', marginBottom: 20, letterSpacing: 0.3, textAlign: 'center' }}>
           {t('ourPartners')}
         </p>
-        <div style={{ maskImage: 'linear-gradient(90deg, transparent, black 8%, black 92%, transparent)' }}>
-          <div
-            className="partner-marquee-track"
-            style={{
-              display: 'flex',
-              width: 'max-content',
-              gap: 48,
-              animation: 'partner-marquee 22s linear infinite'
-            }}
-          >
-            {[...PARTNERS, ...PARTNERS].map((p, i) => (
-              <img
-                key={`${p.name}-${i}`}
-                src={p.src}
-                alt={p.name}
-                title={p.name}
-                style={{ height: 64, width: 'auto', borderRadius: 8, flexShrink: 0 }}
-              />
+        {PARTNERS.length > 6 ? (
+          <div style={{ maskImage: 'linear-gradient(90deg, transparent, black 8%, black 92%, transparent)' }}>
+            <div
+              className="partner-marquee-track"
+              style={{
+                display: 'flex',
+                width: 'max-content',
+                gap: 48,
+                animation: 'partner-marquee 22s linear infinite'
+              }}
+            >
+              {[...PARTNERS, ...PARTNERS].map((p, i) => (
+                <img
+                  key={`${p.name}-${i}`}
+                  src={p.src}
+                  alt={p.name}
+                  title={p.name}
+                  style={{ height: 64, width: 'auto', borderRadius: 8, flexShrink: 0 }}
+                />
+              ))}
+            </div>
+          </div>
+        ) : (
+          <div style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: 48, maxWidth: 1120, margin: '0 auto' }}>
+            {PARTNERS.map((p) => (
+              <img key={p.name} src={p.src} alt={p.name} title={p.name} style={{ height: 64, width: 'auto', borderRadius: 8 }} />
             ))}
           </div>
-        </div>
+        )}
       </section>
 
       {/* Health tips — genuine, generic public-health content, not fabricated company news */}

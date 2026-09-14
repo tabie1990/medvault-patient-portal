@@ -74,10 +74,13 @@ const STRINGS = {
   startingSession: { en: 'Starting…', fr: 'Démarrage…' },
   joinCall: { en: 'Join call', fr: 'Rejoindre l\u2019appel' },
   waitingForPayment: { en: 'Waiting for patient payment', fr: 'En attente du paiement du patient' },
-  heroHeadline: { en: 'Real doctors. Real clinics. One connected system.', fr: 'De vrais médecins. De vraies cliniques. Un seul système connecté.' },
+  heroHeadline: {
+    en: "Africa's first offline-tolerant Hospital Management System. Taking healthcare providers from paper to digital.",
+    fr: "Le premier système de gestion hospitalière tolérant au hors-ligne d'Afrique. Faire passer les prestataires de soins du papier au numérique."
+  },
   heroSubhead: {
-    en: 'MedVAULT links hospitals, independent doctors, and mobile labs across Cameroon — the same software running the clinic floor also books your teleconsult and takes your payment.',
-    fr: 'MedVAULT relie hôpitaux, médecins indépendants et laboratoires mobiles à travers le Cameroun — le même logiciel qui fait tourner la clinique gère aussi votre téléconsultation et votre paiement.'
+    en: 'The same software running the clinic floor also books your teleconsult and takes your payment.',
+    fr: 'Le même logiciel qui fait tourner la clinique gère aussi votre téléconsultation et votre paiement.'
   },
   findADoctorCta: { en: 'Find a doctor', fr: 'Trouver un médecin' },
   forProvidersCta: { en: 'For healthcare providers', fr: 'Pour les professionnels de santé' },
