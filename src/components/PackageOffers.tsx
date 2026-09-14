@@ -1,4 +1,5 @@
 import { useEffect, useState, type CSSProperties } from 'react';
+import { Link } from 'react-router-dom';
 import { useLang } from '../lib/i18n';
 import * as api from '../lib/api';
 
@@ -29,7 +30,7 @@ export function PackageOffers() {
         <h2 style={{ fontSize: 26, marginBottom: 32, textAlign: 'center' }}>{t('packagesHeadline')}</h2>
 
         {step.kind === 'browse' && (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 20 }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 20, alignItems: 'start' }}>
             {offers.map((o) => (
               <OfferCard key={o.id} offer={o} onBook={() => setStep({ kind: 'form', offer: o })} />
             ))}
@@ -57,38 +58,56 @@ export function PackageOffers() {
   );
 }
 
+// Promotional artwork for specific offers, keyed by name (the offers API
+// has no image field of its own). An offer with no matching entry here
+// just falls back to the plain text card below — safe for any future
+// offer that doesn't have a graphic yet.
+const OFFER_IMAGES: Record<string, string> = {
+  'Back-to-School Plus': '/offers/BacktoSchool.png'
+};
+
 function OfferCard({ offer, onBook }: { offer: api.PackageOffer; onBook: () => void }) {
   const { t } = useLang();
+  const imageSrc = OFFER_IMAGES[offer.name];
+
   return (
     <div
       style={{
         background: 'var(--white)',
         border: '1px solid var(--line)',
         borderRadius: 'var(--radius)',
-        padding: '24px 20px',
         boxShadow: 'var(--shadow)',
         display: 'flex',
-        flexDirection: 'column'
+        flexDirection: 'column',
+        overflow: 'hidden'
       }}
     >
-      <h3 style={{ fontSize: 18, color: 'var(--navy)', marginBottom: 6 }}>{offer.name}</h3>
-      <p style={{ fontSize: 13, color: 'var(--ink-soft)', lineHeight: 1.5, marginBottom: 14 }}>{offer.description}</p>
-      <ul style={{ margin: '0 0 16px', paddingLeft: 18, fontSize: 13, color: 'var(--ink)', lineHeight: 1.7 }}>
-        {offer.included_items.map((item) => (
-          <li key={item}>{item}</li>
-        ))}
-      </ul>
-      <div style={{ marginTop: 'auto' }}>
-        <div style={{ fontSize: 20, fontFamily: 'var(--font-display)', fontWeight: 600, color: 'var(--teal)' }}>
-          {offer.base_price.toLocaleString()} FCFA{' '}
-          <span style={{ fontSize: 12, fontWeight: 500, color: 'var(--ink-soft)' }}>{t('perChild')}</span>
+      {imageSrc ? (
+        <img src={imageSrc} alt={offer.name} style={{ width: '100%', display: 'block' }} />
+      ) : (
+        <div style={{ padding: '24px 20px 0' }}>
+          <h3 style={{ fontSize: 18, color: 'var(--navy)', marginBottom: 6 }}>{offer.name}</h3>
+          <p style={{ fontSize: 13, color: 'var(--ink-soft)', lineHeight: 1.5, marginBottom: 14 }}>{offer.description}</p>
+          <ul style={{ margin: '0 0 16px', paddingLeft: 18, fontSize: 13, color: 'var(--ink)', lineHeight: 1.7 }}>
+            {offer.included_items.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
+          </ul>
         </div>
+      )}
+      <div style={{ marginTop: 'auto', padding: '16px 20px 20px' }}>
+        {!imageSrc && (
+          <div style={{ fontSize: 20, fontFamily: 'var(--font-display)', fontWeight: 600, color: 'var(--teal)' }}>
+            {offer.base_price.toLocaleString()} FCFA{' '}
+            <span style={{ fontSize: 12, fontWeight: 500, color: 'var(--ink-soft)' }}>{t('perChild')}</span>
+          </div>
+        )}
         {offer.home_service_fee > 0 && (
           <div style={{ fontSize: 12, color: 'var(--ink-soft)', marginBottom: 16 }}>
             + {offer.home_service_fee.toLocaleString()} FCFA {t('homeServiceFeeNote')}
           </div>
         )}
-        <button onClick={onBook} style={{ ...submitButtonStyle, background: 'var(--clay)', marginTop: offer.home_service_fee > 0 ? 0 : 16 }}>
+        <button onClick={onBook} style={{ ...submitButtonStyle, background: 'var(--clay)', marginTop: imageSrc || offer.home_service_fee > 0 ? 0 : 16 }}>
           {t('bookThisPackage')}
         </button>
       </div>
@@ -265,6 +284,9 @@ function PaymentStep({
         <div style={{ fontSize: 13, color: 'var(--ink-soft)' }}>
           {offer.name} · {t('bookingRefLabel')}: {bookingRef}
         </div>
+        <Link to={`/track/${bookingRef}`} style={{ fontSize: 12, fontWeight: 700, color: 'var(--teal)', textDecoration: 'none' }}>
+          {t('trackYourBookingTitle')} →
+        </Link>
       </div>
 
       <h3 style={{ fontSize: 17, marginBottom: 4 }}>{t('payNow')}</h3>

@@ -66,9 +66,20 @@ a {
   outline-offset: 2px;
 }
 
+@keyframes partner-marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
     transition-duration: 0.01ms !important;
+  }
+
+  /* The 0.01ms override above would otherwise still loop the marquee
+     infinitely, just imperceptibly fast — pause it outright instead. */
+  .partner-marquee-track {
+    animation-play-state: paused !important;
   }
 }

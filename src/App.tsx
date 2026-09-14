@@ -28,6 +28,7 @@ import { LabManage } from './pages/LabManage';
 import { LabKycSubmit } from './pages/LabKycSubmit';
 import { AdminDashboard } from './pages/AdminDashboard';
 import { ChangePassword } from './pages/ChangePassword';
+import { OrderTracking } from './pages/OrderTracking';
 
 function RequireAuth({ children }: { children: ReactNode }) {
   const { token } = useAuth();
@@ -309,6 +310,25 @@ function AppRoutes() {
               <LabManage />
             </Layout>
           </RequireRole>
+        }
+      />
+      {/* Public order tracking — no login required, matches
+          GET /packages/bookings/:bookingRef which needs none either.
+          Bare /track supports typing in a reference by hand. */}
+      <Route
+        path="/track"
+        element={
+          <Layout>
+            <OrderTracking />
+          </Layout>
+        }
+      />
+      <Route
+        path="/track/:bookingRef"
+        element={
+          <Layout>
+            <OrderTracking />
+          </Layout>
         }
       />
       <Route path="*" element={<CatchAllRedirect />} />

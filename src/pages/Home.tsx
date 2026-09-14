@@ -11,6 +11,14 @@ const SERVICES = [
   { key: 'serviceRecords', descKey: 'serviceRecordsDesc', icon: '🗂️' }
 ] as const;
 
+// Real partner hospitals/clinics — swap or extend this list as more
+// logos come in; the marquee strip below is entirely data-driven.
+const PARTNERS = [
+  { name: 'JAPOMA District Hospital', src: '/screenshots/HDJ.png' },
+  { name: 'Centre Medical Ste Yvette', src: '/screenshots/cmsy.jpg' },
+  { name: 'Providence N&D Health Care', src: '/screenshots/n-and-d-logo.jpg' }
+] as const;
+
 const TIPS = [
   { titleKey: 'tip1Title', bodyKey: 'tip1Body' },
   { titleKey: 'tip2Title', bodyKey: 'tip2Body' },
@@ -241,31 +249,30 @@ export function Home() {
 
       <PackageOffers />
 
-      {/* Partners — clearly placeholder until real logos are supplied */}
-      <section style={{ padding: '40px 20px', background: '#F3F1EC' }}>
-        <div style={{ maxWidth: 1120, margin: '0 auto', textAlign: 'center' }}>
-          <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--ink-soft)', marginBottom: 20, letterSpacing: 0.3 }}>
-            {t('partnersHeadline')}
-          </p>
-          <div style={{ display: 'flex', justifyContent: 'center', gap: 28, flexWrap: 'wrap' }}>
-            {[1, 2, 3, 4, 5].map((i) => (
-              <div
-                key={i}
-                style={{
-                  width: 120,
-                  height: 48,
-                  background: '#E4E1DA',
-                  borderRadius: 8,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: 11,
-                  color: 'var(--ink-soft)',
-                  fontWeight: 600
-                }}
-              >
-                Partner {i}
-              </div>
+      {/* Partners — real logos, looping in a CSS-only marquee (the list is
+          duplicated once so the loop point at -50% is seamless). */}
+      <section style={{ padding: '40px 0', background: '#F3F1EC', overflow: 'hidden' }}>
+        <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--ink-soft)', marginBottom: 20, letterSpacing: 0.3, textAlign: 'center' }}>
+          {t('ourPartners')}
+        </p>
+        <div style={{ maskImage: 'linear-gradient(90deg, transparent, black 8%, black 92%, transparent)' }}>
+          <div
+            className="partner-marquee-track"
+            style={{
+              display: 'flex',
+              width: 'max-content',
+              gap: 48,
+              animation: 'partner-marquee 22s linear infinite'
+            }}
+          >
+            {[...PARTNERS, ...PARTNERS].map((p, i) => (
+              <img
+                key={`${p.name}-${i}`}
+                src={p.src}
+                alt={p.name}
+                title={p.name}
+                style={{ height: 64, width: 'auto', borderRadius: 8, flexShrink: 0 }}
+              />
             ))}
           </div>
         </div>
