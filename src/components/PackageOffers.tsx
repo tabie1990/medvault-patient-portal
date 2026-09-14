@@ -1,4 +1,4 @@
-import { useEffect, useState, type CSSProperties } from 'react';
+import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { Link } from 'react-router-dom';
 import { useLang } from '../lib/i18n';
 import * as api from '../lib/api';
@@ -12,6 +12,8 @@ export function PackageOffers() {
   const { t } = useLang();
   const [offers, setOffers] = useState<api.PackageOffer[] | null>(null);
   const [step, setStep] = useState<Step>({ kind: 'browse' });
+  const sectionRef = useRef<HTMLElement>(null);
+  const isFirstRender = useRef(true);
 
   useEffect(() => {
     // Public homepage section — same fallback-to-hidden approach as the
@@ -22,10 +24,23 @@ export function PackageOffers() {
       .catch(() => setOffers([]));
   }, []);
 
+  useEffect(() => {
+    // Switching steps (browse -> form -> payment) swaps a 2-column card
+    // grid for a single narrow form, shrinking the section a lot — without
+    // this, the browser keeps its old scroll offset, which now lands
+    // somewhere in the middle of the new, shorter content instead of its
+    // top. Skip on first render so the section doesn't jump on page load.
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+    sectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, [step.kind]);
+
   if (!offers || offers.length === 0) return null;
 
   return (
-    <section style={{ padding: '56px 20px', background: '#F3F1EC' }}>
+    <section ref={sectionRef} style={{ padding: '56px 20px', background: '#F3F1EC' }}>
       <div style={{ maxWidth: 1120, margin: '0 auto' }}>
         <h2 style={{ fontSize: 26, marginBottom: 32, textAlign: 'center' }}>{t('packagesHeadline')}</h2>
 

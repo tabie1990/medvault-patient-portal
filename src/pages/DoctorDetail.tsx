@@ -207,6 +207,13 @@ function PaymentStep({ appointment, doctor }: { appointment: api.Appointment; do
   const [ussdCode, setUssdCode] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  useEffect(() => {
+    // Booking swaps the whole page (date/time picker -> this shorter
+    // confirmation), which otherwise leaves the browser scrolled to
+    // wherever the "Book this slot" button happened to be.
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, []);
+
   async function handleRequestPayment() {
     setRequesting(true);
     setError(null);

@@ -143,23 +143,26 @@ export function Home() {
         </div>
       </section>
 
-      {/* Signature strip — quiet, factual, not a decoration */}
-      <section style={{ background: 'var(--teal-light)', padding: '14px 20px' }}>
-        <div
-          style={{
-            maxWidth: 1120,
-            margin: '0 auto',
-            display: 'flex',
-            justifyContent: 'center',
-            gap: 32,
-            flexWrap: 'wrap',
-            fontSize: 13,
-            fontWeight: 700,
-            color: 'var(--navy)'
-          }}
-        >
-          <span>{t('builtForClinics')}</span>
-          <span style={{ color: 'var(--ink-soft)', fontWeight: 500 }}>{t('builtForClinicsSub')}</span>
+      {/* Real proof instead of an unbacked claim — an actual product-overview
+          video from med-vault.com, pulled from the real MedVAULT launch
+          coverage rather than an illustrated mockup. */}
+      <section style={{ background: 'var(--teal-light)', padding: '48px 20px' }}>
+        <div style={{ maxWidth: 720, margin: '0 auto', textAlign: 'center' }}>
+          <h2 style={{ fontSize: 22, marginBottom: 6 }}>{t('seeItInActionHeadline')}</h2>
+          <p style={{ fontSize: 14, color: 'var(--ink-soft)', marginBottom: 24 }}>{t('seeItInActionSub')}</p>
+          <div style={{ aspectRatio: '16 / 9', borderRadius: 'var(--radius)', overflow: 'hidden', boxShadow: 'var(--shadow)' }}>
+            <iframe
+              width="100%"
+              height="100%"
+              src="https://www.youtube.com/embed/pj36dERqq5E?rel=0&modestbranding=1"
+              title="MedVAULT HMS Overview"
+              allow="fullscreen"
+              referrerPolicy="strict-origin-when-cross-origin"
+              allowFullScreen
+              loading="lazy"
+              style={{ border: 'none', display: 'block' }}
+            />
+          </div>
         </div>
       </section>
 

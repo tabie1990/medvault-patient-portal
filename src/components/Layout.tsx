@@ -2,6 +2,7 @@ import { type ReactNode, useState, useRef, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useLang } from '../lib/i18n';
 import { useAuth } from '../lib/auth';
+import { Footer } from './Footer';
 
 function LoginMenu() {
   const { t } = useLang();
@@ -182,7 +183,17 @@ export function Layout({ children, wide }: { children: ReactNode; wide?: boolean
           )}
         </div>
       </header>
-      <main style={{ flex: 1, width: '100%', maxWidth: wide ? 'none' : 720, margin: wide ? 0 : '0 auto', padding: wide ? 0 : '24px 20px 60px' }}>
+      <main
+        style={{
+          flex: 1,
+          width: '100%',
+          maxWidth: wide ? 'none' : 720,
+          margin: wide ? 0 : '0 auto',
+          padding: wide ? 0 : '24px 20px 60px',
+          display: wide ? undefined : 'flex',
+          flexDirection: wide ? undefined : 'column'
+        }}
+      >
         {showBackButton && (
           <button
             onClick={handleBack}
@@ -203,8 +214,13 @@ export function Layout({ children, wide }: { children: ReactNode; wide?: boolean
             ← {t('back')}
           </button>
         )}
-        {children}
+        {/* Vertically centers short pages (a bare search form, a login
+            box) within the remaining viewport instead of pinning them to
+            the top and leaving a large empty void below — has no effect
+            once content is already taller than the available space. */}
+        {wide ? children : <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>{children}</div>}
       </main>
+      <Footer />
     </div>
   );
 }

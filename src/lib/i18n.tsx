@@ -81,11 +81,6 @@ const STRINGS = {
   },
   findADoctorCta: { en: 'Find a doctor', fr: 'Trouver un médecin' },
   forProvidersCta: { en: 'For healthcare providers', fr: 'Pour les professionnels de santé' },
-  builtForClinics: { en: 'Built for real clinics, not a demo', fr: 'Conçu pour de vraies cliniques, pas une démo' },
-  builtForClinicsSub: {
-    en: 'This is the actual software running hospital front desks and consultation rooms today.',
-    fr: "C'est le logiciel qui fait tourner aujourd'hui l'accueil et les salles de consultation des hôpitaux."
-  },
   servicesHeadline: { en: 'What you can do on MedVAULT', fr: 'Ce que vous pouvez faire sur MedVAULT' },
   meetOurDoctorsHeadline: { en: 'Meet our doctors', fr: 'Découvrez nos médecins' },
   seeAllDoctors: { en: 'See all doctors', fr: 'Voir tous les médecins' },
@@ -121,6 +116,18 @@ const STRINGS = {
   homeVisitPlainLabel: { en: 'Home visit', fr: 'Visite à domicile' },
   preferredDatePlainLabel: { en: 'Preferred date', fr: 'Date préférée' },
   preferredTimePlainLabel: { en: 'Preferred time', fr: 'Heure préférée' },
+  seeItInActionHeadline: { en: 'See MedVAULT in action', fr: 'Découvrez MedVAULT en action' },
+  seeItInActionSub: {
+    en: 'A real look at the hospital management system running clinic floors today.',
+    fr: 'Un vrai aperçu du système de gestion hospitalière déjà utilisé sur le terrain.'
+  },
+  footerPatientsHeading: { en: 'For patients', fr: 'Pour les patients' },
+  footerProvidersHeading: { en: 'For providers', fr: 'Pour les professionnels' },
+  footerCompanyHeading: { en: 'Company', fr: 'Entreprise' },
+  footerAboutUs: { en: 'About MedVAULT', fr: 'À propos de MedVAULT' },
+  footerContact: { en: 'Contact us', fr: 'Nous contacter' },
+  staffLoginShort: { en: 'Staff login', fr: 'Connexion personnel' },
+  allRightsReserved: { en: 'All rights reserved.', fr: 'Tous droits réservés.' },
   serviceTeleconsult: { en: 'Teleconsultation', fr: 'Téléconsultation' },
   serviceTeleconsultDesc: { en: 'Book and pay for a video consultation with a real, verified doctor.', fr: 'Réservez et payez une consultation vidéo avec un médecin réel et vérifié.' },
   serviceLab: { en: 'Lab tests', fr: 'Analyses de laboratoire' },
