@@ -7,10 +7,10 @@ test('homepage loads', async ({ page }) => {
   await expect(page.locator('body')).not.toContainText('Error');
 });
 
+// Confirmed against the real PackageOffers.tsx component — the offer
+// card renders its base_price (per child) directly from GET /packages/offers.
 test('Back-to-School Plus offer is visible with correct price', async ({ page }) => {
   await page.goto(BASE_URL);
-  // Placeholder until the actual offers section is built (Phase 3, Part B) —
-  // this will need real selectors once that component exists.
   await expect(page.getByText('Back-to-School Plus')).toBeVisible({ timeout: 10000 });
   await expect(page.getByText(/10,?500/)).toBeVisible();
 });
