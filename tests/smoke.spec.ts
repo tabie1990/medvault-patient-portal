@@ -50,10 +50,9 @@ test('doctor login works', async ({ page }) => {
 });
 
 /**
- * NOT YET CONFIRMED against real source — I don't have the doctor
- * dashboard component, only StaffLogin.tsx. "Loads without error" is a
- * safe, minimal check; tighten this once the actual dashboard component
- * is available.
+ * Confirmed against the real DoctorDashboard.tsx: it renders an
+ * <h1>{t('upcomingAppointments')}</h1> unconditionally once loaded — a
+ * real, stable heading rather than just "no error text" placeholder.
  */
 test('doctor dashboard loads after login', async ({ page }) => {
   await page.goto(`${BASE_URL}/staff-login`);
@@ -61,13 +60,17 @@ test('doctor dashboard loads after login', async ({ page }) => {
   await page.locator('input[type="password"]').fill(process.env.STAGING_TEST_DOCTOR_PASSWORD!);
   await page.locator('button[type="submit"]').click();
   await page.waitForURL(`${BASE_URL}/doctor`);
-  await expect(page.locator('body')).not.toContainText('Error');
+  await expect(page.getByRole('heading', { name: 'Upcoming appointments' })).toBeVisible();
 });
 
 /**
- * NOT YET CONFIRMED — the logout control lives in a layout/header
- * component I haven't seen. This selector is a guess; needs a real
- * check against the actual component before trusting this test.
+ * Confirmed against the real Layout.tsx: the header's "Log out" button
+ * calls logout() then navigates by role — doctor/lab/admin go to
+ * /staff-login, only patients go to /login. (Before this was fixed, the
+ * handler unconditionally called navigate('/login') for every role, and
+ * only landed a doctor on /staff-login by accident, via a race with
+ * RequireRole's own redirect guard for the now-unauthenticated /doctor
+ * route — confirmed by real, reproducible behavior on staging.)
  */
 test('logout works', async ({ page }) => {
   await page.goto(`${BASE_URL}/staff-login`);
@@ -76,5 +79,5 @@ test('logout works', async ({ page }) => {
   await page.locator('button[type="submit"]').click();
   await page.waitForURL(`${BASE_URL}/doctor`);
   await page.getByText(/log ?out/i).click();
-  await expect(page).toHaveURL(`${BASE_URL}/`);
+  await expect(page).toHaveURL(`${BASE_URL}/staff-login`);
 });

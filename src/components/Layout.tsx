@@ -166,7 +166,11 @@ export function Layout({ children, wide }: { children: ReactNode; wide?: boolean
               <button
                 onClick={() => {
                   logout();
-                  navigate('/login');
+                  // Same role-based split RequireRole/RequireAnyStaffRole use for
+                  // an unauthenticated visit — landing a doctor/lab/admin logout
+                  // on the patient OTP screen would be wrong, so route deliberately
+                  // instead of relying on a guard redirect to overtake this navigate.
+                  navigate(role === 'patient' ? '/login' : '/staff-login');
                 }}
                 style={{ background: 'none', border: 'none', color: 'rgba(255,255,255,0.85)', fontSize: 13, fontWeight: 600 }}
               >
