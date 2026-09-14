@@ -63,6 +63,53 @@ export const getDoctorAvailability = (doctorId: string, days = 7) =>
   get<{ success: boolean; slots: Record<string, string[]> }>(`/doctors/${doctorId}/availability/slots?days=${days}`);
 export const getDoctorPublic = (doctorId: string) => get<{ success: boolean; doctor: Doctor }>(`/doctors/${doctorId}/public`);
 
+// ── Package offers & bookings — public, homepage packages section and
+// the same endpoints the WhatsApp booking flow uses. Field names are
+// snake_case exactly as the backend returns them (unlike most other
+// endpoints in this file) — this feature just predates the rest of the
+// camelCase convention, not something to "fix" client-side.
+export interface PackageOffer {
+  id: string;
+  name: string;
+  description: string;
+  included_items: string[];
+  base_price: number;
+  home_service_fee: number;
+  max_child_age: number;
+}
+export const getPackageOffers = () => get<{ success: boolean; offers: PackageOffer[] }>('/packages/offers');
+
+export interface PackageBooking {
+  booking_ref: string;
+  offer_name: string;
+  status: string;
+  payment_status: string;
+  total_price: number;
+  city: string;
+  children_count: number;
+  home_service: boolean;
+  preferred_date: string | null;
+  preferred_time_range: string | null;
+  created_at: string;
+}
+
+export const createPackageBooking = (body: {
+  offer_id: string;
+  guardian_phone: string;
+  guardian_name?: string;
+  city: string;
+  children_ages: number[];
+  home_service?: boolean;
+  preferred_date?: string;
+  preferred_time_range?: string;
+}) => post<{ success: boolean; booking_ref: string; total_price: number }>('/packages/bookings', body);
+
+export const getPackageBooking = (bookingRef: string) =>
+  get<{ success: boolean } & PackageBooking>(`/packages/bookings/${bookingRef}`);
+
+export const requestPackageBookingPayment = (bookingRef: string, phone: string) =>
+  post<{ success: boolean; reference: string }>(`/packages/bookings/${bookingRef}/payment`, { phone });
+
 // ── Hospitals — public browse, roster, services, proximity search ──
 export interface PublicHospital {
   hospitalId: string;

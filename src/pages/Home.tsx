@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useLang } from '../lib/i18n';
 import * as api from '../lib/api';
+import { PackageOffers } from '../components/PackageOffers';
 
 const SERVICES = [
   { key: 'serviceTeleconsult', descKey: 'serviceTeleconsultDesc', icon: '🩺' },
@@ -237,6 +238,8 @@ export function Home() {
           </div>
         </section>
       )}
+
+      <PackageOffers />
 
       {/* Partners — clearly placeholder until real logos are supplied */}
       <section style={{ padding: '40px 20px', background: '#F3F1EC' }}>
