@@ -66,6 +66,21 @@ a {
   outline-offset: 2px;
 }
 
+/* For content that's already legible inside a promotional image (alt text
+   covers screen readers) but still needs to exist as real DOM text for
+   find-in-page, SEO indexing, and reliable test selectors. */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 @keyframes partner-marquee {
   from { transform: translateX(0); }
   to { transform: translateX(-50%); }

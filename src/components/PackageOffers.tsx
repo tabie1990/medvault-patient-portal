@@ -83,7 +83,15 @@ function OfferCard({ offer, onBook }: { offer: api.PackageOffer; onBook: () => v
       }}
     >
       {imageSrc ? (
-        <img src={imageSrc} alt={offer.name} style={{ width: '100%', display: 'block' }} />
+        <>
+          {/* The image already shows this legibly, and its alt text covers
+              screen readers — this exists so the name/price are still real,
+              findable DOM text (Ctrl+F, SEO, test selectors), not just pixels. */}
+          <h3 className="sr-only">
+            {offer.name} — {offer.base_price.toLocaleString()} FCFA {t('perChild')}
+          </h3>
+          <img src={imageSrc} alt={offer.name} style={{ width: '100%', display: 'block' }} />
+        </>
       ) : (
         <div style={{ padding: '24px 20px 0' }}>
           <h3 style={{ fontSize: 18, color: 'var(--navy)', marginBottom: 6 }}>{offer.name}</h3>
