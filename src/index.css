@@ -81,6 +81,18 @@ a {
   border: 0;
 }
 
+/* The hero grid isn't its own responsive layout (it just collapses awkwardly
+   on narrow viewports), so the floating testimonial card only shows once
+   there's genuinely enough room for it beside the screenshot stack. */
+.hero-testimonial-card {
+  display: none;
+}
+@media (min-width: 860px) {
+  .hero-testimonial-card {
+    display: block;
+  }
+}
+
 @keyframes partner-marquee {
   from { transform: translateX(0); }
   to { transform: translateX(-50%); }

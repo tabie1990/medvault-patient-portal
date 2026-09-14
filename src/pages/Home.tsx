@@ -55,7 +55,36 @@ export function Home() {
           overflow: 'hidden'
         }}
       >
-        <div style={{ maxWidth: 1120, margin: '0 auto', display: 'grid', gridTemplateColumns: '1.1fr 1fr', gap: 40, alignItems: 'center' }}>
+        {/* Soft decorative glow, not a stock illustration — just depth
+            behind the real product screenshots, in the app's own accent
+            colors (a cue taken from Waspito's hero treatment). */}
+        <div
+          aria-hidden
+          style={{
+            position: 'absolute',
+            top: '-20%',
+            right: '-10%',
+            width: 480,
+            height: 480,
+            borderRadius: '50%',
+            background: 'radial-gradient(circle, rgba(27,156,144,0.35) 0%, transparent 70%)',
+            pointerEvents: 'none'
+          }}
+        />
+        <div
+          aria-hidden
+          style={{
+            position: 'absolute',
+            bottom: '-25%',
+            left: '30%',
+            width: 420,
+            height: 420,
+            borderRadius: '50%',
+            background: 'radial-gradient(circle, rgba(232,115,74,0.18) 0%, transparent 70%)',
+            pointerEvents: 'none'
+          }}
+        />
+        <div style={{ maxWidth: 1120, margin: '0 auto', display: 'grid', gridTemplateColumns: '1.1fr 1fr', gap: 40, alignItems: 'center', position: 'relative' }}>
           <div>
             <h1 style={{ fontSize: 38, lineHeight: 1.15, color: 'var(--white)', marginBottom: 18, maxWidth: 520 }}>
               {t('heroHeadline')}
@@ -139,6 +168,50 @@ export function Home() {
                 border: '3px solid rgba(255,255,255,0.1)'
               }}
             />
+            {/* Real testimonial, not invented copy — pulled from the
+                med-vault.com homepage's own reviews. */}
+            <div
+              style={{
+                position: 'absolute',
+                bottom: -56,
+                right: -8,
+                width: 240,
+                background: 'var(--white)',
+                borderRadius: 12,
+                padding: '14px 16px',
+                boxShadow: '0 16px 32px rgba(0,0,0,0.35)'
+              }}
+              className="hero-testimonial-card"
+            >
+              <div style={{ color: 'var(--clay)', fontSize: 12, marginBottom: 6, letterSpacing: 1 }}>★★★★★</div>
+              <p style={{ fontSize: 12.5, lineHeight: 1.5, color: 'var(--ink)', margin: '0 0 8px' }}>
+                “To have a platform where patients and doctors can interact, from booking appointments to managing subscriptions, is a booster for us in the hospital industry.”
+              </p>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <div
+                  style={{
+                    width: 26,
+                    height: 26,
+                    borderRadius: '50%',
+                    background: 'var(--teal-light)',
+                    color: 'var(--teal)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: 12,
+                    fontWeight: 700,
+                    flexShrink: 0
+                  }}
+                >
+                  M
+                </div>
+                <div style={{ fontSize: 11, color: 'var(--ink-soft)', lineHeight: 1.3 }}>
+                  <strong style={{ color: 'var(--navy)', fontWeight: 700 }}>Madavan Limunga</strong>
+                  <br />
+                  Mount Mary Hospital, Buea
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
@@ -154,7 +227,7 @@ export function Home() {
             <iframe
               width="100%"
               height="100%"
-              src="https://www.youtube.com/embed/pj36dERqq5E?rel=0&modestbranding=1"
+              src="https://www.youtube.com/embed/mNh5Bet2FB8?rel=0&modestbranding=1"
               title="MedVAULT HMS Overview"
               allow="fullscreen"
               referrerPolicy="strict-origin-when-cross-origin"
