@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { Link } from 'react-router-dom';
 import { useLang } from '../lib/i18n';
 import * as api from '../lib/api';
+import { whatsappLink } from '../lib/whatsapp';
 
 type Step =
   | { kind: 'browse' }
@@ -47,7 +48,7 @@ export function PackageOffers() {
         {step.kind === 'browse' && (
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 20, alignItems: 'start' }}>
             {offers.map((o) => (
-              <OfferCard key={o.id} offer={o} onBook={() => setStep({ kind: 'form', offer: o })} />
+              <OfferCard key={o.id} offer={o} />
             ))}
             <ClinicOfferCard />
           </div>
@@ -82,9 +83,13 @@ const OFFER_IMAGES: Record<string, string> = {
   'Back-to-School Plus': '/offers/BacktoSchool.png'
 };
 
-function OfferCard({ offer, onBook }: { offer: api.PackageOffer; onBook: () => void }) {
+function OfferCard({ offer }: { offer: api.PackageOffer }) {
   const { t } = useLang();
   const imageSrc = OFFER_IMAGES[offer.name];
+  // Booking now happens through BEN on WhatsApp (per request) rather than
+  // the in-app form below — kept in this file, just no longer wired to
+  // this button, in case that decision ever gets revisited.
+  const bookHref = whatsappLink(`${t('whatsappBookOfferPrefix')} ${offer.name}`);
 
   return (
     <div
@@ -135,9 +140,22 @@ function OfferCard({ offer, onBook }: { offer: api.PackageOffer; onBook: () => v
             + {offer.home_service_fee.toLocaleString()} FCFA {t('homeServiceFeeNote')}
           </div>
         )}
-        <button onClick={onBook} style={{ ...submitButtonStyle, background: 'var(--clay)', marginTop: imageSrc || offer.home_service_fee > 0 ? 0 : 16 }}>
+        <a
+          href={bookHref}
+          target="_blank"
+          rel="noreferrer"
+          style={{
+            ...submitButtonStyle,
+            background: 'var(--clay)',
+            marginTop: imageSrc || offer.home_service_fee > 0 ? 0 : 16,
+            display: 'block',
+            textAlign: 'center',
+            textDecoration: 'none',
+            boxSizing: 'border-box'
+          }}
+        >
           {t('bookThisPackage')}
-        </button>
+        </a>
       </div>
     </div>
   );
@@ -179,7 +197,7 @@ function ClinicOfferCard() {
           99,999 FCFA <span style={{ fontSize: 12, fontWeight: 500, color: 'rgba(255,255,255,0.65)' }}>{t('clinicOfferPriceSuffix')}</span>
         </div>
         <a
-          href="https://med-vault.com/contact/"
+          href={whatsappLink(t('whatsappClinicOfferMessage'))}
           target="_blank"
           rel="noreferrer"
           style={{ ...submitButtonStyle, background: 'var(--clay)', display: 'block', textAlign: 'center', textDecoration: 'none', boxSizing: 'border-box' }}

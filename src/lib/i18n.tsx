@@ -145,6 +145,15 @@ const STRINGS = {
     fr: 'Tout est inclus : patients, rendez-vous, pharmacie, laboratoire, facturation, inventaire'
   },
   clinicOfferCta: { en: 'Get in touch', fr: 'Nous contacter' },
+  benGreeting: { en: "Hi, I'm BEN 👋", fr: 'Bonjour, je suis BEN 👋' },
+  chatWithBen: { en: 'Chat with BEN on WhatsApp', fr: 'Discuter avec BEN sur WhatsApp' },
+  chatOnWhatsApp: { en: 'Chat on WhatsApp', fr: 'Discuter sur WhatsApp' },
+  whatsappBookDoctorPrefix: { en: "I'd like to book an appointment with", fr: 'Je souhaite prendre rendez-vous avec' },
+  whatsappBookOfferPrefix: { en: "I'd like to book", fr: 'Je souhaite réserver' },
+  whatsappClinicOfferMessage: {
+    en: "I'd like to get MedVAULT for my clinic — the 99,999 FCFA/year plan",
+    fr: "Je souhaite obtenir MedVAULT pour ma clinique — le forfait à 99 999 FCFA/an"
+  },
   serviceTeleconsult: { en: 'Teleconsultation', fr: 'Téléconsultation' },
   serviceTeleconsultDesc: { en: 'Book and pay for a video consultation with a real, verified doctor.', fr: 'Réservez et payez une consultation vidéo avec un médecin réel et vérifié.' },
   serviceLab: { en: 'Lab tests', fr: 'Analyses de laboratoire' },

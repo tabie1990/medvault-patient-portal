@@ -4,6 +4,7 @@ import { useLang } from '../lib/i18n';
 import * as api from '../lib/api';
 import { PackageOffers } from '../components/PackageOffers';
 import { FEATURED_DOCTORS } from '../lib/featuredDoctors';
+import { whatsappLink } from '../lib/whatsapp';
 
 const SERVICES = [
   { key: 'serviceTeleconsult', descKey: 'serviceTeleconsultDesc', icon: '🩺' },
@@ -289,7 +290,8 @@ export function Home() {
               specialty: d.specialty ?? undefined,
               photo: d.photoUrl,
               fee: d.teleconsultFee ? `${Number(d.teleconsultFee).toLocaleString()} FCFA ${t('perConsult')}` : undefined,
-              linkTo: `/doctors/${d.id}`
+              linkTo: `/doctors/${d.id}` as string | undefined,
+              externalHref: undefined as string | undefined
             }))
           : FEATURED_DOCTORS.map((d) => ({
               id: d.id,
@@ -297,7 +299,10 @@ export function Home() {
               specialty: d.specialty[lang],
               photo: d.photo,
               fee: undefined,
-              linkTo: undefined as string | undefined
+              linkTo: undefined as string | undefined,
+              // Not a real bookable account yet — routes to BEN on WhatsApp
+              // instead of a dead click, per request.
+              externalHref: whatsappLink(`${t('whatsappBookDoctorPrefix')} ${d.fullName}`)
             }));
 
         return (
@@ -344,11 +349,21 @@ export function Home() {
                     </div>
                   </>
                 );
-                return d.linkTo ? (
-                  <Link key={d.id} to={d.linkTo} style={cardStyle}>
-                    {content}
-                  </Link>
-                ) : (
+                if (d.linkTo) {
+                  return (
+                    <Link key={d.id} to={d.linkTo} style={cardStyle}>
+                      {content}
+                    </Link>
+                  );
+                }
+                if (d.externalHref) {
+                  return (
+                    <a key={d.id} href={d.externalHref} target="_blank" rel="noreferrer" style={cardStyle}>
+                      {content}
+                    </a>
+                  );
+                }
+                return (
                   <div key={d.id} style={cardStyle}>
                     {content}
                   </div>

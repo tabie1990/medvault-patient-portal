@@ -4,6 +4,7 @@ import { useLang } from '../lib/i18n';
 import { useAuth } from '../lib/auth';
 import { Footer } from './Footer';
 import { DoctorSlideshow } from './DoctorSlideshow';
+import { WhatsAppWidget } from './WhatsAppWidget';
 
 function LoginMenu() {
   const { t } = useLang();
@@ -223,6 +224,7 @@ export function Layout({ children, wide }: { children: ReactNode; wide?: boolean
         {wide ? children : <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>{children}</div>}
       </main>
       <Footer />
+      <WhatsAppWidget />
     </div>
   );
 }
