@@ -1,5 +1,7 @@
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useLang } from '../lib/i18n';
+import * as api from '../lib/api';
 
 const SERVICES = [
   { key: 'serviceTeleconsult', descKey: 'serviceTeleconsultDesc', icon: '🩺' },
@@ -16,6 +18,17 @@ const TIPS = [
 
 export function Home() {
   const { t } = useLang();
+  const [doctors, setDoctors] = useState<api.Doctor[] | null>(null);
+
+  useEffect(() => {
+    // Homepage is public and must never break on a backend hiccup — fall
+    // back to simply not showing the section rather than surfacing an
+    // error, since smoke tests check the page never renders "Error".
+    api
+      .listDoctors()
+      .then((res) => setDoctors(res.doctors))
+      .catch(() => setDoctors([]));
+  }, []);
 
   return (
     <div>
@@ -163,6 +176,67 @@ export function Home() {
           ))}
         </div>
       </section>
+
+      {/* Doctor cards — only rendered once real doctors have actually
+          loaded, so the section never flashes empty or shows a bare
+          error state on the public homepage. */}
+      {doctors && doctors.length > 0 && (
+        <section style={{ padding: '56px 20px', maxWidth: 1120, margin: '0 auto' }}>
+          <h2 style={{ fontSize: 26, marginBottom: 32, textAlign: 'center' }}>{t('meetOurDoctorsHeadline')}</h2>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 20 }}>
+            {doctors.slice(0, 6).map((d) => (
+              <Link
+                key={d.id}
+                to={`/doctors/${d.id}`}
+                style={{
+                  display: 'block',
+                  background: 'var(--white)',
+                  border: '1px solid var(--line)',
+                  borderRadius: 'var(--radius)',
+                  padding: '20px',
+                  textDecoration: 'none',
+                  color: 'inherit',
+                  boxShadow: 'var(--shadow)'
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <div
+                    style={{
+                      width: 52,
+                      height: 52,
+                      borderRadius: '50%',
+                      overflow: 'hidden',
+                      background: 'var(--teal-light)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      flexShrink: 0
+                    }}
+                  >
+                    {d.photoUrl ? (
+                      <img src={d.photoUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                    ) : (
+                      <span style={{ fontSize: 18, fontWeight: 700, color: 'var(--teal)' }}>{d.fullName.trim().charAt(0).toUpperCase()}</span>
+                    )}
+                  </div>
+                  <div>
+                    <div style={{ fontWeight: 700, fontSize: 16, color: 'var(--navy)' }}>{d.fullName}</div>
+                    {d.specialty && <div style={{ fontSize: 13, color: 'var(--ink-soft)', marginTop: 2 }}>{d.specialty}</div>}
+                  </div>
+                </div>
+                <div style={{ marginTop: 14, fontSize: 13, color: 'var(--teal)', fontWeight: 700 }}>
+                  {d.teleconsultFee ? `${Number(d.teleconsultFee).toLocaleString()} FCFA ${t('perConsult')}` : ''}
+                </div>
+              </Link>
+            ))}
+          </div>
+          <div style={{ textAlign: 'center', marginTop: 28 }}>
+            <Link to="/find-a-doctor" style={{ fontSize: 14, fontWeight: 700, color: 'var(--navy)', textDecoration: 'none' }}>
+              {t('seeAllDoctors')} →
+            </Link>
+          </div>
+        </section>
+      )}
 
       {/* Partners — clearly placeholder until real logos are supplied */}
       <section style={{ padding: '40px 20px', background: '#F3F1EC' }}>

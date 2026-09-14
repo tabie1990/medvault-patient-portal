@@ -87,6 +87,8 @@ const STRINGS = {
     fr: "C'est le logiciel qui fait tourner aujourd'hui l'accueil et les salles de consultation des hôpitaux."
   },
   servicesHeadline: { en: 'What you can do on MedVAULT', fr: 'Ce que vous pouvez faire sur MedVAULT' },
+  meetOurDoctorsHeadline: { en: 'Meet our doctors', fr: 'Découvrez nos médecins' },
+  seeAllDoctors: { en: 'See all doctors', fr: 'Voir tous les médecins' },
   serviceTeleconsult: { en: 'Teleconsultation', fr: 'Téléconsultation' },
   serviceTeleconsultDesc: { en: 'Book and pay for a video consultation with a real, verified doctor.', fr: 'Réservez et payez une consultation vidéo avec un médecin réel et vérifié.' },
   serviceLab: { en: 'Lab tests', fr: 'Analyses de laboratoire' },
