@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type CSSProperties } from 'react';
 import { Link } from 'react-router-dom';
 import { useLang } from '../lib/i18n';
 import * as api from '../lib/api';
@@ -19,6 +19,27 @@ const PARTNERS = [
   { name: 'Providence N&D Health Care', src: '/screenshots/n-and-d-logo.jpg' }
 ] as const;
 
+// Real doctors, shown while GET /doctors/browse has no verified accounts
+// yet on this environment — this is a stopgap for a genuinely empty
+// backend list, not fabricated content. Once real verified doctors exist,
+// the live API result takes over automatically (see the `doctors` effect
+// below) and this list is never shown. Not linked to a doctor detail page
+// since these aren't real bookable accounts (yet).
+const FEATURED_DOCTORS = [
+  {
+    id: 'featured-charles-obam-assam',
+    fullName: 'Dr Charles Amel Obam Assam',
+    specialty: { en: 'General Practice', fr: 'Médecine générale' },
+    photo: '/doctors/charles-obam-assam.jpeg'
+  },
+  {
+    id: 'featured-georges-mouen-mbangue',
+    fullName: 'Dr Georges Mouen Mbangue',
+    specialty: { en: 'Ophthalmology', fr: 'Ophtalmologie' },
+    photo: '/doctors/georges-mouen-mbangue.jpeg'
+  }
+] as const;
+
 const TIPS = [
   { titleKey: 'tip1Title', bodyKey: 'tip1Body' },
   { titleKey: 'tip2Title', bodyKey: 'tip2Body' },
@@ -26,7 +47,7 @@ const TIPS = [
 ] as const;
 
 export function Home() {
-  const { t } = useLang();
+  const { t, lang } = useLang();
   const [doctors, setDoctors] = useState<api.Doctor[] | null>(null);
 
   useEffect(() => {
@@ -262,18 +283,37 @@ export function Home() {
         </div>
       </section>
 
-      {/* Doctor cards — only rendered once real doctors have actually
-          loaded, so the section never flashes empty or shows a bare
-          error state on the public homepage. */}
-      {doctors && doctors.length > 0 && (
-        <section style={{ padding: '56px 20px', maxWidth: 1120, margin: '0 auto' }}>
-          <h2 style={{ fontSize: 26, marginBottom: 32, textAlign: 'center' }}>{t('meetOurDoctorsHeadline')}</h2>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 20 }}>
-            {doctors.slice(0, 6).map((d) => (
-              <Link
-                key={d.id}
-                to={`/doctors/${d.id}`}
-                style={{
+      {/* Doctor cards — waits for the fetch to actually resolve so the
+          section never flashes empty. Uses live, bookable doctors once
+          any are verified on this environment; falls back to real (but
+          not yet bookable) featured doctors otherwise — see
+          FEATURED_DOCTORS above for why. */}
+      {doctors && (() => {
+        const isLive = doctors.length > 0;
+        const cards = isLive
+          ? doctors.slice(0, 6).map((d) => ({
+              id: d.id,
+              fullName: d.fullName,
+              specialty: d.specialty ?? undefined,
+              photo: d.photoUrl,
+              fee: d.teleconsultFee ? `${Number(d.teleconsultFee).toLocaleString()} FCFA ${t('perConsult')}` : undefined,
+              linkTo: `/doctors/${d.id}`
+            }))
+          : FEATURED_DOCTORS.map((d) => ({
+              id: d.id,
+              fullName: d.fullName,
+              specialty: d.specialty[lang],
+              photo: d.photo,
+              fee: undefined,
+              linkTo: undefined as string | undefined
+            }));
+
+        return (
+          <section style={{ padding: '56px 20px', maxWidth: 1120, margin: '0 auto' }}>
+            <h2 style={{ fontSize: 26, marginBottom: 32, textAlign: 'center' }}>{t('meetOurDoctorsHeadline')}</h2>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 20 }}>
+              {cards.map((d) => {
+                const cardStyle: CSSProperties = {
                   display: 'block',
                   background: 'var(--white)',
                   border: '1px solid var(--line)',
@@ -282,48 +322,107 @@ export function Home() {
                   textDecoration: 'none',
                   color: 'inherit',
                   boxShadow: 'var(--shadow)'
-                }}
-              >
-                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                  <div
-                    style={{
-                      width: 52,
-                      height: 52,
-                      borderRadius: '50%',
-                      overflow: 'hidden',
-                      background: 'var(--teal-light)',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      flexShrink: 0
-                    }}
-                  >
-                    {d.photoUrl ? (
-                      <img src={d.photoUrl} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
-                    ) : (
-                      <span style={{ fontSize: 18, fontWeight: 700, color: 'var(--teal)' }}>{d.fullName.trim().charAt(0).toUpperCase()}</span>
-                    )}
+                };
+                const content = (
+                  <>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                      <div
+                        style={{
+                          width: 52,
+                          height: 52,
+                          borderRadius: '50%',
+                          overflow: 'hidden',
+                          background: 'var(--teal-light)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          flexShrink: 0
+                        }}
+                      >
+                        {d.photo ? (
+                          <img src={d.photo} alt="" style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 15%' }} />
+                        ) : (
+                          <span style={{ fontSize: 18, fontWeight: 700, color: 'var(--teal)' }}>{d.fullName.trim().charAt(0).toUpperCase()}</span>
+                        )}
+                      </div>
+                      <div>
+                        <div style={{ fontWeight: 700, fontSize: 16, color: 'var(--navy)' }}>{d.fullName}</div>
+                        {d.specialty && <div style={{ fontSize: 13, color: 'var(--ink-soft)', marginTop: 2 }}>{d.specialty}</div>}
+                      </div>
+                    </div>
+                    {d.fee && <div style={{ marginTop: 14, fontSize: 13, color: 'var(--teal)', fontWeight: 700 }}>{d.fee}</div>}
+                  </>
+                );
+                return d.linkTo ? (
+                  <Link key={d.id} to={d.linkTo} style={cardStyle}>
+                    {content}
+                  </Link>
+                ) : (
+                  <div key={d.id} style={cardStyle}>
+                    {content}
                   </div>
-                  <div>
-                    <div style={{ fontWeight: 700, fontSize: 16, color: 'var(--navy)' }}>{d.fullName}</div>
-                    {d.specialty && <div style={{ fontSize: 13, color: 'var(--ink-soft)', marginTop: 2 }}>{d.specialty}</div>}
-                  </div>
-                </div>
-                <div style={{ marginTop: 14, fontSize: 13, color: 'var(--teal)', fontWeight: 700 }}>
-                  {d.teleconsultFee ? `${Number(d.teleconsultFee).toLocaleString()} FCFA ${t('perConsult')}` : ''}
-                </div>
-              </Link>
-            ))}
-          </div>
-          <div style={{ textAlign: 'center', marginTop: 28 }}>
-            <Link to="/find-a-doctor" style={{ fontSize: 14, fontWeight: 700, color: 'var(--navy)', textDecoration: 'none' }}>
-              {t('seeAllDoctors')} →
-            </Link>
-          </div>
-        </section>
-      )}
+                );
+              })}
+            </div>
+            {isLive && (
+              <div style={{ textAlign: 'center', marginTop: 28 }}>
+                <Link to="/find-a-doctor" style={{ fontSize: 14, fontWeight: 700, color: 'var(--navy)', textDecoration: 'none' }}>
+                  {t('seeAllDoctors')} →
+                </Link>
+              </div>
+            )}
+          </section>
+        );
+      })()}
 
       <PackageOffers />
+
+      {/* Run-your-clinic / install offer — deliberately NOT wired to
+          GET /packages/offers. That endpoint's booking flow is built
+          specifically for the pediatric check-up packages (requires
+          children_ages, offers a home-visit toggle) and has no concept
+          of a software installation deal — a different product for a
+          different (B2B, not patient) audience. This is static content
+          with its own contact CTA instead of a mismatched booking form. */}
+      <section style={{ background: 'linear-gradient(135deg, var(--navy) 0%, var(--navy-deep) 100%)', color: 'var(--white)', padding: '56px 20px' }}>
+        <div style={{ maxWidth: 720, margin: '0 auto', textAlign: 'center' }}>
+          <h2 style={{ fontSize: 26, color: 'var(--white)', marginBottom: 8 }}>{t('clinicOfferHeadline')}</h2>
+          <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.75)', marginBottom: 28, maxWidth: 480, margin: '0 auto 28px' }}>{t('clinicOfferAudience')}</p>
+
+          <div style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 'var(--radius)', padding: '32px 28px' }}>
+            <div style={{ fontSize: 34, fontFamily: 'var(--font-display)', fontWeight: 600, marginBottom: 4 }}>
+              99,999 FCFA <span style={{ fontSize: 15, fontWeight: 500, color: 'rgba(255,255,255,0.65)' }}>{t('clinicOfferPriceSuffix')}</span>
+            </div>
+
+            <ul style={{ listStyle: 'none', margin: '24px 0', padding: 0, display: 'grid', gap: 12, textAlign: 'left', maxWidth: 420, marginLeft: 'auto', marginRight: 'auto' }}>
+              {(['clinicOfferBullet1', 'clinicOfferBullet2', 'clinicOfferBullet3', 'clinicOfferBullet4'] as const).map((key) => (
+                <li key={key} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, fontSize: 14, color: 'rgba(255,255,255,0.9)' }}>
+                  <span style={{ color: 'var(--teal)', fontWeight: 700, flexShrink: 0 }}>✓</span>
+                  {t(key)}
+                </li>
+              ))}
+            </ul>
+
+            <a
+              href="https://med-vault.com/contact/"
+              target="_blank"
+              rel="noreferrer"
+              style={{
+                display: 'inline-block',
+                padding: '13px 28px',
+                background: 'var(--clay)',
+                color: 'var(--white)',
+                borderRadius: 10,
+                fontWeight: 700,
+                fontSize: 15,
+                textDecoration: 'none'
+              }}
+            >
+              {t('clinicOfferCta')} →
+            </a>
+          </div>
+        </div>
+      </section>
 
       {/* Partners — real logos, looping in a CSS-only marquee (the list is
           duplicated once so the loop point at -50% is seamless). */}

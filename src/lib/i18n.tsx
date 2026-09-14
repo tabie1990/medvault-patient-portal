@@ -128,6 +128,20 @@ const STRINGS = {
   footerContact: { en: 'Contact us', fr: 'Nous contacter' },
   staffLoginShort: { en: 'Staff login', fr: 'Connexion personnel' },
   allRightsReserved: { en: 'All rights reserved.', fr: 'Tous droits réservés.' },
+  clinicOfferHeadline: { en: 'Run your clinic on MedVAULT', fr: 'Gérez votre clinique avec MedVAULT' },
+  clinicOfferAudience: {
+    en: 'For doctors, hospital owners, and lab operators who want their own MedVAULT installation.',
+    fr: 'Pour les médecins, propriétaires d’hôpitaux et responsables de laboratoire qui veulent leur propre installation MedVAULT.'
+  },
+  clinicOfferPriceSuffix: { en: '/ year', fr: '/ an' },
+  clinicOfferBullet1: { en: 'Installed within 24 hours', fr: 'Installation sous 24 heures' },
+  clinicOfferBullet2: { en: 'Runs on Windows & Linux — available as a desktop app', fr: 'Fonctionne sur Windows et Linux — disponible en application de bureau' },
+  clinicOfferBullet3: { en: 'Offline-first — works without a steady internet connection', fr: 'Conçu pour le hors-ligne — fonctionne sans connexion internet stable' },
+  clinicOfferBullet4: {
+    en: 'Everything included: patients, appointments, pharmacy, lab, billing, inventory',
+    fr: 'Tout est inclus : patients, rendez-vous, pharmacie, laboratoire, facturation, inventaire'
+  },
+  clinicOfferCta: { en: 'Get in touch', fr: 'Nous contacter' },
   serviceTeleconsult: { en: 'Teleconsultation', fr: 'Téléconsultation' },
   serviceTeleconsultDesc: { en: 'Book and pay for a video consultation with a real, verified doctor.', fr: 'Réservez et payez une consultation vidéo avec un médecin réel et vérifié.' },
   serviceLab: { en: 'Lab tests', fr: 'Analyses de laboratoire' },
