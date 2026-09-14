@@ -377,52 +377,6 @@ export function Home() {
 
       <PackageOffers />
 
-      {/* Run-your-clinic / install offer — deliberately NOT wired to
-          GET /packages/offers. That endpoint's booking flow is built
-          specifically for the pediatric check-up packages (requires
-          children_ages, offers a home-visit toggle) and has no concept
-          of a software installation deal — a different product for a
-          different (B2B, not patient) audience. This is static content
-          with its own contact CTA instead of a mismatched booking form. */}
-      <section style={{ background: 'linear-gradient(135deg, var(--navy) 0%, var(--navy-deep) 100%)', color: 'var(--white)', padding: '56px 20px' }}>
-        <div style={{ maxWidth: 720, margin: '0 auto', textAlign: 'center' }}>
-          <h2 style={{ fontSize: 26, color: 'var(--white)', marginBottom: 8 }}>{t('clinicOfferHeadline')}</h2>
-          <p style={{ fontSize: 14, color: 'rgba(255,255,255,0.75)', marginBottom: 28, maxWidth: 480, margin: '0 auto 28px' }}>{t('clinicOfferAudience')}</p>
-
-          <div style={{ background: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.15)', borderRadius: 'var(--radius)', padding: '32px 28px' }}>
-            <div style={{ fontSize: 34, fontFamily: 'var(--font-display)', fontWeight: 600, marginBottom: 4 }}>
-              99,999 FCFA <span style={{ fontSize: 15, fontWeight: 500, color: 'rgba(255,255,255,0.65)' }}>{t('clinicOfferPriceSuffix')}</span>
-            </div>
-
-            <ul style={{ listStyle: 'none', margin: '24px 0', padding: 0, display: 'grid', gap: 12, textAlign: 'left', maxWidth: 420, marginLeft: 'auto', marginRight: 'auto' }}>
-              {(['clinicOfferBullet1', 'clinicOfferBullet2', 'clinicOfferBullet3', 'clinicOfferBullet4'] as const).map((key) => (
-                <li key={key} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, fontSize: 14, color: 'rgba(255,255,255,0.9)' }}>
-                  <span style={{ color: 'var(--teal)', fontWeight: 700, flexShrink: 0 }}>✓</span>
-                  {t(key)}
-                </li>
-              ))}
-            </ul>
-
-            <a
-              href="https://med-vault.com/contact/"
-              target="_blank"
-              rel="noreferrer"
-              style={{
-                display: 'inline-block',
-                padding: '13px 28px',
-                background: 'var(--clay)',
-                color: 'var(--white)',
-                borderRadius: 10,
-                fontWeight: 700,
-                fontSize: 15,
-                textDecoration: 'none'
-              }}
-            >
-              {t('clinicOfferCta')} →
-            </a>
-          </div>
-        </div>
-      </section>
 
       {/* Partners — with only a handful of logos, a scrolling marquee never
           settles into a centered rest state (it starts flush-left on wide

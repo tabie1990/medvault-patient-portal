@@ -49,6 +49,7 @@ export function PackageOffers() {
             {offers.map((o) => (
               <OfferCard key={o.id} offer={o} onBook={() => setStep({ kind: 'form', offer: o })} />
             ))}
+            <ClinicOfferCard />
           </div>
         )}
 
@@ -105,7 +106,7 @@ function OfferCard({ offer, onBook }: { offer: api.PackageOffer; onBook: () => v
           <h3 className="sr-only">
             {offer.name} — {offer.base_price.toLocaleString()} FCFA {t('perChild')}
           </h3>
-          <img src={imageSrc} alt={offer.name} style={{ width: '100%', display: 'block' }} />
+          <img src={imageSrc} alt={offer.name} style={{ width: '100%', maxWidth: 280, display: 'block', margin: '0 auto' }} />
         </>
       ) : (
         <div style={{ padding: '24px 20px 0' }}>
@@ -133,6 +134,54 @@ function OfferCard({ offer, onBook }: { offer: api.PackageOffer; onBook: () => v
         <button onClick={onBook} style={{ ...submitButtonStyle, background: 'var(--clay)', marginTop: imageSrc || offer.home_service_fee > 0 ? 0 : 16 }}>
           {t('bookThisPackage')}
         </button>
+      </div>
+    </div>
+  );
+}
+
+// Sits in the same grid row as the real package offers (per request), but
+// is deliberately NOT one of them — see the note where this used to live
+// as its own section in Home.tsx. This is a different product (a software
+// installation deal) for a different audience (clinics, not patients), so
+// it links to a real contact channel instead of the pediatric booking flow.
+function ClinicOfferCard() {
+  const { t } = useLang();
+  return (
+    <div
+      style={{
+        background: 'linear-gradient(135deg, var(--navy) 0%, var(--navy-deep) 100%)',
+        color: 'var(--white)',
+        borderRadius: 'var(--radius)',
+        boxShadow: 'var(--shadow)',
+        padding: '24px 20px',
+        display: 'flex',
+        flexDirection: 'column'
+      }}
+    >
+      <h3 style={{ fontSize: 18, color: 'var(--white)', marginBottom: 6 }}>{t('clinicOfferHeadline')}</h3>
+      <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.7)', lineHeight: 1.5, marginBottom: 14 }}>{t('clinicOfferAudience')}</p>
+
+      <ul style={{ listStyle: 'none', margin: '0 0 16px', padding: 0, display: 'grid', gap: 8 }}>
+        {(['clinicOfferBullet1', 'clinicOfferBullet2', 'clinicOfferBullet3', 'clinicOfferBullet4'] as const).map((key) => (
+          <li key={key} style={{ display: 'flex', alignItems: 'flex-start', gap: 8, fontSize: 12.5, color: 'rgba(255,255,255,0.9)' }}>
+            <span style={{ color: 'var(--teal)', fontWeight: 700, flexShrink: 0 }}>✓</span>
+            {t(key)}
+          </li>
+        ))}
+      </ul>
+
+      <div style={{ marginTop: 'auto' }}>
+        <div style={{ fontSize: 20, fontFamily: 'var(--font-display)', fontWeight: 600, marginBottom: 12 }}>
+          99,999 FCFA <span style={{ fontSize: 12, fontWeight: 500, color: 'rgba(255,255,255,0.65)' }}>{t('clinicOfferPriceSuffix')}</span>
+        </div>
+        <a
+          href="https://med-vault.com/contact/"
+          target="_blank"
+          rel="noreferrer"
+          style={{ ...submitButtonStyle, background: 'var(--clay)', display: 'block', textAlign: 'center', textDecoration: 'none', boxSizing: 'border-box' }}
+        >
+          {t('clinicOfferCta')} →
+        </a>
       </div>
     </div>
   );
