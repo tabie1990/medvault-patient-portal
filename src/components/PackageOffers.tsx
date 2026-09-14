@@ -106,7 +106,7 @@ function OfferCard({ offer, onBook }: { offer: api.PackageOffer; onBook: () => v
           <h3 className="sr-only">
             {offer.name} — {offer.base_price.toLocaleString()} FCFA {t('perChild')}
           </h3>
-          <img src={imageSrc} alt={offer.name} style={{ width: '100%', maxWidth: 280, display: 'block', margin: '0 auto' }} />
+          <img src={imageSrc} alt={offer.name} style={{ width: '100%', maxWidth: 160, display: 'block', margin: '0 auto' }} />
         </>
       ) : (
         <div style={{ padding: '24px 20px 0' }}>

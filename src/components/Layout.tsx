@@ -3,6 +3,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useLang } from '../lib/i18n';
 import { useAuth } from '../lib/auth';
 import { Footer } from './Footer';
+import { DoctorSlideshow } from './DoctorSlideshow';
 
 function LoginMenu() {
   const { t } = useLang();
@@ -99,6 +100,7 @@ export function Layout({ children, wide }: { children: ReactNode; wide?: boolean
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+      <DoctorSlideshow />
       <header
         style={{
           display: 'flex',

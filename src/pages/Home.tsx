@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useLang } from '../lib/i18n';
 import * as api from '../lib/api';
 import { PackageOffers } from '../components/PackageOffers';
+import { FEATURED_DOCTORS } from '../lib/featuredDoctors';
 
 const SERVICES = [
   { key: 'serviceTeleconsult', descKey: 'serviceTeleconsultDesc', icon: '🩺' },
@@ -19,26 +20,17 @@ const PARTNERS = [
   { name: 'Providence N&D Health Care', src: '/screenshots/n-and-d-logo.jpg' }
 ] as const;
 
-// Real doctors, shown while GET /doctors/browse has no verified accounts
-// yet on this environment — this is a stopgap for a genuinely empty
-// backend list, not fabricated content. Once real verified doctors exist,
-// the live API result takes over automatically (see the `doctors` effect
-// below) and this list is never shown. Not linked to a doctor detail page
-// since these aren't real bookable accounts (yet).
-const FEATURED_DOCTORS = [
-  {
-    id: 'featured-charles-obam-assam',
-    fullName: 'Dr Charles Amel Obam Assam',
-    specialty: { en: 'General Practice', fr: 'Médecine générale' },
-    photo: '/doctors/charles-obam-assam.jpeg'
-  },
-  {
-    id: 'featured-georges-mouen-mbangue',
-    fullName: 'Dr Georges Mouen Mbangue',
-    specialty: { en: 'Ophthalmology', fr: 'Ophtalmologie' },
-    photo: '/doctors/georges-mouen-mbangue.jpeg'
-  }
-] as const;
+// A real infinite marquee needs its scrolling "set" to already be wider
+// than the viewport, or the visible window spends most of its time
+// looking lopsided (a few logos bunched to one side, empty space
+// everywhere else) — which is exactly what read as "not centered"
+// before. With only a few logos, pad one logical set by repeating the
+// same list a few times so it's comfortably wide on any screen; once
+// there are naturally enough real logos this repeats only once (or not
+// at all) automatically.
+const PARTNER_SET_REPEATS = Math.max(1, Math.ceil(10 / PARTNERS.length));
+const PARTNER_SET = Array.from({ length: PARTNER_SET_REPEATS }).flatMap(() => PARTNERS);
+const PARTNER_TRACK = [...PARTNER_SET, ...PARTNER_SET];
 
 const TIPS = [
   { titleKey: 'tip1Title', bodyKey: 'tip1Body' },
@@ -378,44 +370,35 @@ export function Home() {
       <PackageOffers />
 
 
-      {/* Partners — with only a handful of logos, a scrolling marquee never
-          settles into a centered rest state (it starts flush-left on wide
-          screens, which read as "not centered"). Below the threshold, just
-          center them as a plain wrapped row; only switch to the looping
-          marquee once there are enough logos to actually need it. */}
+      {/* Partners — a continuously scrolling marquee (PARTNER_TRACK is
+          padded wide enough that the visible window is always full, so it
+          reads as balanced/centered in motion rather than a few logos
+          bunched to one side). */}
       <section style={{ padding: '40px 20px', background: '#F3F1EC', overflow: 'hidden' }}>
         <p style={{ fontSize: 13, fontWeight: 700, color: 'var(--ink-soft)', marginBottom: 20, letterSpacing: 0.3, textAlign: 'center' }}>
           {t('ourPartners')}
         </p>
-        {PARTNERS.length > 6 ? (
-          <div style={{ maskImage: 'linear-gradient(90deg, transparent, black 8%, black 92%, transparent)' }}>
-            <div
-              className="partner-marquee-track"
-              style={{
-                display: 'flex',
-                width: 'max-content',
-                gap: 48,
-                animation: 'partner-marquee 22s linear infinite'
-              }}
-            >
-              {[...PARTNERS, ...PARTNERS].map((p, i) => (
-                <img
-                  key={`${p.name}-${i}`}
-                  src={p.src}
-                  alt={p.name}
-                  title={p.name}
-                  style={{ height: 64, width: 'auto', borderRadius: 8, flexShrink: 0 }}
-                />
-              ))}
-            </div>
-          </div>
-        ) : (
-          <div style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', gap: 48, maxWidth: 1120, margin: '0 auto' }}>
-            {PARTNERS.map((p) => (
-              <img key={p.name} src={p.src} alt={p.name} title={p.name} style={{ height: 64, width: 'auto', borderRadius: 8 }} />
+        <div style={{ maskImage: 'linear-gradient(90deg, transparent, black 8%, black 92%, transparent)' }}>
+          <div
+            className="partner-marquee-track"
+            style={{
+              display: 'flex',
+              width: 'max-content',
+              gap: 48,
+              animation: 'partner-marquee 22s linear infinite'
+            }}
+          >
+            {PARTNER_TRACK.map((p, i) => (
+              <img
+                key={`${p.name}-${i}`}
+                src={p.src}
+                alt={p.name}
+                title={p.name}
+                style={{ height: 64, width: 'auto', borderRadius: 8, flexShrink: 0 }}
+              />
             ))}
           </div>
-        )}
+        </div>
       </section>
 
       {/* Health tips — genuine, generic public-health content, not fabricated company news */}

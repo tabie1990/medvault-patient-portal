@@ -93,6 +93,26 @@ a {
   }
 }
 
+/* Only shown once the viewport is wide enough to actually have empty
+   side gutters beside the centered content (~1120-1200px column) without
+   crowding it — hidden by default, laptop and narrower included. */
+.doctor-side-panel {
+  display: none;
+}
+@media (min-width: 1550px) {
+  .doctor-side-panel {
+    display: block;
+  }
+}
+
+@keyframes doctor-fade-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.doctor-slide-fade {
+  animation: doctor-fade-in 0.5s ease;
+}
+
 @keyframes partner-marquee {
   from { transform: translateX(0); }
   to { transform: translateX(-50%); }
